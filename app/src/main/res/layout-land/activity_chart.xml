@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPageBackground"
+    tools:context="com.huiwu.temperaturecontrol.ChartActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorTitleTextBackground">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="center"
+            android:text="@string/info"
+            android:textColor="@color/colorTitleText"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignBottom="@+id/toolbar"
+        android:background="@color/colorTitleLine" />
+
+    <LinearLayout
+        android:id="@+id/layout_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="10dp"
+        android:visibility="gone">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1.0"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="4dp"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="6dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/icon_circle_config" />
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/icon_config" />
+
+                    <TableLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:collapseColumns="2">
+
+                        <TableRow android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_object"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_info_object"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                        <TableRow android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_box"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_box_no"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                        <TableRow android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_sample_interval"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_sample_interval"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                        <TableRow android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_temp_waring"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_temp_waring"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                        <TableRow
+                            android:id="@+id/row_hum_waring"
+                            android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_hum_waring"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_hum_waring"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                    </TableLayout>
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorTitleLine" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="@dimen/appbar_padding_top"
+                    android:text="@string/text_config_info"
+                    android:textColor="@color/colorRecordText2"
+                    android:textSize="@dimen/text_size_1" />
+            </LinearLayout>
+
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_weight="1.0"
+            app:cardBackgroundColor="@android:color/white"
+            app:cardCornerRadius="4dp"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="6dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/icon_circle_record" />
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/icon_record" />
+
+                    <TableLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:collapseColumns="2">
+
+                        <TableRow android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_start_time"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_start_day"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                        <TableRow android:layout_marginTop="@dimen/info_item_margin">
+
+                            <Space />
+
+                            <TextView
+                                android:id="@+id/text_start_time"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                        <TableRow android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_last_record"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_record_now"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                        <TableRow android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_temp_size"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_temp_size"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                        <TableRow
+                            android:id="@+id/row_hum_size"
+                            android:layout_marginTop="@dimen/info_item_margin">
+
+                            <TextView
+                                android:text="@string/text_hum_size"
+                                android:textColor="@color/colorRecordText3"
+                                android:textSize="@dimen/text_size_2" />
+
+                            <TextView
+                                android:id="@+id/text_hum_size"
+                                android:layout_weight="1.0"
+                                android:ellipsize="end"
+                                android:singleLine="true"
+                                android:textColor="@color/colorRecordText1"
+                                android:textSize="@dimen/text_size_2" />
+                        </TableRow>
+
+                    </TableLayout>
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorTitleLine" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="@dimen/appbar_padding_top"
+                    android:text="@string/text_record_info"
+                    android:textColor="@color/colorRecordText2"
+                    android:textSize="@dimen/text_size_1" />
+            </LinearLayout>
+
+
+        </android.support.v7.widget.CardView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_chart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/layout_line"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/appbar_padding_top">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_time_record_start_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="03-31"
+                    android:textColor="@color/colorRecordText2"
+                    android:textSize="@dimen/record_day_text_size" />
+
+                <TextView
+                    android:id="@+id/text_time_record_start_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14:21:22"
+                    android:textColor="@color/colorRecordText3"
+                    android:textSize="@dimen/record_time_text_size" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_time_record_year"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:gravity="center"
+                android:text="2016"
+                android:textColor="@color/colorRecordYear"
+                android:textSize="@dimen/record_year_text_size" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_time_record_end_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="03-31"
+                    android:textColor="@color/colorRecordText2"
+                    android:textSize="@dimen/record_day_text_size" />
+
+                <TextView
+                    android:id="@+id/text_time_record_end_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14:21:22"
+                    android:textColor="@color/colorRecordText3"
+                    android:textSize="@dimen/record_time_text_size" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/layout_chart"
+            android:layout_margin="4dp" />
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/action_up"
+        android:layout_width="wrap_content"
+        app:fabSize="mini"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/icon_circle"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

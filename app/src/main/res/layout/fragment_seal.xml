@@ -1,0 +1,177 @@
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:collapseColumns="2"
+    tools:context="com.huiwu.temperaturecontrol.fragment.SealFragment">
+
+    <TableRow
+        android:background="#eceff4"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <TextView
+            android:drawableLeft="@drawable/image_manage_address"
+            android:gravity="center_vertical"
+            android:text="@string/text_address"
+            android:textColor="@color/colorRecordText3"
+            android:textSize="@dimen/password_text_size" />
+
+        <TextView
+            android:id="@+id/text_address"
+            android:layout_weight="1.0"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:hint="等待定位信息"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:textColor="@color/colorRecordText3"
+            android:textColorHint="@color/colorRecordText3"
+            android:textSize="@dimen/password_text_size" />
+
+    </TableRow>
+
+    <TableRow
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <TextView
+            android:drawableLeft="@drawable/image_manage_box"
+            android:gravity="center_vertical"
+            android:text="@string/text_box"
+            android:textColor="@color/colorRecordText2"
+            android:textSize="@dimen/password_text_size" />
+
+        <TextView
+            android:id="@+id/text_box_no"
+            android:layout_weight="1.0"
+            android:ellipsize="start"
+            android:singleLine="true"
+            android:textColor="@color/colorRecordText1"
+            android:textSize="@dimen/password_text_size" />
+    </TableRow>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:background="@color/colorEditItemLine" />
+
+    <TableRow
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:drawableLeft="@drawable/image_manage_goods"
+            android:gravity="center_vertical"
+            android:text="@string/text_goods"
+            android:textColor="@color/colorRecordText2"
+            android:textSize="@dimen/password_text_size" />
+
+        <TextView
+            android:id="@+id/text_goods"
+            android:layout_weight="1.0"
+            android:ellipsize="start"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textColor="@color/colorRecordText1"
+            android:textColorHint="@color/colorRecordText3"
+            android:textSize="@dimen/password_text_size" />
+    </TableRow>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:background="@color/colorEditItemLine" />
+
+    <TableRow
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:drawableLeft="@drawable/image_manage_object"
+            android:gravity="center_vertical"
+            android:text="@string/text_object"
+            android:textColor="@color/colorRecordText2"
+            android:textSize="@dimen/password_text_size" />
+
+        <TextView
+            android:id="@+id/text_object"
+            android:layout_weight="1.0"
+            android:ellipsize="start"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textColor="@color/colorRecordText1"
+            android:textColorHint="@color/colorRecordText3"
+            android:textSize="@dimen/password_text_size" />
+    </TableRow>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:background="@color/colorEditItemLine" />
+
+    <TableRow
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <TextView
+            android:id="@+id/text_seal_title"
+            android:drawableLeft="@drawable/image_manage_seal"
+            android:gravity="center_vertical"
+            android:text="@string/text_seal"
+            android:textColor="@color/colorRecordText2"
+            android:textSize="@dimen/password_text_size" />
+
+        <TextView
+            android:id="@+id/text_seal"
+            android:layout_weight="1.0"
+            android:drawableRight="@drawable/icon_text_right"
+            android:ellipsize="start"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textColor="@color/colorRecordText1"
+            android:textSize="@dimen/password_text_size" />
+    </TableRow>
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:background="@color/colorEditItemLine" />
+
+    <RelativeLayout android:layout_margin="48dp">
+
+        <ImageView
+            android:id="@+id/image_picture"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/image_manage_picture" />
+
+        <ImageView
+            android:id="@+id/image_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/image_manage_delete"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+
+</TableLayout>

@@ -1,0 +1,88 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.huiwu.temperaturecontrol.fragment.NewBoxFragment">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="#EAEAEA" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:collapseColumns="2"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
+
+        <TableRow android:gravity="center_vertical">
+
+            <TextView
+                android:drawableLeft="@drawable/image_manage_box"
+                android:gravity="center_vertical"
+                android:text="@string/text_box"
+                android:textColor="@color/colorRecordText2"
+                android:textSize="@dimen/password_text_size" />
+
+            <TextView
+                android:id="@+id/text_box_no"
+                android:layout_weight="1.0"
+                android:singleLine="true"
+                android:textColor="@color/colorRecordText1"
+                android:textSize="@dimen/password_text_size" />
+        </TableRow>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EAEAEA" />
+
+        <TableRow android:gravity="center_vertical">
+
+            <TextView
+                android:drawableLeft="@drawable/image_manage_describe"
+                android:gravity="center_vertical"
+                android:text="@string/text_box_describe"
+                android:textColor="@color/colorRecordText2"
+                android:textSize="@dimen/password_text_size" />
+
+            <EditText
+                android:id="@+id/text_box_describe"
+                android:layout_weight="1.0"
+                android:background="@null"
+                android:hint="@string/text_box_describe_hint"
+                android:maxLines="2"
+                android:textColor="@color/colorRecordText1"
+                android:textColorHint="@color/colorRecordText3"
+                android:textSize="@dimen/password_text_size" />
+        </TableRow>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EAEAEA" />
+
+        <TableRow android:gravity="center_vertical">
+
+            <TextView
+                android:drawableLeft="@drawable/image_manage_seal_status"
+                android:gravity="center_vertical"
+                android:text="@string/text_box_seal_status"
+                android:textColor="@color/colorRecordText2"
+                android:textSize="@dimen/password_text_size" />
+
+            <Spinner
+                android:id="@+id/spinner_seal_status"
+                android:layout_weight="1.0"
+                android:background="@null" />
+        </TableRow>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EAEAEA" />
+    </TableLayout>
+
+</LinearLayout>

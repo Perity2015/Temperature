@@ -1,0 +1,202 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.huiwu.temperaturecontrol.fragment.ConfigFragment">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/colorEditItemLine" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.0"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:collapseColumns="2"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin">
+
+                <TableRow android:gravity="center_vertical">
+
+                    <TextView
+                        android:drawableLeft="@drawable/image_manage_box"
+                        android:gravity="center_vertical"
+                        android:text="@string/text_box"
+                        android:textColor="@color/colorRecordText2"
+                        android:textSize="@dimen/password_text_size" />
+
+                    <TextView
+                        android:id="@+id/text_box_no"
+                        android:layout_weight="1.0"
+                        android:ellipsize="start"
+                        android:singleLine="true"
+                        android:textColor="@color/colorRecordText1"
+                        android:textSize="@dimen/password_text_size" />
+                </TableRow>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorEditItemLine" />
+
+                <TableRow android:gravity="center_vertical">
+
+                    <TextView
+                        android:drawableLeft="@drawable/image_manage_goods"
+                        android:gravity="center_vertical"
+                        android:text="@string/text_goods"
+                        android:textColor="@color/colorRecordText2"
+                        android:textSize="@dimen/password_text_size" />
+
+                    <TextView
+                        android:id="@+id/text_goods"
+                        android:layout_weight="1.0"
+                        android:drawableRight="@drawable/icon_text_right"
+                        android:ellipsize="start"
+                        android:gravity="center_vertical"
+                        android:hint="点击选择"
+                        android:singleLine="true"
+                        android:textColor="@color/colorRecordText1"
+                        android:textColorHint="@color/colorRecordText3"
+                        android:textSize="@dimen/password_text_size" />
+                </TableRow>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorEditItemLine" />
+
+                <TableRow>
+
+                    <TextView
+                        android:drawableLeft="@drawable/image_manage_sample_info"
+                        android:gravity="center_vertical"
+                        android:text="@string/text_sample_info"
+                        android:textColor="@color/colorRecordText2"
+                        android:textSize="@dimen/password_text_size" />
+
+                    <TextView
+                        android:id="@+id/text_sample_info"
+                        android:layout_weight="1.0"
+                        android:gravity="center_vertical"
+                        android:hint="请先选择商品"
+                        android:textColor="@color/colorRecordText1"
+                        android:textColorHint="@color/colorRecordText3"
+                        android:textSize="@dimen/password_text_size" />
+                </TableRow>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorEditItemLine" />
+
+                <TableRow android:gravity="center_vertical">
+
+                    <TextView
+                        android:drawableLeft="@drawable/image_manage_object"
+                        android:gravity="center_vertical"
+                        android:text="@string/text_object"
+                        android:textColor="@color/colorRecordText2"
+                        android:textSize="@dimen/password_text_size" />
+
+                    <TextView
+                        android:id="@+id/text_object"
+                        android:layout_weight="1.0"
+                        android:drawableRight="@drawable/icon_text_right"
+                        android:ellipsize="start"
+                        android:gravity="center_vertical"
+                        android:hint="点击选择"
+                        android:singleLine="true"
+                        android:textColor="@color/colorRecordText1"
+                        android:textColorHint="@color/colorRecordText3"
+                        android:textSize="@dimen/password_text_size" />
+                </TableRow>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorEditItemLine" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="@dimen/appbar_padding_top"
+                    android:paddingTop="@dimen/activity_horizontal_margin"
+                    android:text="@string/text_delay"
+                    android:textColor="@color/colorRecordText2"
+                    android:textSize="@dimen/password_text_size" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/activity_horizontal_margin">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="1" />
+
+                    <SeekBar
+                        android:id="@+id/seekBar_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:max="15"
+                        android:maxHeight="8dp"
+                        android:minHeight="8dp"
+                        android:progressDrawable="@drawable/seekbar_horizontal"
+                        android:thumb="@drawable/seekbar_thumb" />
+
+                    <TextView
+                        android:id="@+id/text_delay_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="1"
+                        android:text="01" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorEditItemLine" />
+
+
+            </TableLayout>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/text_config_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:text="@string/start_tag_notice"
+        android:textColor="@color/colorRecordText2"
+        android:textSize="@dimen/password_text_size" />
+
+</LinearLayout>

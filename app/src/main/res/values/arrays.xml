@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="mTitles">
+        <item>温湿度标签</item>
+        <item>采集</item>
+        <item>记录信息</item>
+        <item>个人中心</item>
+    </string-array>
+
+    <string-array name="sealStatus">
+        <item>请选择</item>
+        <item>普通</item>
+        <item>封装</item>
+        <item>门锁</item>
+    </string-array>
+
+    <string-array name="manageOptions">
+        <item>添加</item>
+        <item>配置</item>
+        <item>施封</item>
+        <item>拆封</item>
+        <item>解绑</item>
+    </string-array>
+
+    <string-array name="selectConfigs">
+        <item>NFC配置</item>
+        <item>蓝牙配置</item>
+    </string-array>
+
+    <string-array name="unbindItems">
+        <item>NFC解绑</item>
+        <item>蓝牙解绑</item>
+    </string-array>
+
+    <string-array name="chooseTitles">
+        <item>商品类型</item>
+        <item>载体</item>
+    </string-array>
+
+    <string-array name="nfcCommands">
+        <item>采集</item>
+        <item>配置</item>
+        <item>读取</item>
+        <item>解绑</item>
+        <item>开锁</item>
+        <item>修改初始密码</item>
+    </string-array>
+</resources>

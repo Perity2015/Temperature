@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#F0F4F9</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="colorLoginBackground">#52626F</color>
+    <color name="colorLoginEditBackground">#6D8293</color>
+    <color name="colorLoginEditText">#E7E9EC</color>
+    <color name="colorLoginButtonText">#52626F</color>
+    <color name="colorLoginButtonBackground">#EEF0F1</color>
+
+    <color name="colorTitleText">#333333</color>
+    <color name="colorTitleTextBackground">#F0F4F9</color>
+    <color name="colorTitleLine">#C1C1C1</color>
+    <color name="colorPageBackground">#ECEFF4</color>
+    <color name="colorScanText">#FD9234</color>
+
+    <color name="colorRadioBackground">#686A71</color>
+    <color name="colorRadioLine">#8A8A8A</color>
+    <color name="colorRadioChecked">#FFFFFF</color>
+    <color name="colorRadioUnchecked">#999999</color>
+
+    <color name="black_overlay">#66000000</color>
+
+    <color name="colorRecordText1">#333333</color>
+    <color name="colorRecordText2">#666666</color>
+    <color name="colorRecordText3">#999999</color>
+    
+    <color name="colorRecordYear">#EAB42E</color>
+
+    <color name="colorUserPageButton">#FAFAFA</color>
+
+    <color name="colorButton">#2EB7EA</color>
+
+    <color name="colorEditItemLine">#EAEAEA</color>
+
+    <color name="colorMonthUnchecked">#999999</color>
+    <color name="colorMonthChecked">#EAB42A</color>
+</resources>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorLoginBackground"
+    tools:context="com.huiwu.temperaturecontrol.LoginActivity">
+
+    <ImageView
+        android:id="@+id/image_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:src="@drawable/image_login" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/image_login"
+        android:fillViewport="true"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/edit_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/login_edit_background"
+                android:drawableLeft="@drawable/image_username"
+                android:gravity="center"
+                android:hint="@string/username_hint"
+                android:singleLine="true"
+                android:textColor="@color/colorLoginEditText"
+                android:textColorHint="@color/colorLoginEditText"
+                android:textSize="@dimen/login_edit_text_size" />
+
+            <EditText
+                android:id="@+id/edit_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/login_edit_background"
+                android:drawableLeft="@drawable/image_password"
+                android:gravity="center"
+                android:hint="@string/password_hint"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:textColor="@color/colorLoginEditText"
+                android:textColorHint="@color/colorLoginEditText"
+                android:textSize="@dimen/login_edit_text_size" />
+
+            <Button
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/login_btn_background"
+                android:gravity="center"
+                android:text="@string/sign_in"
+                android:textColor="@color/colorLoginButtonText"
+                android:textSize="@dimen/login_button_text_size" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</RelativeLayout>

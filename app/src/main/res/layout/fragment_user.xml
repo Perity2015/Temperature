@@ -1,0 +1,105 @@
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPageBackground"
+    tools:context="com.huiwu.temperaturecontrol.fragment.UserFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/image_user_page"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:src="@drawable/image_user_page" />
+
+            <com.huiwu.model.view.CircleImageView
+                android:id="@+id/image_user"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_below="@+id/image_user_page"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="-36dp"
+                android:src="@drawable/icon_user" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/image_user_page"
+                android:layout_toRightOf="@+id/image_user"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_userInfo_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="@color/colorRecordText1"
+                    android:textSize="@dimen/userInfo_name_text_size" />
+
+                <TextView
+                    android:id="@+id/text_userInfo_company"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:lineSpacingMultiplier="1.2"
+                    android:lines="2"
+                    android:textColor="@color/colorRecordText3"
+                    android:textSize="@dimen/userInfo_company_text_size" />
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btn_change_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:background="@color/colorUserPageButton"
+            android:drawableLeft="@drawable/image_change_password"
+            android:drawableRight="@drawable/icon_right"
+            android:gravity="center_vertical|left"
+            android:text="@string/change_password"
+            android:textColor="@color/colorRecordText1"
+            android:textSize="@dimen/userInfo_button_text_size_1" />
+
+        <Button
+            android:id="@+id/btn_check_update"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="@color/colorUserPageButton"
+            android:drawableLeft="@drawable/image_check_update"
+            android:gravity="center_vertical|left"
+            android:text="@string/check_update"
+            android:textColor="@color/colorRecordText1"
+            android:textSize="@dimen/userInfo_button_text_size_1" />
+
+        <Button
+            android:id="@+id/btn_sign_out"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="32dp"
+            android:background="@color/colorUserPageButton"
+            android:text="@string/sign_out"
+            android:textColor="#DF4040"
+            android:textSize="@dimen/userInfo_name_text_size" />
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>

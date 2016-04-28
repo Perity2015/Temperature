@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.huiwu.temperaturecontrol.NetRecordsActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorTitleTextBackground">
+
+        <TextView
+            android:id="@+id/text_main_title"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginRight="?attr/actionBarSize"
+            android:gravity="center"
+            android:text="@string/net_records"
+            android:textColor="@color/colorTitleText"
+            android:textSize="@dimen/title_text_size"
+            android:textStyle="bold" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorTitleLine" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/image_year_pre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_year_pre" />
+
+        <TextView
+            android:id="@+id/text_year"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="2016"
+            android:textColor="@color/colorRecordYear"
+            android:textSize="25sp" />
+
+        <ImageView
+            android:id="@+id/image_year_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_year_next" />
+
+
+    </LinearLayout>
+
+    <SeekBar
+        android:saveEnabled="false"
+        android:id="@+id/seekBar_month"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="11"
+        android:maxHeight="1dp"
+        android:minHeight="1dp"
+        android:progressDrawable="@drawable/seekbar_month"
+        android:thumb="@drawable/thumb_month" />
+
+    <RadioGroup
+        android:id="@+id/layout_month"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radio_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="2"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="3"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="4"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="5"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="6"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_7"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="7"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_8"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="8"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_9"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="9"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_10"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="10"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_11"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="11"
+            android:textColor="@drawable/text_color_month" />
+
+        <RadioButton
+            android:id="@+id/radio_12"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:button="@null"
+            android:gravity="center"
+            android:text="12"
+            android:textColor="@drawable/text_color_month" />
+
+    </RadioGroup>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_links"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_horizontal_margin"></android.support.v7.widget.RecyclerView>
+
+</LinearLayout>
