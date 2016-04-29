@@ -1,10 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_device_item"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:drawableRight="@drawable/icon_right"
-    android:padding="@dimen/appbar_padding_top"
-    android:textColor="@color/colorRecordText1"
-    android:textSize="@dimen/password_text_size">
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/appbar_padding_top"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="2dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
 
-</TextView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/appbar_padding_top">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_device_remark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorRecordText1"
+                android:textSize="@dimen/title_text_size" />
+
+            <TextView
+                android:id="@+id/text_device_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorRecordText2" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image_device_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_right" />
+
+        <Button
+            android:id="@+id/btn_device_config"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="@drawable/shape_gather_data"
+            android:text="@string/config"
+            android:textColor="#EAB42E"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_device_gather"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="@drawable/shape_all_data"
+            android:text="@string/gather"
+            android:textColor="#2EC4EA"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+
+</android.support.v7.widget.CardView>

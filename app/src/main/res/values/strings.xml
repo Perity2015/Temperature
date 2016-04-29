@@ -96,5 +96,6 @@
     <string name="ble_not_supported">设备不支持BLE功能</string>
     <string name="scan_device">搜索设备</string>
     <string name="scaning">搜索中……</string>
+    <string name="config">配置</string>
 
 </resources>

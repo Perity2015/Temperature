@@ -50,11 +50,11 @@
         android:layout_height="10dp"
         android:background="@color/colorPageBackground" />
 
-    <ListView
-        android:id="@+id/listView_devices"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView_devices"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1.0"></ListView>
+        android:layout_weight="1.0"></android.support.v7.widget.RecyclerView>
 
     <Button
         android:id="@+id/btn_scan"

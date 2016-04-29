@@ -33,6 +33,7 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,17 +55,20 @@ public class BluetoothService extends Service {
     private static final int STATE_CONNECTED = 2;
 
     public final static String ACTION_GATT_CONNECTED =
-            "com.nordicsemi.nrfUART.ACTION_GATT_CONNECTED";
+            "com.huiwu.bleTag.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
-            "com.nordicsemi.nrfUART.ACTION_GATT_DISCONNECTED";
+            "com.huiwu.bleTag.ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
-            "com.nordicsemi.nrfUART.ACTION_GATT_SERVICES_DISCOVERED";
+            "com.huiwu.bleTag.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
-            "com.nordicsemi.nrfUART.ACTION_DATA_AVAILABLE";
+            "com.huiwu.bleTag.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
-            "com.nordicsemi.nrfUART.EXTRA_DATA";
+            "com.huiwu.bleTag.EXTRA_DATA";
     public final static String DEVICE_DOES_NOT_SUPPORT_UART =
-            "com.nordicsemi.nrfUART.DEVICE_DOES_NOT_SUPPORT_UART";
+            "com.huiwu.bleTag.DEVICE_DOES_NOT_SUPPORT_UART";
+    public final static String ACTION_GATT_WRITE_SUCCESSED =
+            "com.huiwu.bleTag.ACTION_GATT_WRITE_SUCCESSED";
+
 
     public static final UUID TX_POWER_UUID = UUID.fromString("00001804-0000-1000-8000-00805f9b34fb");
     public static final UUID TX_POWER_LEVEL_UUID = UUID.fromString("00002a07-0000-1000-8000-00805f9b34fb");
@@ -96,6 +100,16 @@ public class BluetoothService extends Service {
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
+                broadcastUpdate(intentAction);
+            }
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicWrite(gatt, characteristic, status);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d(TAG, "WRITE SUCCESS");
+                String intentAction = ACTION_GATT_WRITE_SUCCESSED;
                 broadcastUpdate(intentAction);
             }
         }
@@ -310,9 +324,9 @@ public class BluetoothService extends Service {
      *
      * @return
      */
-    public void enableTXNotification() {
+    public void enableTXNotification(boolean enable) {
         /*
-    	if (mBluetoothGatt == null) {
+        if (mBluetoothGatt == null) {
     		showMessage("mBluetoothGatt null" + mBluetoothGatt);
     		broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
     		return;
@@ -333,14 +347,18 @@ public class BluetoothService extends Service {
         mBluetoothGatt.setCharacteristicNotification(TxChar, true);
 
         BluetoothGattDescriptor descriptor = TxChar.getDescriptor(CCCD);
-        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        if (enable) {
+            descriptor
+                    .setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        } else {
+            descriptor
+                    .setValue(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+        }
         mBluetoothGatt.writeDescriptor(descriptor);
 
     }
 
     public void writeRXCharacteristic(byte[] value) {
-
-
         BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
         showMessage("mBluetoothGatt null" + mBluetoothGatt);
         if (RxService == null) {
@@ -354,7 +372,11 @@ public class BluetoothService extends Service {
             broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
             return;
         }
+
+        Log.d(TAG, Arrays.toString(value));
+
         RxChar.setValue(value);
+
         boolean status = mBluetoothGatt.writeCharacteristic(RxChar);
 
         Log.d(TAG, "write TXchar - status=" + status);

@@ -1,11 +1,16 @@
 package com.huiwu.temperaturecontrol.bluetooth;
 
+import com.huiwu.temperaturecontrol.bean.TLog;
+
+import java.util.Arrays;
+
 /**
  * Created by HuiWu on 2016/4/25.
  */
 public class BluetoothUtil {
+    private static final String TAG = BluetoothUtil.class.getSimpleName();
 
-    public static final int[] crc16 = {
+    private static final int[] crc16 = {
             0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
             0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
             0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
@@ -55,6 +60,7 @@ public class BluetoothUtil {
         for (int i = 0; i < bitBytes.length; i++) {
             bitBytes[i] = (byte) ((b >> i) & 0x1);
         }
+        TLog.d(TAG, Arrays.toString(bitBytes));
         return bitBytes;
     }
 

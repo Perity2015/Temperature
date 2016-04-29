@@ -11,6 +11,7 @@ import com.huiwu.temperaturecontrol.bluetooth.BluetoothUtil;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by HuiWu on 2016/4/11.
@@ -902,6 +903,38 @@ public class JSONModel {
         private boolean justTemp;
         private int roundCircle;
         private int index;
+
+        @Override
+        public String toString() {
+            return "TagInfo{" +
+                    "delayTime=" + delayTime +
+                    ", object='" + object + '\'' +
+                    ", box=" + box +
+                    ", goods=" + goods +
+                    ", uid='" + uid + '\'' +
+                    ", linkuuid='" + linkuuid + '\'' +
+                    ", readTime=" + readTime +
+                    ", startTime=" + startTime +
+                    ", endTime=" + endTime +
+                    ", power=" + power +
+                    ", recordStatus=" + recordStatus +
+                    ", temp_min=" + temp_min +
+                    ", temp_max=" + temp_max +
+                    ", hum_min=" + hum_min +
+                    ", hum_max=" + hum_max +
+                    ", tem_now=" + tem_now +
+                    ", hum_now=" + hum_now +
+                    ", isOutLimit=" + isOutLimit +
+                    ", tempList=" + tempList +
+                    ", humList=" + humList +
+                    ", dataArray=" + Arrays.toString(dataArray) +
+                    ", humidityArray=" + Arrays.toString(humidityArray) +
+                    ", havepost=" + havepost +
+                    ", justTemp=" + justTemp +
+                    ", roundCircle=" + roundCircle +
+                    ", index=" + index +
+                    '}';
+        }
 
         public long getEndTime() {
             return endTime;
@@ -1796,6 +1829,10 @@ public class JSONModel {
         @Override
         public String toString() {
             return remark + "\n" + (config_status ? "配置成功" : "未配置") + "\n" + (record_status ? "开始记录" : "未记录") + "\nRSSI:" + rssi;
+        }
+
+        public String getStatus() {
+            return config_status ? record_status ? "配置成功 正在记录" : "配置成功 未记录" : "未配置";
         }
 
         @Override
