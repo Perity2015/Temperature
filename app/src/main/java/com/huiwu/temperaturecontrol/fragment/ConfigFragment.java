@@ -25,6 +25,7 @@ import com.huiwu.temperaturecontrol.NfcActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.huiwu.temperaturecontrol.bluetooth.DeviceListActivity;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -201,13 +202,16 @@ public class ConfigFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        Intent intent = new Intent(getContext(), NfcActivity.class);
-                        intent.putExtra(Constants.tag_info, tagInfo);
-                        intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_CONFIG);
-                        startActivityForResult(intent, REQUEST_CONFIG);
+                        Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
+                        intent_nfc.putExtra(Constants.tag_info, tagInfo);
+                        intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_CONFIG);
+                        startActivityForResult(intent_nfc, REQUEST_CONFIG);
                         break;
                     case 1:
-
+                        Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
+                        intent_ble.putExtra(Constants.tag_info, tagInfo);
+                        intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_CONFIG);
+                        startActivityForResult(intent_ble, REQUEST_CONFIG);
                         break;
                 }
             }

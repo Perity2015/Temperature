@@ -263,7 +263,7 @@ public class BluetoothService extends Service {
             return;
         }
         mBluetoothGatt.disconnect();
-        // mBluetoothGatt.close();
+//         mBluetoothGatt.close();
     }
 
     /**

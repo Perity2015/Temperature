@@ -30,16 +30,18 @@ import android.widget.Toast;
 
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.BluetoothBaseActivity;
+import com.huiwu.temperaturecontrol.ChartActivity;
 import com.huiwu.temperaturecontrol.R;
+import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -135,20 +137,36 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     private final int L2_date_config_info = 1;
     private final int L2_data_temp_info = 2;
     private final int L2_data_send_config_info = 3;
-    private final int L2_data_default = 0;
 
     /**
      * 配置页面发送的 封装TagInfo 或 用于组装采集 信息
      */
     private JSONModel.TagInfo tagInfo;
 
-    private final int gather_error = 1;
+    private final int gather_config_info = 1;
+    private final int gather_error = 2;
+    private final int gather_temp_info = 3;
+    private final int gather_success = 4;
 
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-
+            switch (msg.what) {
+                case gather_error:
+                    break;
+                case gather_config_info:
+                    break;
+                case gather_temp_info:
+                    progressDialog.setMessage((String) msg.obj);
+                    break;
+                case gather_success:
+                    progressDialog.dismiss();
+                    Intent intent = new Intent(mContext, ChartActivity.class);
+                    intent.putExtra(Constants.tag_info, tagInfo);
+                    startActivity(intent);
+                    break;
+            }
         }
     };
 
@@ -184,6 +202,9 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         } else if (!mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.enable();
         }
+
+        bleManageState = getIntent().getIntExtra(BLE_MANAGE, BLE_GATHER);
+        tagInfo = getIntent().getParcelableExtra(Constants.tag_info);
 
         initData();
 
@@ -279,7 +300,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                             if (temp_sequence_id != sequence_id) {
                                 sequence_id = temp_sequence_id;
 //                                mService.disconnect();
-                                return;
+//                                return;
                             }
                             /**
                              * 用于判断发送指令 返回状态
@@ -330,6 +351,11 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                 System.arraycopy(bytes, 0, L2_data, L2_data_length_received, bytes.length);
                 break;
             case L2_data_temp_info:
+                Message message = new Message();
+                message.what = gather_temp_info;
+                message.obj = "获取温湿度信息" + L2_data_length_received * 100 / L2_data_length + "%";
+                mHandler.sendMessage(message);
+                parseTempInfoBytes(bytes);
                 break;
             case L2_data_send_config_info:
                 return;
@@ -337,12 +363,16 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                 return;
         }
         L2_data_length_received += bytes.length;
+        Log.d(TAG, String.valueOf(L2_data_length_received));
         if (L2_data_length_received == L2_data_length) {
             switch (L2_data_state) {
                 case L2_date_config_info:
                     parseConfigInfoBytes(L2_data);
                     break;
                 case L2_data_temp_info:
+                    Message message = new Message();
+                    message.what = gather_success;
+                    mHandler.sendMessage(message);
                     break;
                 case L2_data_send_config_info:
                     return;
@@ -353,6 +383,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     }
 
     private void parseConfigInfoBytes(byte[] bytes) {
+        Log.d(TAG, "START PARSE");
         if (bytes[0] != 0x01 || bytes[2] != 0x04) {
             Message message = new Message();
             message.what = gather_error;
@@ -372,7 +403,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         tagInfo.setPower(bytes[9] / 20);
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 2000 + bytes[14]);
-        calendar.set(Calendar.MONTH, bytes[15] - 1);
+        calendar.set(Calendar.MONTH, bytes[15]);
         calendar.set(Calendar.DAY_OF_MONTH, bytes[16]);
         calendar.set(Calendar.HOUR_OF_DAY, bytes[17]);
         calendar.set(Calendar.MINUTE, bytes[18]);
@@ -387,18 +418,81 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         goods.setOnetime(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[24], bytes[25]}));
         tagInfo.setGoods(goods);
 
-        int remark_length = bytes[26];
+        int remark_length = bytes[34];
         byte[] remark_bytes = new byte[remark_length];
-        System.arraycopy(bytes, 27, remark_bytes, 0, remark_length);
-        String remark = new String(remark_bytes, Charset.forName("GB2312"));
+        System.arraycopy(bytes, 35, remark_bytes, 0, remark_length);
+        String remark = new String(remark_bytes, Charset.forName("GBK"));
         TLog.d(TAG, remark);
 
-        int company_length = bytes[26 + remark_length + 1];
+        int company_length = bytes[34 + remark_length + 1];
         byte[] company_bytes = new byte[company_length];
-        System.arraycopy(bytes, 26 + remark_length + 1 + 1, company_bytes, 0, company_length);
-        String company = new String(company_bytes, Charset.forName("GB2312"));
+        System.arraycopy(bytes, 34 + remark_length + 1 + 1, company_bytes, 0, company_length);
+        String company = new String(company_bytes, Charset.forName("GBK"));
         TLog.d(TAG, company);
 
+        int goodType_length = bytes[34 + remark_length + 1 + company_length + 1];
+        byte[] goodsType_bytes = new byte[goodType_length];
+        System.arraycopy(bytes, 34 + remark_length + 1 + company_length + 1 + 1, goodsType_bytes, 0, goodType_length);
+        String goodType = new String(goodsType_bytes, Charset.forName("GBK"));
+        Log.d(TAG, goodType);
+
+        int place_length = bytes[34 + remark_length + 1 + company_length + 1 + goodType_length + 1];
+        byte[] place_bytes = new byte[place_length];
+        System.arraycopy(bytes, 34 + remark_length + 1 + company_length + 1 + goodType_length + 1 + 1, place_bytes, 0, place_length);
+        String place = new String(place_bytes, Charset.forName("GBK"));
+        Log.d(TAG, place);
+
+        int back_length = bytes[34 + remark_length + 1 + company_length + 1 + goodType_length + 1 + place_length + 1];
+        byte[] back_bytes = new byte[back_length];
+        System.arraycopy(bytes, 34 + remark_length + 1 + company_length + 1 + goodType_length + 1 + place_length + 1 + 1, back_bytes, 0, back_length);
+        String back = new String(back_bytes, Charset.forName("GBK"));
+        Log.d(TAG, back);
+
+        L2_data_state = L2_data_temp_info;
+        mService.writeRXCharacteristic(getSendBytes(0x02));
+    }
+
+    private void parseTempInfoBytes(byte[] bytes) {
+        if (!tagInfo.isJustTemp()) {
+            for (int i = 0; i < bytes.length / 4; i++) {
+                double temp = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[i * 4], bytes[i * 4 + 1]}) / 100.00D;
+                double hum = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[i * 4 + 2], bytes[i * 4 + 3]});
+                checkIsOutLimit(temp, hum);
+            }
+        } else {
+            for (int i = 0; i < bytes.length / 2; i++) {
+                double temp = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[i * 2], bytes[i * 2 + 1]}) / 100.00D;
+                double hum = temp;
+                checkIsOutLimit(temp, hum);
+            }
+        }
+    }
+
+    private void checkIsOutLimit(double temp, double hum) {
+//        if (temp == 2.55 || hum == 255){
+//            return;
+//        }
+        tagInfo.getTempList().add(temp);
+        tagInfo.getHumList().add(hum);
+        if (tagInfo.getHum_max() == 0 && tagInfo.getTemp_max() == 0) {
+            tagInfo.setTemp_max(temp);
+            tagInfo.setTemp_min(temp);
+            tagInfo.setHum_max(hum);
+            tagInfo.setHum_min(hum);
+        }
+        tagInfo.setTemp_min(Math.min(tagInfo.getTemp_min(), temp));
+        tagInfo.setTemp_max(Math.max(tagInfo.getTemp_max(), temp));
+        tagInfo.setHum_max(Math.max(tagInfo.getHum_max(), hum));
+        tagInfo.setHum_min(Math.min(tagInfo.getHum_min(), hum));
+        if (tagInfo.isOutLimit()) {
+            return;
+        }
+        if (tagInfo.getGoods().getLowtmpnumber() > temp
+                || tagInfo.getGoods().getHightmpnumber() < temp
+                || tagInfo.getGoods().getLowhumiditynumber() > hum
+                || tagInfo.getGoods().getHighhumiditynumber() < hum) {
+            tagInfo.setOutLimit(true);
+        }
     }
 
     /**
@@ -434,6 +528,91 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         int i = BluetoothUtil.crcTable(L2);
         L1[4] = (byte) (i / 256);
         L1[5] = (byte) (0xFF & (byte) i);
+
+        System.arraycopy(L2, 0, L1, 8, L2.length);
+        return L1;
+    }
+
+    private byte[] getConfigBytes(JSONModel.TagInfo tagInfo) throws Exception {
+        sequence_id += 1;
+
+        JSONModel.Goods goods = tagInfo.getGoods();
+        byte[] configValues_1 = {-1, -1, -127,
+                (byte) goods.getHightmpnumber(), (byte) goods.getLowtmpnumber(), (byte) goods.getHighhumiditynumber(), (byte) goods.getLowhumiditynumber(),
+                0x00, 0x01,
+                0x00, 0x01
+        };
+
+        byte[] configValues = new byte[configValues_1.length + 6];
+        System.arraycopy(configValues_1, 0, configValues, 0, configValues_1.length);
+        Calendar calendar = Calendar.getInstance();
+        configValues[configValues_1.length] = (byte) (calendar.get(Calendar.YEAR) % 100);
+        configValues[configValues_1.length + 1] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        configValues[configValues_1.length + 2] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        configValues[configValues_1.length + 3] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        configValues[configValues_1.length + 4] = (byte) calendar.get(Calendar.MINUTE);
+        configValues[configValues_1.length + 5] = (byte) calendar.get(Calendar.SECOND);
+
+        byte[] UTF = "test".getBytes("GB2312");
+        byte[] UTF_1 = new byte[UTF.length + 1];
+        UTF_1[0] = (byte) UTF.length;
+        System.arraycopy(UTF, 0, UTF_1, 1, UTF.length);
+
+        String linkuuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+        tagInfo.setLinkuuid(linkuuid);
+        byte[] linkuuidBytes = linkuuid.getBytes("GB2312");
+        byte[] linkuuidBytes_1 = new byte[linkuuidBytes.length + 1];
+        linkuuidBytes_1[0] = (byte) linkuuidBytes.length;
+        System.arraycopy(linkuuidBytes, 0, linkuuidBytes_1, 1, linkuuidBytes.length);
+
+        byte[] boxidBytes = String.valueOf(tagInfo.getBox().getBoxid()).getBytes("GB2312");
+        byte[] boxidBytes_1 = new byte[boxidBytes.length + 1];
+        boxidBytes_1[0] = (byte) boxidBytes.length;
+        System.arraycopy(boxidBytes, 0, boxidBytes_1, 1, boxidBytes_1.length);
+
+        byte[] goodsIdBytes = String.valueOf(tagInfo.getGoods().getId()).getBytes("GB2312");
+        byte[] goodsIdBytes_1 = new byte[goodsIdBytes.length + 1];
+        goodsIdBytes_1[0] = (byte) goodsIdBytes.length;
+        System.arraycopy(goodsIdBytes, 0, goodsIdBytes_1, 1, goodsIdBytes.length);
+
+        byte[] back = "慧物".getBytes("GB2312");
+        byte[] back_1 = new byte[back.length + 1];
+        back_1[0] = (byte) back.length;
+        System.arraycopy(back, 0, back_1, 1, back.length);
+
+        byte[] keyValues = new byte[UTF_1.length + linkuuidBytes_1.length + boxidBytes_1.length + goodsIdBytes_1.length + back_1.length + configValues.length];
+        System.arraycopy(configValues, 0, keyValues, 0, configValues.length);
+
+        System.arraycopy(UTF_1, 0, keyValues, configValues.length, UTF_1.length);
+
+        System.arraycopy(linkuuidBytes_1, 0, keyValues, configValues.length + UTF_1.length, linkuuidBytes_1.length);
+
+        System.arraycopy(boxidBytes_1, 0, keyValues, configValues.length + UTF_1.length + linkuuidBytes_1.length, boxidBytes_1.length);
+
+        System.arraycopy(goodsIdBytes_1, 0, keyValues, configValues.length + UTF_1.length + linkuuidBytes_1.length + boxidBytes_1.length, goodsIdBytes_1.length);
+
+        System.arraycopy(back_1, 0, keyValues, configValues.length + UTF_1.length + linkuuidBytes_1.length + boxidBytes_1.length + goodsIdBytes_1.length, back_1.length);
+
+        byte[] L2 = new byte[5 + keyValues.length];
+        L2[0] = 0x02;
+        L2[1] = 0x00;
+        L2[2] = 0x01;
+        L2[3] = (byte) (keyValues.length / 256);
+        L2[4] = (byte) (0xFF & (byte) keyValues.length);
+        System.arraycopy(keyValues, 0, L2, 5, keyValues.length);
+
+        byte[] L1 = new byte[8 + L2.length];
+        L1[0] = (byte) 0xAB;
+        L1[1] = 0x00;
+        L1[2] = (byte) (L2.length / 256);
+        L1[3] = (byte) (0xFF & (byte) L2.length);
+
+        int i = BluetoothUtil.crcTable(L2);
+        L1[4] = (byte) (i / 256);
+        L1[5] = (byte) (0xFF & (byte) i);
+
+        L1[6] = (byte) (sequence_id / 256);
+        L1[7] = (byte) (0xFF & (byte) sequence_id);
 
         System.arraycopy(L2, 0, L1, 8, L2.length);
         return L1;
@@ -508,7 +687,8 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     public void onStop() {
         super.onStop();
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        mService.close();
+        mService.disconnect();
+        finish();
     }
 
     @Override
@@ -576,6 +756,43 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                 }
             });
 
+            viewHolder.btnDeviceConfig.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        L1_data = getConfigBytes(tagInfo);
+                        L1_data_length = L1_data.length;
+                        write_config_info_success = true;
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                super.run();
+                                while (L1_data_length_sent < L1_data_length) {
+                                    if (write_config_info_success) {
+                                        write_config_info_success = false;
+                                        int num = L1_data_length - L1_data_length_sent;
+
+                                        byte[] bytes = new byte[num > 20 ? 20 : num];
+                                        System.arraycopy(L1_data, L1_data_length_sent, bytes, 0, num > 20 ? 20 : num);
+                                        Log.d(TAG, Arrays.toString(bytes));
+
+                                        mService.writeRXCharacteristic(bytes);
+
+                                        L1_data_length_sent += 20;
+                                    }
+                                    try {
+                                        Thread.sleep(150);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        }.start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
 
         @Override

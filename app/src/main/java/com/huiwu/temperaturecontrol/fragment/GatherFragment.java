@@ -53,7 +53,9 @@ public class GatherFragment extends Fragment {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_bluetooth:
-                startActivity(new Intent(getContext(), DeviceListActivity.class));
+                Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
+                intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_GATHER);
+                startActivity(intent_ble);
                 break;
             case R.id.btn_nfc:
                 startActivity(new Intent(getContext(), NfcActivity.class));
