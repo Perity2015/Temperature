@@ -165,6 +165,16 @@ public class BaseActivity extends AppCompatActivity {
         return sb.toString();
     }
 
+    public String bytesToHexString1(byte[] bArray) {
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < bArray.length; i++) {
+            sb.append(Helper.ConvertHexByteToString(bArray[i]));
+        }
+
+        return sb.toString();
+    }
+
     public int Convert2bytesHexFormatToInt(byte[] bytes) {
         if (bytes[0] >= 0) {
             if (bytes[1] < 0) {

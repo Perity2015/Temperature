@@ -44,9 +44,7 @@ public class Constants {
 
     public static String picture_file = "picture_file";
 
-    public static String just_read_uid = "just_read_uid";
-
-    public static String host = "http://hello.yunrfid.com";
+    public static String host = "http://10.0.0.200:88";
 
     public static String login_url = host + "/CoreSYS.SYS/LGKeyLogin.ajax";
 

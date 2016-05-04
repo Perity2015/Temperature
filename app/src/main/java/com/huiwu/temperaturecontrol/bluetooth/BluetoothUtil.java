@@ -78,6 +78,11 @@ public class BluetoothUtil {
         return sb.toString();
     }
 
+//    public static byte[] hexStringToBytes(String hexString){
+//        char[] chars = hexString.toCharArray();
+//        byte[] bytes =
+//    }
+
     public static int Convert2bytesHexFormatToInt(byte[] bytes) {
         if (bytes[0] >= 0) {
             if (bytes[1] < 0) {

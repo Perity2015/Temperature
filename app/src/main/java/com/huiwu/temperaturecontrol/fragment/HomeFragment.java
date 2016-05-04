@@ -28,6 +28,7 @@ import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.bluetooth.DeviceListActivity;
 
 import java.util.HashMap;
 
@@ -161,11 +162,14 @@ public class HomeFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        Intent intent = new Intent(getContext(), NfcActivity.class);
-                        intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_UNBIND);
-                        startActivity(intent);
+                        Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
+                        intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_UNBIND);
+                        startActivity(intent_nfc);
                         break;
                     case 1:
+                        Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
+                        intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_UNBIND);
+                        startActivity(intent_ble);
                         break;
                 }
             }

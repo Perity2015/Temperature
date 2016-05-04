@@ -1,11 +1,13 @@
 package com.huiwu.temperaturecontrol.bluetooth;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -20,6 +22,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,6 +31,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.huiwu.model.http.ConnectionHandler;
+import com.huiwu.model.http.ConnectionTask;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.BluetoothBaseActivity;
 import com.huiwu.temperaturecontrol.ChartActivity;
@@ -36,11 +41,11 @@ import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.UUID;
 
 import butterknife.Bind;
@@ -82,6 +87,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     public static final String BLE_MANAGE = "BLE_MANAGE";
     public static final int BLE_CONFIG = 1;
     public static final int BLE_GATHER = 2;
+    public static final int BLE_UNBIND = 3;
     public int bleManageState = BLE_GATHER;
 
     /**
@@ -147,6 +153,9 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     private final int gather_error = 2;
     private final int gather_temp_info = 3;
     private final int gather_success = 4;
+    private final int send_config_info = 5;
+    private final int send_config_info_error = 6;
+    private final int send_config_info_success = 7;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -154,6 +163,8 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             super.handleMessage(msg);
             switch (msg.what) {
                 case gather_error:
+                    progressDialog.dismiss();
+                    Utils.showLongToast("获取信息失败",mContext);
                     break;
                 case gather_config_info:
                     break;
@@ -162,9 +173,24 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                     break;
                 case gather_success:
                     progressDialog.dismiss();
+                    sqLiteManage.insertRecords(tagInfo);
                     Intent intent = new Intent(mContext, ChartActivity.class);
                     intent.putExtra(Constants.tag_info, tagInfo);
                     startActivity(intent);
+                    break;
+                case send_config_info:
+                    progressDialog.setMessage((String) msg.obj);
+                    progressDialog.show();
+                    break;
+                case send_config_info_success:
+                    sqLiteManage.insertRecords(tagInfo);
+                    progressDialog.dismiss();
+                    Utils.showLongToast((String) msg.obj, mContext);
+                    bindTag();
+                    break;
+                case send_config_info_error:
+                    progressDialog.dismiss();
+                    Utils.showLongToast((String) msg.obj, mContext);
                     break;
             }
         }
@@ -176,6 +202,18 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_list);
         ButterKnife.bind(this);
+
+        progressDialog.setCancelable(false);
+        progressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK){
+                    onBackPressed();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -265,6 +303,10 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                                 bleTags.clear();
                                 bleTags.add(bleTag);
                                 deviceAdapter.notifyDataSetChanged();
+                                if (tagInfo == null) {
+                                    tagInfo = new JSONModel.TagInfo();
+                                }
+                                tagInfo.setUid(mDevice.getAddress());
                                 break;
                             }
                         }
@@ -310,9 +352,17 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                                 mService.disconnect();
                                 return;
                             }
+
+
                             L2_data_length = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{receiverBytes[2], receiverBytes[3]});
                             L2_data_length_received = 0;
                             L2_data = new byte[L2_data_length];
+
+                            if (L2_data_state != L2_data_send_config_info && L2_data_length == 0) {
+                                Message message = new Message();
+                                message.what = gather_error;
+                                mHandler.sendMessage(message);
+                            }
                         } else {
                             try {
                                 parseAvailableData(receiverBytes);
@@ -391,7 +441,6 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             mHandler.sendMessage(message);
             return;
         }
-        tagInfo = new JSONModel.TagInfo();
         byte[] systemStatus = BluetoothUtil.byteToBitBytes(bytes[6]);
         if (systemStatus[7] == 0x01 && systemStatus[6] == 0x00) {
             tagInfo.setJustTemp(false);
@@ -402,12 +451,15 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         tagInfo.setIndex(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[7], bytes[8]}));
         tagInfo.setPower(bytes[9] / 20);
         Calendar calendar = Calendar.getInstance();
+        tagInfo.setReadTime(calendar.getTimeInMillis());
+
         calendar.set(Calendar.YEAR, 2000 + bytes[14]);
-        calendar.set(Calendar.MONTH, bytes[15]);
+        calendar.set(Calendar.MONTH, bytes[15] - 1);
         calendar.set(Calendar.DAY_OF_MONTH, bytes[16]);
         calendar.set(Calendar.HOUR_OF_DAY, bytes[17]);
         calendar.set(Calendar.MINUTE, bytes[18]);
         calendar.set(Calendar.SECOND, bytes[19]);
+        calendar.set(Calendar.MILLISECOND, 0);
         tagInfo.setStartTime(calendar.getTimeInMillis());
 
         JSONModel.Goods goods = new JSONModel.Goods();
@@ -421,31 +473,34 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         int remark_length = bytes[34];
         byte[] remark_bytes = new byte[remark_length];
         System.arraycopy(bytes, 35, remark_bytes, 0, remark_length);
-        String remark = new String(remark_bytes, Charset.forName("GBK"));
+        String remark = new String(remark_bytes, Charset.forName("GB2312"));
         TLog.d(TAG, remark);
 
         int company_length = bytes[34 + remark_length + 1];
         byte[] company_bytes = new byte[company_length];
         System.arraycopy(bytes, 34 + remark_length + 1 + 1, company_bytes, 0, company_length);
-        String company = new String(company_bytes, Charset.forName("GBK"));
+        String company = new String(company_bytes, Charset.forName("GB2312"));
+
+        tagInfo.setLinkuuid(company);
         TLog.d(TAG, company);
 
         int goodType_length = bytes[34 + remark_length + 1 + company_length + 1];
         byte[] goodsType_bytes = new byte[goodType_length];
         System.arraycopy(bytes, 34 + remark_length + 1 + company_length + 1 + 1, goodsType_bytes, 0, goodType_length);
-        String goodType = new String(goodsType_bytes, Charset.forName("GBK"));
+        String goodType = new String(goodsType_bytes, Charset.forName("GB2312"));
+
         Log.d(TAG, goodType);
 
         int place_length = bytes[34 + remark_length + 1 + company_length + 1 + goodType_length + 1];
         byte[] place_bytes = new byte[place_length];
         System.arraycopy(bytes, 34 + remark_length + 1 + company_length + 1 + goodType_length + 1 + 1, place_bytes, 0, place_length);
-        String place = new String(place_bytes, Charset.forName("GBK"));
+        String place = new String(place_bytes, Charset.forName("GB2312"));
         Log.d(TAG, place);
 
         int back_length = bytes[34 + remark_length + 1 + company_length + 1 + goodType_length + 1 + place_length + 1];
         byte[] back_bytes = new byte[back_length];
         System.arraycopy(bytes, 34 + remark_length + 1 + company_length + 1 + goodType_length + 1 + place_length + 1 + 1, back_bytes, 0, back_length);
-        String back = new String(back_bytes, Charset.forName("GBK"));
+        String back = new String(back_bytes, Charset.forName("GB2312"));
         Log.d(TAG, back);
 
         L2_data_state = L2_data_temp_info;
@@ -537,7 +592,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         sequence_id += 1;
 
         JSONModel.Goods goods = tagInfo.getGoods();
-        byte[] configValues_1 = {-1, -1, -127,
+        byte[] configValues_1 = {0, 0, -127,
                 (byte) goods.getHightmpnumber(), (byte) goods.getLowtmpnumber(), (byte) goods.getHighhumiditynumber(), (byte) goods.getLowhumiditynumber(),
                 0x00, 0x01,
                 0x00, 0x01
@@ -568,7 +623,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         byte[] boxidBytes = String.valueOf(tagInfo.getBox().getBoxid()).getBytes("GB2312");
         byte[] boxidBytes_1 = new byte[boxidBytes.length + 1];
         boxidBytes_1[0] = (byte) boxidBytes.length;
-        System.arraycopy(boxidBytes, 0, boxidBytes_1, 1, boxidBytes_1.length);
+        System.arraycopy(boxidBytes, 0, boxidBytes_1, 1, boxidBytes.length);
 
         byte[] goodsIdBytes = String.valueOf(tagInfo.getGoods().getId()).getBytes("GB2312");
         byte[] goodsIdBytes_1 = new byte[goodsIdBytes.length + 1];
@@ -687,14 +742,30 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     public void onStop() {
         super.onStop();
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        mService.disconnect();
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+            finish();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        try {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
+        } catch (Exception ignore) {
+            Log.e(TAG, ignore.toString());
+        }
+        unbindService(mServiceConnection);
+        mService.stopSelf();
+        mService = null;
     }
 
     private class DeviceAdapter extends RecyclerView.Adapter {
@@ -736,20 +807,31 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             viewHolder.layoutDeviceItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    scanLeDevice(false);
+                    if (mScanning == true)
+                        scanLeDevice(false);
+                    if (bleManageState == BLE_UNBIND) {
+                        tagInfo = new JSONModel.TagInfo();
+                        tagInfo.setUid(bleTag.getAddress());
+                        unBindTag();
+                        return;
+                    }
                     if (mDevice != null) {
                         return;
                     }
                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(bleTag.getAddress());
                     progressDialog.setMessage("连接蓝牙设备中……");
                     progressDialog.show();
-                    mService.connect(bleTag.getAddress());
+                    mService.connect(mDevice.getAddress());
                 }
             });
 
             viewHolder.btnDeviceGather.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!bleTag.isConfig_status()) {
+                        Utils.showLongToast("没有配置信息,无法采集记录", mContext);
+                        return;
+                    }
                     progressDialog.setMessage("获取配置信息中……");
                     progressDialog.show();
                     mService.writeRXCharacteristic(getSendBytes(0x03));
@@ -759,37 +841,19 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             viewHolder.btnDeviceConfig.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (bleTag.isConfig_status() && bleTag.isRecord_status()) {
+                        Utils.showLongToast("已配置,请停止记录后再进行配置", mContext);
+                        return;
+                    }
+
                     try {
-                        L1_data = getConfigBytes(tagInfo);
-                        L1_data_length = L1_data.length;
-                        write_config_info_success = true;
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                super.run();
-                                while (L1_data_length_sent < L1_data_length) {
-                                    if (write_config_info_success) {
-                                        write_config_info_success = false;
-                                        int num = L1_data_length - L1_data_length_sent;
-
-                                        byte[] bytes = new byte[num > 20 ? 20 : num];
-                                        System.arraycopy(L1_data, L1_data_length_sent, bytes, 0, num > 20 ? 20 : num);
-                                        Log.d(TAG, Arrays.toString(bytes));
-
-                                        mService.writeRXCharacteristic(bytes);
-
-                                        L1_data_length_sent += 20;
-                                    }
-                                    try {
-                                        Thread.sleep(150);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        }.start();
+                        sendConfigInfoBytes();
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Message message = new Message();
+                        message.what = send_config_info_error;
+                        message.obj = "发送配置信息失败";
+                        mHandler.sendMessage(message);
                     }
                 }
             });
@@ -821,5 +885,189 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         }
     }
 
+    private void sendConfigInfoBytes() throws Exception {
+        L2_data_state = L2_data_send_config_info;
+        L1_data = getConfigBytes(tagInfo);
+        L1_data_length = L1_data.length;
+        write_config_info_success = true;
+        Message message = new Message();
+        message.what = send_config_info;
+        message.obj = "发送配置信息中";
+        mHandler.sendMessage(message);
 
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                while (L1_data_length_sent < L1_data_length) {
+                    if (write_config_info_success) {
+                        write_config_info_success = false;
+                        int num = L1_data_length - L1_data_length_sent;
+
+                        byte[] bytes = new byte[num > 20 ? 20 : num];
+                        System.arraycopy(L1_data, L1_data_length_sent, bytes, 0, num > 20 ? 20 : num);
+                        Log.d(TAG, Arrays.toString(bytes));
+
+                        mService.writeRXCharacteristic(bytes);
+
+                        L1_data_length_sent += 20;
+                    }
+                    try {
+                        Thread.sleep(150);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                Message message = new Message();
+                message.what = send_config_info_success;
+                message.obj = "配置成功";
+                mHandler.sendMessage(message);
+            }
+        }.start();
+    }
+
+    private void bindTag() {
+        JSONModel.Box box = tagInfo.getBox();
+        JSONModel.Goods goods = tagInfo.getGoods();
+
+        final HashMap<String, String> map = getDefaultMap();
+        map.put("linkuuid", tagInfo.getLinkuuid());
+        map.put("boxno", box.getBoxno());
+        map.put("boxtype", box.getBoxtype());
+        map.put("tmptype", "normal");
+        if (mainApp.bdLocation != null) {
+            map.put("lat", String.valueOf(mainApp.bdLocation.getLatitude()));
+            map.put("lng", String.valueOf(mainApp.bdLocation.getLongitude()));
+            map.put("beginaddr", mainApp.bdLocation.getAddrStr());
+        } else {
+            map.put("beginaddr", "未获取定位信息");
+        }
+
+        map.put("goodtype", goods.getParentgoodtype());
+        map.put("goodchildtype", goods.getGoodtype());
+        map.put("goodtypeid", String.valueOf(goods.getId()));
+        map.put("carno", tagInfo.getObject());
+        map.put("hightmpnumber", String.valueOf(goods.getHightmpnumber()));
+        map.put("lowtmpnumber", String.valueOf(goods.getLowtmpnumber()));
+        map.put("highhumiditynumber", String.valueOf(goods.getHighhumiditynumber()));
+        map.put("lowhumiditynumber", String.valueOf(goods.getLowhumiditynumber()));
+        map.put("onetime", String.valueOf(goods.getOnetime()));
+        map.put("actrealname", userInfo.getRealname());
+        map.put("actuser", userInfo.getUsername());
+        map.put("boxid", String.valueOf(box.getBoxid()));
+        map.put("rfid", tagInfo.getUid());
+        map.put("createtime", Utils.formatDateTimeOffLine(System.currentTimeMillis()));
+        cancelConnectionTask();
+        task = new ConnectionTask(map, new ConnectionHandler() {
+            @Override
+            public void sendStart() {
+                progressDialog.setMessage(getString(R.string.config_data_post_load));
+                progressDialog.show();
+            }
+
+            @Override
+            public void sendFinish() {
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void sendFailed(String result) {
+
+            }
+
+            @Override
+            public void sendSuccess(String result) {
+                Utils.showLongToast(result, mContext);
+                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+                if (!returnObject.isbOK()) {
+                    if (returnObject.getM_ReturnOBJJsonObject().has("isUse") && returnObject.getM_ReturnOBJJsonObject().get("isUse").getAsBoolean()) {
+                        showUnbindDialog(returnObject.getsMsg());
+                    }
+                    Utils.showLongToast(returnObject.getsMsg(), mContext);
+                    return;
+                }
+                sqLiteManage.insertFirstTagInfo(tagInfo);
+                setResult(RESULT_OK);
+                finish();
+            }
+
+            @Override
+            public void sendLost(String result) {
+                loginAgain();
+            }
+        });
+        task.execute(Constants.bind_tag_offLine_url);
+    }
+
+    private void showUnbindDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle(R.string.notice);
+        builder.setMessage(message + getString(R.string.confirm_unbind_notice));
+        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                unBindTag();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+
+    private void unBindTag() {
+        cancelConnectionTask();
+        HashMap<String, String> map = getDefaultMap();
+        map.put("rfid", tagInfo.getUid());
+        if (mainApp.bdLocation != null) {
+            map.put("lat", String.valueOf(mainApp.bdLocation.getLatitude()));
+            map.put("lng", String.valueOf(mainApp.bdLocation.getLongitude()));
+            map.put("endaddr", mainApp.bdLocation.getAddrStr());
+        } else {
+            map.put("endaddr", "未获取定位信息");
+        }
+        task = new ConnectionTask(map, new ConnectionHandler() {
+            @Override
+            public void sendStart() {
+                progressDialog.setMessage(getString(R.string.unbind_post_load));
+                progressDialog.show();
+            }
+
+            @Override
+            public void sendFinish() {
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void sendFailed(String result) {
+
+            }
+
+            @Override
+            public void sendSuccess(String result) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+                if (returnObject.isbOK()) {
+                    Utils.showLongToast(R.string.unbind_tag_success_to_continue, mContext);
+                    if (bleManageState == BLE_UNBIND) {
+                        finish();
+                        return;
+                    }
+                    bindTag();
+                    return;
+                }
+                Utils.showLongToast(returnObject.getsMsg(), mContext);
+            }
+
+            @Override
+            public void sendLost(String result) {
+                loginAgain();
+            }
+        });
+        task.execute(Constants.unbind_tag_url);
+    }
 }

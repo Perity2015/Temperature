@@ -209,7 +209,7 @@ public class SQLiteManage {
         SQLiteDatabase database = sqLite.getWritableDatabase();
         try {
             Gson gson = new Gson();
-            Cursor cursor = database.query(TABLE_TAG_INFO, null, "startTime = ? and uid = ?", new String[]{String.valueOf(tagInfo.getStartTime()), tagInfo.getUid()}, null, null, "_id desc", null);
+            Cursor cursor = database.query(TABLE_TAG_INFO, null, "linkuuid = ? and uid = ?", new String[]{String.valueOf(tagInfo.getLinkuuid()), tagInfo.getUid()}, null, null, "_id desc", null);
 
             ContentValues values = new ContentValues();
             values.put("uid", tagInfo.getUid());
@@ -239,8 +239,12 @@ public class SQLiteManage {
                 database.insert(TABLE_TAG_INFO, null, values);
             } else {
                 cursor.moveToNext();
-                if (tagInfo.getEndTime() != cursor.getLong(6)) {
+                if (tagInfo.getEndTime() != cursor.getLong(9)) {
                     values.put("havepost", 0);
+                }
+                long startTime = cursor.getLong(8);
+                if (Math.abs(startTime - tagInfo.getStartTime()) <= tagInfo.getGoods().getOnetime() * 60 * 1000L){
+                    values.put("startTime", startTime);
                 }
                 database.update(TABLE_TAG_INFO, values, "startTime = ? and uid = ?", new String[]{String.valueOf(tagInfo.getStartTime()), tagInfo.getUid()});
             }

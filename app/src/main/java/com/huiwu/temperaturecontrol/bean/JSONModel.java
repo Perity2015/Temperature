@@ -468,8 +468,8 @@ public class JSONModel {
         private int id;
         private String company;
         private int companyid;
-        private String parentgoodtype;
-        private String goodtype;
+        private String parentgoodtype = "未知";
+        private String goodtype = "未知";
         private int onetime;
         private double hightmpnumber;
         private double lowtmpnumber;
@@ -628,11 +628,22 @@ public class JSONModel {
 
     public static class Lock implements Parcelable {
 
+        @Override
+        public String toString() {
+            return "Lock{" +
+                    "newPwd=" + newPwd +
+                    ", lockpwd='" + lockpwd + '\'' +
+                    ", firstpwd='" + firstpwd + '\'' +
+                    '}';
+        }
+
         /**
          * newPwd : false
          * lockpwd : 28881574a1e5423d
          * firstpwd : FEIJU LOCK
          */
+
+
 
         private boolean newPwd;
         private String lockpwd;
@@ -878,7 +889,7 @@ public class JSONModel {
 
     public static class TagInfo implements Parcelable {
         private int delayTime;
-        private String object;
+        private String object = "未知";
         private Box box;
         private Goods goods;
         private String uid;

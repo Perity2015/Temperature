@@ -109,6 +109,7 @@ public class OpenFragment extends Fragment {
         textBoxNo.setText(manageActivity.box.getBoxno());
         textGoods.setText(manageActivity.tempLink.getGoodtype() + "  " + manageActivity.tempLink.getGoodchildtype());
         textObject.setText(manageActivity.tempLink.getCarno());
+        textSeal.setText(manageActivity.tempLink.getSealrfid());
         if (manageActivity.box.getBoxtype().equals("lock")) {
             textSealTitle.setText("电子锁：");
         }

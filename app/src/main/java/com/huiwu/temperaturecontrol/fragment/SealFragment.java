@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -116,6 +117,7 @@ public class SealFragment extends Fragment {
                 textSeal.setText(rfid);
                 return;
             }
+            Log.d("TAG",rfid);
             checkLock(rfid);
         } else if (requestCode == REQUEST_PHOTO_CAMERA && resultCode == Activity.RESULT_OK) {
             File file = new File(Constants.getStoragePath(), picName);

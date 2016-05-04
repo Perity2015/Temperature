@@ -161,7 +161,7 @@ public class ConfigFragment extends Fragment {
             sampleInfo += "温度下限：" + selectGoods.getLowtmpnumber() + "℃\r\n";
             sampleInfo += "湿度上限：" + selectGoods.getHighhumiditynumber() + "%\r\n";
             sampleInfo += "湿度下限：" + selectGoods.getLowhumiditynumber() + "%";
-            textSampleInfo.setLines(6);
+            textSampleInfo.setLines(7);
             textSampleInfo.setText(sampleInfo);
         } else if (requestCode == REQUEST_CONFIG) {
             if (!TextUtils.equals("normal", manageActivity.box.getBoxtype())) {

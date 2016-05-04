@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/appbar_padding_top">
 
-        <TableRow>
+        <TableRow android:gravity="center_vertical">
 
             <TextView
                 android:text="载体信息"
@@ -23,7 +23,9 @@
                 android:textSize="@dimen/password_text_size" />
         </TableRow>
 
-        <TableRow>
+        <TableRow
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:text="商品类型"
@@ -37,7 +39,9 @@
                 android:textSize="@dimen/password_text_size" />
         </TableRow>
 
-        <TableRow>
+        <TableRow
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:text="操作人员"
@@ -51,7 +55,9 @@
                 android:textSize="@dimen/password_text_size" />
         </TableRow>
 
-        <TableRow>
+        <TableRow
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:text="起始时间"
@@ -65,7 +71,9 @@
                 android:textSize="@dimen/password_text_size" />
         </TableRow>
 
-        <TableRow>
+        <TableRow
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:text="起始地址"
@@ -79,7 +87,10 @@
                 android:textSize="@dimen/password_text_size" />
         </TableRow>
 
-        <TableRow android:id="@+id/row_end_time">
+        <TableRow
+            android:id="@+id/row_end_time"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:text="结束时间"
@@ -93,7 +104,10 @@
                 android:textSize="@dimen/password_text_size" />
         </TableRow>
 
-        <TableRow android:id="@+id/row_end_address">
+        <TableRow
+            android:id="@+id/row_end_address"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:text="结束地址"
@@ -107,7 +121,7 @@
                 android:textSize="@dimen/password_text_size" />
         </TableRow>
 
-        <TableRow>
+        <TableRow android:layout_marginTop="4dp">
 
             <TextView
                 android:text="采集次数"

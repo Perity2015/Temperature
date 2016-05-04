@@ -233,7 +233,7 @@ public class Helper {
 			ConvertedByte += Integer.toString(byteToConvert, 16);
 		}
 
-		return ConvertedByte;
+		return ConvertedByte.toUpperCase();
 	}
 
 

@@ -64,6 +64,8 @@ public class ConnectionTask extends AsyncTask<String, Integer, String> {
 	protected String doInBackground(String... params) {
 		this.request_url = params[0];
 
+		Log.d("TAG",String.valueOf(request_map));
+
 		try {
 			return connectionUtil.postParams(this.request_url, this.request_map, this.request_file_map, this.need_file);
 		} catch (IOException var3) {

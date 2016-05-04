@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -79,7 +80,7 @@ public class NfcActivity extends NfcBaseActivity {
                     new WriteConfigDataTask().execute(tagFromIntent);
                     break;
                 case NFC_READ_UID:
-                    setResult(RESULT_OK, getIntent().putExtra(Constants.read_uid, bytesToHexString(tagFromIntent.getId())));
+                    setResult(RESULT_OK, getIntent().putExtra(Constants.read_uid, bytesToHexString1(tagFromIntent.getId())));
                     finish();
                     break;
                 case NFC_UNBIND:
@@ -89,28 +90,37 @@ public class NfcActivity extends NfcBaseActivity {
                 case NFC_PASSWORD:
                     JSONModel.Lock lock = getIntent().getParcelableExtra(Constants.lock);
 
-                    boolean flag = false;
-                    if (times < 3) {
-                        times += 1;
-                        if (lock.isNewPwd()) {
-                            flag = openLock(intent, lock.getFirstpwd(), lock.getLockpwd());
-                        } else {
-                            flag = openLock(intent, lock.getLockpwd(), lock.getLockpwd());
+                    TLog.d("TAG",lock.toString());
+
+                    try {
+                        boolean flag = false;
+                        if (times < 3) {
+                            times += 1;
+                            if (lock.isNewPwd()) {
+                                flag = openLock(intent, lock.getFirstpwd(), lock.getLockpwd());
+                            } else {
+                                flag = openLock(intent, lock.getLockpwd(), lock.getLockpwd());
+                            }
+                        } else if (times < 6) {
+                            times += 1;
+                            if (lock.isNewPwd()) {
+                                flag = openLock(intent, lock.getLockpwd(), lock.getLockpwd());
+                            } else {
+                                flag = openLock(intent, lock.getFirstpwd(), lock.getLockpwd());
+                            }
                         }
-                    } else if (times < 6) {
-                        times += 1;
-                        if (lock.isNewPwd()) {
-                            flag = openLock(intent, lock.getLockpwd(), lock.getLockpwd());
-                        } else {
-                            flag = openLock(intent, lock.getFirstpwd(), lock.getLockpwd());
+                        if (times == 6) {
+                            times = 0;
                         }
+                        if (flag) {
+                            showOpenDialog();
+                        }else {
+                            Utils.showLongToast("请再次尝试",mContext);
+                        }
+                    }catch (Exception e){
+                        Utils.showLongToast("请再次尝试",mContext);
                     }
-                    if (times == 6) {
-                        times = 0;
-                    }
-                    if (flag) {
-                        showOpenDialog();
-                    }
+
                     break;
             }
         } catch (Exception e) {

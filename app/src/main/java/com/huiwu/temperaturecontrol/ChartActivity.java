@@ -356,6 +356,7 @@ public class ChartActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_upload) {
             if (haveUpload) {
+                Utils.showLongToast("记录已上传",mContext);
                 return true;
             }
             uploadData();
