@@ -226,12 +226,12 @@ public class NetRecordsActivity extends BaseActivity {
 
             @Override
             public void sendFinish() {
-                progressDialog.hide();
+                progressDialog.dismiss();
             }
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override
@@ -270,12 +270,12 @@ public class NetRecordsActivity extends BaseActivity {
 
             @Override
             public void sendFinish() {
-                progressDialog.hide();
+                progressDialog.dismiss();
             }
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override
@@ -312,12 +312,12 @@ public class NetRecordsActivity extends BaseActivity {
 
             @Override
             public void sendFinish() {
-                progressDialog.hide();
+                progressDialog.dismiss();
             }
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override

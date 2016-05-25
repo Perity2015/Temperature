@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -80,7 +79,7 @@ public class NfcActivity extends NfcBaseActivity {
                     new WriteConfigDataTask().execute(tagFromIntent);
                     break;
                 case NFC_READ_UID:
-                    setResult(RESULT_OK, getIntent().putExtra(Constants.read_uid, bytesToHexString1(tagFromIntent.getId())));
+                    setResult(RESULT_OK, getIntent().putExtra(Constants.read_uid, bytesToHexString(tagFromIntent.getId())));
                     finish();
                     break;
                 case NFC_UNBIND:
@@ -90,7 +89,7 @@ public class NfcActivity extends NfcBaseActivity {
                 case NFC_PASSWORD:
                     JSONModel.Lock lock = getIntent().getParcelableExtra(Constants.lock);
 
-                    TLog.d("TAG",lock.toString());
+                    TLog.d("TAG", lock.toString());
 
                     try {
                         boolean flag = false;
@@ -114,11 +113,11 @@ public class NfcActivity extends NfcBaseActivity {
                         }
                         if (flag) {
                             showOpenDialog();
-                        }else {
-                            Utils.showLongToast("请再次尝试",mContext);
+                        } else {
+                            Utils.showLongToast("请再次尝试", mContext);
                         }
-                    }catch (Exception e){
-                        Utils.showLongToast("请再次尝试",mContext);
+                    } catch (Exception e) {
+                        Utils.showLongToast("请再次尝试", mContext);
                     }
 
                     break;
@@ -245,8 +244,7 @@ public class NfcActivity extends NfcBaseActivity {
             for (int i = 29; i <= 44; i++) {
                 linkuuid += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[i]);
             }
-            tagInfo = sqLiteManage.getLastTagInfo(linkuuid, mainApp.getUid().toUpperCase());
-            tagInfo.setLinkuuid(linkuuid.toLowerCase());
+            tagInfo = sqLiteManage.getLastTagInfo(linkuuid.toLowerCase(), mainApp.getUid().toUpperCase());
 
             if (ReadMultipleBlockAnswer[12] == 0x33
                     || ReadMultipleBlockAnswer[12] == 0x53) {
@@ -314,21 +312,26 @@ public class NfcActivity extends NfcBaseActivity {
             tagInfo.setRoundCircle(ReadMultipleBlockAnswer[19]);
             tagInfo.setPower(ReadMultipleBlockAnswer[20]);
 
-            String startTimeStr = Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[45]);
-            startTimeStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[46]);
-            startTimeStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[47]);
-            startTimeStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[48]);
-            long startTime = Long.parseLong(startTimeStr, 16) * 1000L;
-            calendar.setTimeInMillis(startTime);
+//            String startTimeStr = Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[45]);
+//            startTimeStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[46]);
+//            startTimeStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[47]);
+//            startTimeStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[48]);
+//            long startTime = Long.parseLong(startTimeStr, 16) * 1000L;
+//            calendar.setTimeInMillis(startTime);
             calendar.set(Calendar.YEAR, 2000 + Integer.parseInt(String.format("%02x", ReadMultipleBlockAnswer[10])));
             calendar.set(Calendar.MONTH, Integer.parseInt(String.format("%02x", ReadMultipleBlockAnswer[9])) - 1);
             calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(String.format("%02x", ReadMultipleBlockAnswer[8])));
             calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(String.format("%02x", ReadMultipleBlockAnswer[7])));
             calendar.set(Calendar.MINUTE, Integer.parseInt(String.format("%02x", ReadMultipleBlockAnswer[6])));
-//                calendar.set(Calendar.SECOND, Integer.parseInt(String.format("%02x", ReadMultipleBlockAnswer[5])));
+            calendar.set(Calendar.SECOND, Integer.parseInt(String.format("%02x", ReadMultipleBlockAnswer[5])));
             long endTime = calendar.getTimeInMillis();
-
             tagInfo.setEndTime(endTime);
+
+            long startTime = tagInfo.getEndTime() - (tagInfo.getIndex() - 1) * goods.getOnetime() * 60 * 1000L;
+            if (startTime - tagInfo.getStartTime() > goods.getOnetime() * 60 * 1000L) {
+                tagInfo.setStartTime(startTime);
+            }
+
             if (tagInfo.getRoundCircle() > 0) {
                 if (tagInfo.isJustTemp()) {
                     tagInfo.setStartTime(endTime - 3999 * onetime * 60 * 1000L);
@@ -593,12 +596,11 @@ public class NfcActivity extends NfcBaseActivity {
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override
             public void sendSuccess(String result) {
-                Utils.showLongToast(result, mContext);
                 JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     if (returnObject.getM_ReturnOBJJsonObject().has("isUse") && returnObject.getM_ReturnOBJJsonObject().get("isUse").getAsBoolean()) {
@@ -608,7 +610,9 @@ public class NfcActivity extends NfcBaseActivity {
                     return;
                 }
                 sqLiteManage.insertFirstTagInfo(tagInfo);
-                setResult(RESULT_OK);
+                Intent intent = new Intent();
+                intent.putExtra(Constants.tag_info, tagInfo);
+                setResult(RESULT_OK, intent);
                 finish();
             }
 
@@ -665,7 +669,7 @@ public class NfcActivity extends NfcBaseActivity {
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override

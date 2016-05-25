@@ -210,9 +210,9 @@ public class ChartActivity extends BaseActivity {
         if (tagInfo.isJustTemp()) {
             rowHumSize.setVisibility(View.GONE);
             rowHumWaring.setVisibility(View.GONE);
-            textRecordNow.setText(tagInfo.getTem_now() + "℃");
+            textRecordNow.setText(tagInfo.getTempList().get(tagInfo.getTempList().size() - 1) + "℃");
         } else {
-            textRecordNow.setText(tagInfo.getTem_now() + "℃、" + tagInfo.getHum_now() + "%");
+            textRecordNow.setText((tagInfo.getTempList().get(tagInfo.getTempList().size() - 1)) + "℃、" + tagInfo.getHumList().get(tagInfo.getHumList().size() - 1) + "%");
         }
 
         if (tagInfo.getObject() != null) {
@@ -356,7 +356,7 @@ public class ChartActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_upload) {
             if (haveUpload) {
-                Utils.showLongToast("记录已上传",mContext);
+                Utils.showLongToast("记录已上传", mContext);
                 return true;
             }
             uploadData();
@@ -508,7 +508,7 @@ public class ChartActivity extends BaseActivity {
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override
@@ -566,7 +566,7 @@ public class ChartActivity extends BaseActivity {
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override

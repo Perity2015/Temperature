@@ -159,16 +159,6 @@ public class BaseActivity extends AppCompatActivity {
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < bArray.length; i++) {
-            sb.append(Helper.ConvertHexByteToString(bArray[bArray.length - 1 - i]));
-        }
-
-        return sb.toString();
-    }
-
-    public String bytesToHexString1(byte[] bArray) {
-        StringBuffer sb = new StringBuffer();
-
-        for (int i = 0; i < bArray.length; i++) {
             sb.append(Helper.ConvertHexByteToString(bArray[i]));
         }
 
@@ -267,7 +257,7 @@ public class BaseActivity extends AppCompatActivity {
             }
 
             //***** TECHNO ******
-            mainApp.setUid(uidToString);
+//            mainApp.setUid(uidToString);
             if (uid[0] == (byte) 0xE0)
                 mainApp.setTechno("ISO 15693");
             else if (uid[0] == (byte) 0xD0)

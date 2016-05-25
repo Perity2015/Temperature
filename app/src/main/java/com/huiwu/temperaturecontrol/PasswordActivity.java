@@ -92,14 +92,15 @@ public class PasswordActivity extends BaseActivity {
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override
             public void sendSuccess(String result) {
                 JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+                Utils.showLongToast(returnObject.getsMsg(), mContext);
+
                 if (!returnObject.isbOK()) {
-                    Utils.showLongToast(returnObject.getsMsg(), mContext);
                     return;
                 }
                 userInfo.setPassword("");

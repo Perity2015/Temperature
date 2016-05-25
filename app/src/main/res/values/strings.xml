@@ -97,5 +97,6 @@
     <string name="scan_device">搜索设备</string>
     <string name="scaning">搜索中……</string>
     <string name="config">配置</string>
+    <string name="net_error">网络连接故障，请检查网络</string>
 
 </resources>

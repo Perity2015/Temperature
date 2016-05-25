@@ -1,6 +1,7 @@
 package com.huiwu.temperaturecontrol.fragment;
 
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,6 +46,8 @@ public class UserFragment extends Fragment {
     @Bind(R.id.btn_sign_out)
     Button btnSignOut;
 
+    private final int REQUEST_CHANGE_PASSWORD = 202;
+
     private MainActivity mainActivity;
     private JSONModel.UserInfo userInfo;
 
@@ -72,6 +75,15 @@ public class UserFragment extends Fragment {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CHANGE_PASSWORD){
+            startActivity(new Intent(getContext(),LoginActivity.class));
+            getActivity().finish();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
@@ -83,7 +95,7 @@ public class UserFragment extends Fragment {
             case R.id.image_user:
                 break;
             case R.id.btn_change_password:
-                startActivity(new Intent(getContext(), PasswordActivity.class));
+                startActivityForResult(new Intent(getContext(), PasswordActivity.class),REQUEST_CHANGE_PASSWORD);
                 break;
             case R.id.btn_check_update:
                 UpdateManage updateManage = new UpdateManage(getContext(), mainActivity.progressDialog, true, true);

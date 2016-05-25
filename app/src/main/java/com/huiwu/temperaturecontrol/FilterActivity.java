@@ -8,6 +8,7 @@ import android.widget.RadioGroup;
 import com.google.gson.JsonObject;
 import com.huiwu.model.http.ConnectionHandler;
 import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
@@ -60,7 +61,7 @@ public class FilterActivity extends BaseActivity {
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override

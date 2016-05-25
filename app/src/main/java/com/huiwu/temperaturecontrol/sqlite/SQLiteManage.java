@@ -168,6 +168,9 @@ public class SQLiteManage {
         try {
             db = sqLite.getWritableDatabase();
             JSONModel.TagInfo tagInfo = new JSONModel.TagInfo();
+            tagInfo.setUid(uid);
+            tagInfo.setLinkuuid(linkuuid);
+
             Cursor cursor = db.query(TABLE_TAG_INFO, null, "linkuuid = ? and uid = ?", new String[]{linkuuid, uid}, null, null, "_id desc");
             if (cursor.getCount() == 0) {
                 return tagInfo;
@@ -197,7 +200,10 @@ public class SQLiteManage {
             tagInfo.setOutLimit(cursor.getInt(18) == 1);
             return tagInfo;
         } catch (Exception e) {
-            return new JSONModel.TagInfo();
+            JSONModel.TagInfo tagInfo = new JSONModel.TagInfo();
+            tagInfo.setUid(uid);
+            tagInfo.setLinkuuid(linkuuid);
+            return tagInfo;
         } finally {
             if (db != null) {
                 db.close();
@@ -243,7 +249,7 @@ public class SQLiteManage {
                     values.put("havepost", 0);
                 }
                 long startTime = cursor.getLong(8);
-                if (Math.abs(startTime - tagInfo.getStartTime()) <= tagInfo.getGoods().getOnetime() * 60 * 1000L){
+                if (Math.abs(startTime - tagInfo.getStartTime()) <= tagInfo.getGoods().getOnetime() * 60 * 1000L) {
                     values.put("startTime", startTime);
                 }
                 database.update(TABLE_TAG_INFO, values, "startTime = ? and uid = ?", new String[]{String.valueOf(tagInfo.getStartTime()), tagInfo.getUid()});
@@ -299,7 +305,9 @@ public class SQLiteManage {
         try {
             database = sqLite.getReadableDatabase();
             Gson gson = new Gson();
-            Cursor cursor = database.query(TABLE_TAG_INFO, null, "_id < ? and startTime != ?", new String[]{String.valueOf(_id), "0"}, null, null, "_id desc");
+            Cursor cursor = database.query(TABLE_TAG_INFO, null, "_id < ? and startTime >?", new String[]{String.valueOf(_id), "0"}, null, null, "_id desc");
+//            Cursor cursor = database.query(TABLE_TAG_INFO, null, null, null, null, null, "_id desc");
+
             if (cursor.getCount() == 0) {
                 return null;
             }

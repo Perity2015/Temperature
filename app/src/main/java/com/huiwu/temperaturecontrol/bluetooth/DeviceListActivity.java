@@ -164,7 +164,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             switch (msg.what) {
                 case gather_error:
                     progressDialog.dismiss();
-                    Utils.showLongToast("获取信息失败",mContext);
+                    Utils.showLongToast("获取信息失败", mContext);
                     break;
                 case gather_config_info:
                     break;
@@ -207,7 +207,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         progressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_BACK){
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
                     onBackPressed();
                     return true;
                 }
@@ -429,6 +429,8 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                 default:
                     return;
             }
+        } else {
+//            mService.writeRXCharacteristic(getSendBytes(0x05));
         }
     }
 
@@ -441,35 +443,6 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             mHandler.sendMessage(message);
             return;
         }
-        byte[] systemStatus = BluetoothUtil.byteToBitBytes(bytes[6]);
-        if (systemStatus[7] == 0x01 && systemStatus[6] == 0x00) {
-            tagInfo.setJustTemp(false);
-        } else if (systemStatus[7] == 0x00 && systemStatus[6] == 0x01) {
-            tagInfo.setJustTemp(true);
-        }
-
-        tagInfo.setIndex(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[7], bytes[8]}));
-        tagInfo.setPower(bytes[9] / 20);
-        Calendar calendar = Calendar.getInstance();
-        tagInfo.setReadTime(calendar.getTimeInMillis());
-
-        calendar.set(Calendar.YEAR, 2000 + bytes[14]);
-        calendar.set(Calendar.MONTH, bytes[15] - 1);
-        calendar.set(Calendar.DAY_OF_MONTH, bytes[16]);
-        calendar.set(Calendar.HOUR_OF_DAY, bytes[17]);
-        calendar.set(Calendar.MINUTE, bytes[18]);
-        calendar.set(Calendar.SECOND, bytes[19]);
-        calendar.set(Calendar.MILLISECOND, 0);
-        tagInfo.setStartTime(calendar.getTimeInMillis());
-
-        JSONModel.Goods goods = new JSONModel.Goods();
-        goods.setHightmpnumber(bytes[20]);
-        goods.setLowtmpnumber(bytes[21]);
-        goods.setHighhumiditynumber(bytes[22]);
-        goods.setLowhumiditynumber(bytes[23]);
-        goods.setOnetime(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[24], bytes[25]}));
-        tagInfo.setGoods(goods);
-
         int remark_length = bytes[34];
         byte[] remark_bytes = new byte[remark_length];
         System.arraycopy(bytes, 35, remark_bytes, 0, remark_length);
@@ -502,6 +475,50 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         System.arraycopy(bytes, 34 + remark_length + 1 + company_length + 1 + goodType_length + 1 + place_length + 1 + 1, back_bytes, 0, back_length);
         String back = new String(back_bytes, Charset.forName("GB2312"));
         Log.d(TAG, back);
+
+        tagInfo = sqLiteManage.getLastTagInfo(tagInfo.getLinkuuid(),tagInfo.getUid());
+
+        byte[] systemStatus = BluetoothUtil.byteToBitBytes(bytes[6]);
+        if (systemStatus[7] == 0x01 && systemStatus[6] == 0x00) {
+            tagInfo.setJustTemp(false);
+        } else if (systemStatus[7] == 0x00 && systemStatus[6] == 0x01) {
+            tagInfo.setJustTemp(true);
+        }
+
+        tagInfo.setIndex(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[7], bytes[8]}));
+        if (tagInfo.getIndex() == 0){
+            Message message = new Message();
+            message.what = gather_error;
+            message.obj = "没有记录信息";
+            mHandler.sendMessage(message);
+            return;
+        }
+
+        tagInfo.setPower(bytes[9] / 20);
+        Calendar calendar = Calendar.getInstance();
+        tagInfo.setReadTime(calendar.getTimeInMillis());
+
+        calendar.set(Calendar.YEAR, 2000 + bytes[14]);
+        calendar.set(Calendar.MONTH, bytes[15] - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, bytes[16]);
+        calendar.set(Calendar.HOUR_OF_DAY, bytes[17]);
+        calendar.set(Calendar.MINUTE, bytes[18]);
+        calendar.set(Calendar.SECOND, bytes[19]);
+        calendar.set(Calendar.MILLISECOND, 0);
+        tagInfo.setEndTime(calendar.getTimeInMillis());
+
+        JSONModel.Goods goods = new JSONModel.Goods();
+        goods.setHightmpnumber(bytes[20]);
+        goods.setLowtmpnumber(bytes[21]);
+        goods.setHighhumiditynumber(bytes[22]);
+        goods.setLowhumiditynumber(bytes[23]);
+        goods.setOnetime(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[24], bytes[25]}));
+        tagInfo.setGoods(goods);
+
+        long startTime = tagInfo.getEndTime() - (tagInfo.getIndex() - 1) * goods.getOnetime() * 60 * 1000L;
+        if (startTime - tagInfo.getStartTime() > goods.getOnetime()*60*1000L){
+            tagInfo.setStartTime(startTime);
+        }
 
         L2_data_state = L2_data_temp_info;
         mService.writeRXCharacteristic(getSendBytes(0x02));
@@ -553,7 +570,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     /**
      * 获取发送字节
      *
-     * @param key 0x03 返回配置信息 0x02 返回温湿度信息
+     * @param key 0x03 返回配置信息 0x02 返回温湿度信息0x05 返回更多信息
      * @return
      */
     private byte[] getSendBytes(int key) {
@@ -592,7 +609,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         sequence_id += 1;
 
         JSONModel.Goods goods = tagInfo.getGoods();
-        byte[] configValues_1 = {0, 0, -127,
+        byte[] configValues_1 = {-1, -1, -127,
                 (byte) goods.getHightmpnumber(), (byte) goods.getLowtmpnumber(), (byte) goods.getHighhumiditynumber(), (byte) goods.getLowhumiditynumber(),
                 0x00, 0x01,
                 0x00, 0x01
@@ -978,7 +995,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
 
             @Override
             public void sendSuccess(String result) {
-                Utils.showLongToast(result, mContext);
+//                Utils.showLongToast(result, mContext);
                 JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     if (returnObject.getM_ReturnOBJJsonObject().has("isUse") && returnObject.getM_ReturnOBJJsonObject().get("isUse").getAsBoolean()) {
@@ -988,7 +1005,9 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                     return;
                 }
                 sqLiteManage.insertFirstTagInfo(tagInfo);
-                setResult(RESULT_OK);
+                Intent intent = new Intent();
+                intent.putExtra(Constants.tag_info,tagInfo);
+                setResult(RESULT_OK,intent);
                 finish();
             }
 

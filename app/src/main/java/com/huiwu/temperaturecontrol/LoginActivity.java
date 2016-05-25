@@ -2,12 +2,9 @@ package com.huiwu.temperaturecontrol;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,12 +64,12 @@ public class LoginActivity extends BaseActivity {
             }
         });
 
-        if (!loginAgain && userInfo != null) {
+        if (!loginAgain && userInfo != null && !TextUtils.isEmpty(userInfo.getPassword())) {
             startActivity(new Intent(mContext, MainActivity.class));
             finish();
         } else {
             if (loginAgain)
-                Utils.showLongToast(R.string.please_login_again,mContext);
+                Utils.showLongToast(R.string.please_login_again, mContext);
         }
     }
 
@@ -95,7 +92,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,mContext);
             }
 
             @Override
@@ -103,7 +100,7 @@ public class LoginActivity extends BaseActivity {
                 TLog.d("LL", result);
                 JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
-                    Utils.showLongToast(returnObject.getsMsg(),mContext);
+                    Utils.showLongToast(returnObject.getsMsg(), mContext);
                     return;
                 }
                 JsonObject UserInfoJsonObject = returnObject.getM_ReturnOBJJsonObject().getAsJsonObject("m_UserInfo");

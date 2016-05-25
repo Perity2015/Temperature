@@ -108,7 +108,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void sendFailed(String result) {
-
+                Utils.showLongToast(R.string.net_error,getContext());
             }
 
             @Override

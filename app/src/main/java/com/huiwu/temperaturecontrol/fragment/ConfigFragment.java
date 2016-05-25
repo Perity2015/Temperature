@@ -163,8 +163,11 @@ public class ConfigFragment extends Fragment {
             sampleInfo += "湿度下限：" + selectGoods.getLowhumiditynumber() + "%";
             textSampleInfo.setLines(7);
             textSampleInfo.setText(sampleInfo);
+
         } else if (requestCode == REQUEST_CONFIG) {
             if (!TextUtils.equals("normal", manageActivity.box.getBoxtype())) {
+                JSONModel.TagInfo tagInfo = data.getParcelableExtra(Constants.tag_info);
+                manageActivity.box.setLinkuuid(tagInfo.getLinkuuid());
                 showFinishAddDialog();
             } else {
                 manageActivity.finish();
