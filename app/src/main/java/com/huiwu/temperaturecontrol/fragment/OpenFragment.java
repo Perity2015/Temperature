@@ -24,8 +24,8 @@ import android.widget.ImageView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.ManageActivity;
 import com.huiwu.temperaturecontrol.NfcActivity;
@@ -35,6 +35,7 @@ import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
 import com.huiwu.temperaturecontrol.service.SyncService;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.io.File;
 import java.util.HashMap;
@@ -42,6 +43,8 @@ import java.util.HashMap;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -169,11 +172,10 @@ public class OpenFragment extends Fragment {
     }
 
     private void openTag() {
-        manageActivity.cancelConnectionTask();
         final HashMap<String, String> map = manageActivity.getDefaultMap();
         map.put("boxno", manageActivity.box.getBoxno());
         if (manageActivity.mainApp.bdLocation != null) {
-            map.put("addr", manageActivity.mainApp.bdLocation.getAddrStr());
+            map.put("addr", manageActivity.mainApp.bdLocation.getAddress());
             map.put("lat", String.valueOf(manageActivity.mainApp.bdLocation.getLatitude()));
             map.put("lng", String.valueOf(manageActivity.mainApp.bdLocation.getLongitude()));
         } else {
@@ -185,27 +187,21 @@ public class OpenFragment extends Fragment {
 //        HashMap<String, File> fileHashMap = new HashMap<>();
 //        File file = new File(Constants.getStoragePath(), picName);
 //        fileHashMap.put("pic", file);
-        manageActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.open_tag, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 manageActivity.progressDialog.setMessage(getString(R.string.submit_load));
                 manageActivity.progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 manageActivity.progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,getContext());
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                TLog.d("DEBUG", result);
-                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 Utils.showLongToast(returnObject.getsMsg(), getContext());
                 if (!returnObject.isbOK()) {
                     return;
@@ -235,11 +231,16 @@ public class OpenFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
-
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, getContext());
             }
+
+            @Override
+            public void onLost() {
+                manageActivity.loginAgain();
+            }
+
         });
-        manageActivity.task.execute(Constants.open_tag);
     }
 
 

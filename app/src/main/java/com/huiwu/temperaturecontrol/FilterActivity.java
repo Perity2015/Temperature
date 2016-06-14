@@ -1,22 +1,25 @@
 package com.huiwu.temperaturecontrol;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 
 import com.google.gson.JsonObject;
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.bean.TLog;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class FilterActivity extends BaseActivity {
 
@@ -44,40 +47,38 @@ public class FilterActivity extends BaseActivity {
     }
 
     private void initData() {
-        cancelConnectionTask();
         HashMap<String, String> map = getDefaultMap();
         map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.get_data_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("加载数据");
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                TLog.d("DEBUG", result);
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 JsonObject jsonObject = returnObject.getM_ReturnOBJJsonObject();
                 JSONModel.Box[] boxes = gson.fromJson(jsonObject.getAsJsonArray("boxes"), JSONModel.Box[].class);
                 listViewBoxes.setAdapter(new ArrayAdapter<>(mContext, R.layout.layout_parent_goods_item, boxes));
             }
 
             @Override
-            public void sendLost(String result) {
-
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
             }
+
+            @Override
+            public void onLost() {
+                loginAgain();
+            }
+
         });
-        task.execute(Constants.get_data_url);
     }
 }

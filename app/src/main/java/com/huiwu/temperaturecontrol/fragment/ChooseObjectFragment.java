@@ -21,12 +21,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.temperaturecontrol.ChooseActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +35,8 @@ import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -142,27 +145,21 @@ public class ChooseObjectFragment extends Fragment {
     }
 
     private void getAllObjects() {
-        chooseActivity.cancelConnectionTask();
         HashMap<String, String> map = chooseActivity.getDefaultMap();
-        chooseActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.get_all_objects_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
 
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
 
             }
 
             @Override
-            public void sendFailed(String result) {
-
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnData returnData = chooseActivity.gson.fromJson(result, JSONModel.ReturnData.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnData returnData = chooseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
                 JSONModel.RfidGood[] tempObjects = chooseActivity.gson.fromJson(returnData.getRows(), JSONModel.RfidGood[].class);
                 Arrays.sort(tempObjects);
                 searchObjects.clear();
@@ -180,11 +177,16 @@ public class ChooseObjectFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
 
             }
+
+            @Override
+            public void onLost() {
+                chooseActivity.loginAgain();
+            }
+
         });
-        chooseActivity.task.execute(Constants.get_all_objects_url);
     }
 
     @Override

@@ -77,8 +77,8 @@ public class UserFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CHANGE_PASSWORD){
-            startActivity(new Intent(getContext(),LoginActivity.class));
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CHANGE_PASSWORD) {
+            startActivity(new Intent(getContext(), LoginActivity.class));
             getActivity().finish();
         }
     }
@@ -95,10 +95,10 @@ public class UserFragment extends Fragment {
             case R.id.image_user:
                 break;
             case R.id.btn_change_password:
-                startActivityForResult(new Intent(getContext(), PasswordActivity.class),REQUEST_CHANGE_PASSWORD);
+                startActivityForResult(new Intent(getContext(), PasswordActivity.class), REQUEST_CHANGE_PASSWORD);
                 break;
             case R.id.btn_check_update:
-                UpdateManage updateManage = new UpdateManage(getContext(), mainActivity.progressDialog, true, true);
+                UpdateManage updateManage = new UpdateManage(getContext(), mainActivity.progressDialog, true);
                 updateManage.checkVersion(Constants.app_name);
                 break;
             case R.id.btn_sign_out:

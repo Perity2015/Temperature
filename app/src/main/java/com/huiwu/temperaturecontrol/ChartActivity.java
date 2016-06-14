@@ -3,6 +3,7 @@ package com.huiwu.temperaturecontrol;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
@@ -24,12 +25,13 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.YAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.model.view.utils.ScreenUtils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +39,8 @@ import java.util.HashMap;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class ChartActivity extends BaseActivity {
 
@@ -152,28 +156,22 @@ public class ChartActivity extends BaseActivity {
     }
 
     private void getTempLinkInfo(String linkuuid) {
-        cancelConnectionTask();
         HashMap<String, String> map = getDefaultMap();
         map.put("linkuuid", linkuuid);
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.get_temperature_links_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
 
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
 
             }
 
             @Override
-            public void sendFailed(String result) {
-
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnData returnData = gson.fromJson(result, JSONModel.ReturnData.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnData returnData = gson.fromJson(s, JSONModel.ReturnData.class);
                 JSONModel.TempLink tempLink = gson.fromJson(returnData.getRows().get(0), JSONModel.TempLink.class);
                 textInfoObject.setText(tempLink.getCarno());
                 textBoxNo.setText(tempLink.getBoxno());
@@ -199,11 +197,16 @@ public class ChartActivity extends BaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
 
             }
+
+            @Override
+            public void onLost() {
+
+            }
+
         });
-        task.execute(Constants.get_temperature_links_url);
     }
 
     private void initView() {
@@ -476,10 +479,9 @@ public class ChartActivity extends BaseActivity {
     }
 
     private void uploadData() {
-        cancelConnectionTask();
         HashMap<String, String> map = getDefaultMap();
         if (mainApp.bdLocation != null) {
-            map.put("address", mainApp.bdLocation.getAddrStr());
+            map.put("address", mainApp.bdLocation.getAddress());
         } else {
             map.put("address", "为获取定位信息");
         }
@@ -494,26 +496,21 @@ public class ChartActivity extends BaseActivity {
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
         map.put("index", String.valueOf(tagInfo.getIndex()));
 
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.upload_data_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("上传记录信息中……");
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
-                progressDialog.hide();
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
+                progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     uploadOfflineData();
                     return;
@@ -524,18 +521,23 @@ public class ChartActivity extends BaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
+            }
+
+            @Override
+            public void onLost() {
                 loginAgain();
             }
+
+
         });
-        task.execute(Constants.upload_data_url);
     }
 
     private void uploadOfflineData() {
-        cancelConnectionTask();
         HashMap<String, String> map = getDefaultMap();
         if (mainApp.bdLocation != null) {
-            map.put("address", mainApp.bdLocation.getAddrStr());
+            map.put("address", mainApp.bdLocation.getAddress());
         } else {
             map.put("address", "为获取定位信息");
         }
@@ -552,26 +554,21 @@ public class ChartActivity extends BaseActivity {
         map.put("createtime", Utils.formatDateTimeOffLine(tagInfo.getReadTime()));
 
 
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.upload_data_offline_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("上传记录信息中……");
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.hide();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), mContext);
                     return;
@@ -582,11 +579,16 @@ public class ChartActivity extends BaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
+            }
+
+            @Override
+            public void onLost() {
                 loginAgain();
             }
+
         });
-        task.execute(Constants.upload_data_offline_url);
     }
 
 }

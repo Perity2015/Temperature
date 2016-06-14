@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/chartlib" />
             <option value="$PROJECT_DIR$/model" />
             <option value="$PROJECT_DIR$/qrcode" />
+            <option value="$PROJECT_DIR$/sqlite" />
           </set>
         </option>
         <option name="myModules">
@@ -21,6 +22,7 @@
             <option value="$PROJECT_DIR$/chartlib" />
             <option value="$PROJECT_DIR$/model" />
             <option value="$PROJECT_DIR$/qrcode" />
+            <option value="$PROJECT_DIR$/sqlite" />
           </set>
         </option>
       </GradleProjectSettings>

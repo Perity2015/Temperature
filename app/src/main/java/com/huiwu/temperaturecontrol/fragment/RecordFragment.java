@@ -22,8 +22,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.ChartActivity;
 import com.huiwu.temperaturecontrol.MainActivity;
@@ -32,12 +32,15 @@ import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.sqlite.SQLiteManage;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -268,10 +271,9 @@ public class RecordFragment extends Fragment {
     }
 
     private void uploadData(final JSONModel.TagInfo tagInfo) {
-        mainActivity.cancelConnectionTask();
         HashMap<String, String> map = mainActivity.getDefaultMap();
         if (mainActivity.mainApp.bdLocation != null) {
-            map.put("address", mainActivity.mainApp.bdLocation.getAddrStr());
+            map.put("address", mainActivity.mainApp.bdLocation.getAddress());
         } else {
             map.put("address", "为获取定位信息");
         }
@@ -286,26 +288,21 @@ public class RecordFragment extends Fragment {
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
         map.put("index", String.valueOf(tagInfo.getIndex()));
 
-        mainActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.upload_data_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 mainActivity.progressDialog.setMessage("上传记录信息中……");
                 mainActivity.progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 mainActivity.progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,getContext());
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     uploadOfflineData(tagInfo);
                     return;
@@ -316,18 +313,23 @@ public class RecordFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, getContext());
+            }
+
+            @Override
+            public void onLost() {
                 mainActivity.loginAgain();
             }
+
+
         });
-        mainActivity.task.execute(Constants.upload_data_url);
     }
 
     private void uploadOfflineData(final JSONModel.TagInfo tagInfo) {
-        mainActivity.cancelConnectionTask();
         HashMap<String, String> map = mainActivity.getDefaultMap();
         if (mainActivity.mainApp.bdLocation != null) {
-            map.put("address", mainActivity.mainApp.bdLocation.getAddrStr());
+            map.put("address", mainActivity.mainApp.bdLocation.getAddress());
         } else {
             map.put("address", "为获取定位信息");
         }
@@ -344,29 +346,24 @@ public class RecordFragment extends Fragment {
         map.put("createtime", Utils.formatDateTimeOffLine(tagInfo.getReadTime()));
 
 
-        mainActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.upload_data_offline_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 mainActivity.progressDialog.setMessage("上传记录信息中……");
                 mainActivity.progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 mainActivity.progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-
-            }
-
-            @Override
-            public void sendSuccess(String result) {
+            public void onParse(String s, Response response) {
                 tagInfo.setHavepost(true);
                 mainActivity.sqLiteManage.changeRecordStatus(tagInfo);
                 adapter.notifyDataSetChanged();
-                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(result, JSONModel.ReturnObject.class);
+                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), getContext());
                     return;
@@ -374,10 +371,16 @@ public class RecordFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, getContext());
+            }
+
+            @Override
+            public void onLost() {
                 mainActivity.loginAgain();
             }
+
+
         });
-        mainActivity.task.execute(Constants.upload_data_offline_url);
     }
 }

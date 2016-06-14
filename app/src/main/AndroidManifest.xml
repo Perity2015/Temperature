@@ -46,13 +46,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
-            android:name="com.baidu.lbsapi.API_KEY"
-            android:value="NVFjqp9SGdkpj6wV3vHkGgov" />
+            android:name="com.amap.api.v2.apikey"
+            android:value="47418626d811f16ed06c2b4f6ea8e41e" />
 
-        <service
-            android:name="com.baidu.location.f"
-            android:enabled="true"
-            android:process=":remote" />
+        <service android:name="com.amap.api.location.APSService" />
 
         <activity
             android:name=".StartActivity"

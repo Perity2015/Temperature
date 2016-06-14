@@ -22,8 +22,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.ManageActivity;
 import com.huiwu.temperaturecontrol.NfcActivity;
@@ -32,6 +32,7 @@ import com.huiwu.temperaturecontrol.ShowPictureActivity;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.service.SyncService;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.io.File;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ import java.util.HashMap;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -117,7 +120,7 @@ public class SealFragment extends Fragment {
                 textSeal.setText(rfid);
                 return;
             }
-            Log.d("TAG",rfid);
+            Log.d("TAG", rfid);
             checkLock(rfid);
         } else if (requestCode == REQUEST_PHOTO_CAMERA && resultCode == Activity.RESULT_OK) {
             File file = new File(Constants.getStoragePath(), picName);
@@ -147,29 +150,23 @@ public class SealFragment extends Fragment {
     }
 
     private void checkLock(final String rfid) {
-        manageActivity.cancelConnectionTask();
         HashMap<String, String> map = manageActivity.getDefaultMap();
         map.put("sealrfid", rfid);
-        manageActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.check_new_lock, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 manageActivity.progressDialog.setMessage("检查电子锁信息");
                 manageActivity.progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 manageActivity.progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), getContext());
                     return;
@@ -182,11 +179,17 @@ public class SealFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, getContext());
+            }
+
+            @Override
+            public void onLost() {
                 manageActivity.loginAgain();
             }
+
+
         });
-        manageActivity.task.execute(Constants.check_new_lock);
     }
 
     private void showOpenDialog(final JSONModel.Lock lock) {
@@ -221,12 +224,11 @@ public class SealFragment extends Fragment {
     }
 
     private void sealTag() {
-        manageActivity.cancelConnectionTask();
         final HashMap<String, String> map = manageActivity.getDefaultMap();
         map.put("boxno", manageActivity.box.getBoxno());
         map.put("sealrfid", textSeal.getText().toString());
         if (manageActivity.mainApp.bdLocation != null) {
-            map.put("addr", manageActivity.mainApp.bdLocation.getAddrStr());
+            map.put("addr", manageActivity.mainApp.bdLocation.getAddress());
             map.put("lat", String.valueOf(manageActivity.mainApp.bdLocation.getLatitude()));
             map.put("lng", String.valueOf(manageActivity.mainApp.bdLocation.getLongitude()));
         } else {
@@ -235,26 +237,21 @@ public class SealFragment extends Fragment {
 //        HashMap<String, File> fileHashMap = new HashMap<>();
 //        File file = new File(Constants.getStoragePath(), picName);
 //        fileHashMap.put("pic", file);
-        manageActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.seal_tag, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 manageActivity.progressDialog.setMessage(getString(R.string.submit_load));
                 manageActivity.progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 manageActivity.progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 Utils.showLongToast(returnObject.getsMsg(), getContext());
                 if (!returnObject.isbOK()) {
                     return;
@@ -278,11 +275,15 @@ public class SealFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, getContext());
+            }
 
+            @Override
+            public void onLost() {
+                manageActivity.loginAgain();
             }
         });
-        manageActivity.task.execute(Constants.seal_tag);
     }
 
     @Override

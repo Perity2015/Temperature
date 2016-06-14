@@ -2,6 +2,7 @@ package com.huiwu.temperaturecontrol;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -10,17 +11,20 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.gson.JsonObject;
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class LoginActivity extends BaseActivity {
 
@@ -74,31 +78,24 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void login(final String username, final String password) {
-        cancelConnectionTask();
         HashMap<String, String> map = new HashMap<>();
         map.put("username", username);
         map.put("password", password);
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.login_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.login_load));
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                TLog.d("LL", result);
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), mContext);
                     return;
@@ -122,13 +119,16 @@ public class LoginActivity extends BaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
+            }
+
+            @Override
+            public void onLost() {
 
             }
 
-
         });
-        task.execute(Constants.login_url);
     }
 
     private class Watcher implements TextWatcher {

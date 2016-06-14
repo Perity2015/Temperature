@@ -3,6 +3,7 @@ package com.huiwu.temperaturecontrol;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,12 +21,13 @@ import android.widget.SeekBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,6 +36,8 @@ import java.util.HashMap;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class NetRecordsActivity extends BaseActivity {
     @Bind(R.id.image_year_pre)
@@ -200,7 +204,6 @@ public class NetRecordsActivity extends BaseActivity {
 
     private void searchLinks() {
 
-        cancelConnectionTask();
         final HashMap<String, String> map = getDefaultMap();
         map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
         Calendar calendar = Calendar.getInstance();
@@ -216,27 +219,21 @@ public class NetRecordsActivity extends BaseActivity {
         calendar.set(Calendar.MONTH, seekBarMonth.getProgress() + 1);
         map.put("endtime", DateFormat.format("yyyy-MM-dd kk:mm:ss", calendar).toString());
 
-        TLog.d("DEBUG", map.toString());
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.get_temperature_links_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("加载信息");
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnData returnData = gson.fromJson(result, JSONModel.ReturnData.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnData returnData = gson.fromJson(s, JSONModel.ReturnData.class);
                 if (returnData.getTotal() == 0) {
                     Utils.showLongToast("未查询到数据", mContext);
                 }
@@ -250,38 +247,37 @@ public class NetRecordsActivity extends BaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
-
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
             }
+
+            @Override
+            public void onLost() {
+                loginAgain();
+            }
+
+
         });
-        task.execute(Constants.get_temperature_links_url);
 
     }
 
     private void getGatherRecords(final JSONModel.TempLink tempLink) {
-        cancelConnectionTask();
         HashMap<String, String> map = getDefaultMap();
         map.put("linkuuid", tempLink.getLinkuuid());
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.get_gather_temperature_records_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                Log.d("RE", result);
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     return;
                 }
@@ -290,39 +286,39 @@ public class NetRecordsActivity extends BaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
 
+                Utils.showLongToast(R.string.net_error, mContext);
             }
+
+            @Override
+            public void onLost() {
+                loginAgain();
+            }
+
         });
-        task.execute(Constants.get_gather_temperature_records_url);
     }
 
     private void getGatherTemperatureData(final JSONModel.TempLink tempLink, String cntuuid) {
-        cancelConnectionTask();
         HashMap<String, String> map = getDefaultMap();
         if (cntuuid != null) {
             map.put("cntuuid", cntuuid);
         }
         map.put("linkuuid", tempLink.getLinkuuid());
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.get_gather_temperature_data_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     return;
                 }
@@ -382,15 +378,20 @@ public class NetRecordsActivity extends BaseActivity {
                 intent.putExtra(Constants.is_on_line, true);
                 intent.putExtra("timeArray", timeArray);
                 startActivity(intent);
-
             }
 
             @Override
-            public void sendLost(String result) {
-
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
             }
+
+            @Override
+            public void onLost() {
+                loginAgain();
+            }
+
+
         });
-        task.execute(Constants.get_gather_temperature_data_url);
     }
 
     private void showGatherRecordsDialog(final JSONModel.GatherRecord[] gatherRecords, final JSONModel.TempLink tempLink) {

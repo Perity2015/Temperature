@@ -16,8 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.gson.JsonObject;
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.qrcode.BaseCaptureActivity;
 import com.huiwu.temperaturecontrol.CaptureActivity;
@@ -29,12 +29,15 @@ import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
 import com.huiwu.temperaturecontrol.bluetooth.DeviceListActivity;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -87,34 +90,27 @@ public class HomeFragment extends Fragment {
     }
 
     private void checkQrcode(final String qrcode, boolean nfc_mode) {
-        mainActivity.cancelConnectionTask();
         HashMap<String, String> map = mainActivity.getDefaultMap();
         if (nfc_mode) {
             map.put("tmprfid", qrcode);
         } else {
             map.put("boxno", qrcode);
         }
-        mainActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.check_box_status, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 mainActivity.progressDialog.setMessage(getString(R.string.check_box_status_load));
                 mainActivity.progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 mainActivity.progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,getContext());
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                TLog.d("DEBUG", result);
-                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), getContext());
                     return;
@@ -148,11 +144,17 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, getContext());
+            }
+
+            @Override
+            public void onLost() {
                 mainActivity.loginAgain();
             }
+
+
         });
-        mainActivity.task.execute(Constants.check_box_status);
     }
 
     private void showUnbindDialog() {

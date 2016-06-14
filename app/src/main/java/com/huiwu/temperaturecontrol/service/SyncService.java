@@ -98,7 +98,7 @@ public class SyncService extends IntentService {
                 map.put(s, (String) bundle.get(s));
             }
         }
-        String result = new ConnectionUtil().postParams(Constants.upload_picture, map, fileHashMap);
+        String result = ConnectionUtil.getResponse(Constants.upload_picture, map, fileHashMap);
         TLog.d("DEBUG", result);
     }
 

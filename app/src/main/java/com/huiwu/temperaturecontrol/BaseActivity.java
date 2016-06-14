@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.temperaturecontrol.application.MainApp;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
@@ -48,7 +47,6 @@ public class BaseActivity extends AppCompatActivity {
     public SQLiteManage sqLiteManage;
 
     public ProgressDialog progressDialog;
-    public ConnectionTask task;
     public MainApp mainApp;
 
     public static final int REQUEST_LOGIN_AGAIN = 1;
@@ -65,7 +63,7 @@ public class BaseActivity extends AppCompatActivity {
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    cancelConnectionTask();
+                    ConnectionUtil.cancelHttp();
                 }
                 return false;
             }
@@ -73,7 +71,7 @@ public class BaseActivity extends AppCompatActivity {
         progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                cancelConnectionTask();
+                ConnectionUtil.cancelHttp();
             }
         });
 
@@ -109,12 +107,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-    }
-
-    public void cancelConnectionTask() {
-        if (task != null && task.getStatus() == AsyncTask.Status.RUNNING) {
-            task.cancel(true);
-        }
     }
 
     public HashMap<String, String> getDefaultMap() {

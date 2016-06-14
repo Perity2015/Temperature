@@ -1865,20 +1865,21 @@ public class JSONModel {
         public BLETag(BluetoothDevice device, int rssi, byte[] scanRecord) {
             this.rssi = rssi;
             this.address = device.getAddress();
-            //[2, 1, 6, 14, -1, -1, -1, 7, -98, -15, -14, -13, -12, 4, 116, 101, 115, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            byte[] statusBytes = BluetoothUtil.byteToBitBytes(scanRecord[8]);
+            // [2, 1, 6, 16, -1, -1, -1, 0, 0, 1, 94, 1, 2, 3, 4, 4, 97, 107, 119, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            byte[] statusBytes = BluetoothUtil.byteToBitBytes(scanRecord[10]);
 
             this.config_status = statusBytes[3] == 0x01;
             this.record_status = statusBytes[1] == 0x01;
-            if (statusBytes[4] == 0) {
-                this.remark = this.address;
-            } else if (scanRecord[13] == 0) {
-                this.remark = BluetoothUtil.bytesToHexString(new byte[]{scanRecord[9], scanRecord[10], scanRecord[11], scanRecord[12]});
-            } else {
-                byte[] remarkBytes = new byte[scanRecord[13]];
-                System.arraycopy(scanRecord, 14, remarkBytes, 0, remarkBytes.length);
-                this.remark = new String(remarkBytes, Charset.forName("GB2312"));
-            }
+            this.remark = this.address;
+//            if (statusBytes[4] == 0) {
+//                this.remark = this.address;
+//            } else if (scanRecord[15] == 0) {
+//                this.remark = BluetoothUtil.bytesToHexString(new byte[]{scanRecord[9], scanRecord[10], scanRecord[11], scanRecord[12]});
+//            } else {
+//                byte[] remarkBytes = new byte[scanRecord[15]];
+//                System.arraycopy(scanRecord, 16, remarkBytes, 0, remarkBytes.length);
+//                this.remark = new String(remarkBytes, Charset.forName("GB2312"));
+//            }
         }
 
         public String getAddress() {

@@ -4,7 +4,6 @@ package com.huiwu.temperaturecontrol.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,19 +17,22 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.ChooseActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -128,27 +130,21 @@ public class ChooseGoodsFragment extends Fragment {
 
     private void getParentsGoods() {
         HashMap<String, String> map = chooseActivity.getDefaultMap();
-        chooseActivity.cancelConnectionTask();
-        chooseActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.get_parent_goods_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 chooseActivity.progressDialog.setMessage("加载信息");
                 chooseActivity.progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 chooseActivity.progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = chooseActivity.gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = chooseActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 parentGoods = chooseActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), JSONModel.Goods[].class);
                 allGoods = new ArrayList<>();
                 for (int i = 0; i < parentGoods.length; i++) {
@@ -159,45 +155,52 @@ public class ChooseGoodsFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, getContext());
+            }
+
+            @Override
+            public void onLost() {
                 chooseActivity.loginAgain();
             }
+
         });
-        chooseActivity.task.execute(Constants.get_parent_goods_url);
     }
 
     private void getChildGoods(int id, final int groupPosition) {
         HashMap<String, String> map = chooseActivity.getDefaultMap();
         map.put("pid", String.valueOf(id));
-        chooseActivity.cancelConnectionTask();
-        chooseActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.get_child_goods_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
-            }
-
-            @Override
-            public void sendFinish() {
-            }
-
-            @Override
-            public void sendFailed(String result) {
+            public void sendStart(BaseRequest baseRequest) {
 
             }
 
             @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnData returnData = chooseActivity.gson.fromJson(result, JSONModel.ReturnData.class);
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
+
+            }
+
+            @Override
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnData returnData = chooseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
                 JSONModel.Goods[] Goods = chooseActivity.gson.fromJson(returnData.getData(), JSONModel.Goods[].class);
                 allGoods.set(groupPosition, Goods);
                 adapter.notifyDataSetChanged();
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+
+            }
+
+            @Override
+            public void onLost() {
                 chooseActivity.loginAgain();
             }
+
+
         });
-        chooseActivity.task.execute(Constants.get_child_goods_url);
     }
 
     private class GoodsAdapter extends BaseExpandableListAdapter {

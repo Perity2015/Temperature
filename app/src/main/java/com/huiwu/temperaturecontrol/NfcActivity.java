@@ -7,6 +7,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.view.animation.AnimationUtils;
@@ -14,18 +15,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aofei.nfc.TagUtil;
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
 import com.huiwu.temperaturecontrol.nfc.Helper;
 import com.huiwu.temperaturecontrol.nfc.NFCCommand;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.UUID;
+
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class NfcActivity extends NfcBaseActivity {
     public static final int NFC_GATHER = 0;
@@ -562,7 +567,7 @@ public class NfcActivity extends NfcBaseActivity {
         if (mainApp.bdLocation != null) {
             map.put("lat", String.valueOf(mainApp.bdLocation.getLatitude()));
             map.put("lng", String.valueOf(mainApp.bdLocation.getLongitude()));
-            map.put("beginaddr", mainApp.bdLocation.getAddrStr());
+            map.put("beginaddr", mainApp.bdLocation.getAddress());
         } else {
             map.put("beginaddr", "未获取定位信息");
         }
@@ -581,27 +586,21 @@ public class NfcActivity extends NfcBaseActivity {
         map.put("boxid", String.valueOf(box.getBoxid()));
         map.put("rfid", mainApp.getUid().toUpperCase());
         map.put("createtime", Utils.formatDateTimeOffLine(System.currentTimeMillis()));
-        cancelConnectionTask();
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.bind_tag_offLine_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.config_data_post_load));
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     if (returnObject.getM_ReturnOBJJsonObject().has("isUse") && returnObject.getM_ReturnOBJJsonObject().get("isUse").getAsBoolean()) {
                         showUnbindDialog(returnObject.getsMsg());
@@ -617,11 +616,16 @@ public class NfcActivity extends NfcBaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
+            }
+
+            @Override
+            public void onLost() {
                 loginAgain();
             }
+
         });
-        task.execute(Constants.bind_tag_offLine_url);
     }
 
     private void showUnbindDialog(String message) {
@@ -645,36 +649,30 @@ public class NfcActivity extends NfcBaseActivity {
     }
 
     private void unBindTag() {
-        cancelConnectionTask();
         HashMap<String, String> map = getDefaultMap();
         map.put("rfid", mainApp.getUid().toUpperCase());
         if (mainApp.bdLocation != null) {
             map.put("lat", String.valueOf(mainApp.bdLocation.getLatitude()));
             map.put("lng", String.valueOf(mainApp.bdLocation.getLongitude()));
-            map.put("endaddr", mainApp.bdLocation.getAddrStr());
+            map.put("endaddr", mainApp.bdLocation.getAddress());
         } else {
             map.put("endaddr", "未获取定位信息");
         }
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.unbind_tag_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.unbind_post_load));
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (returnObject.isbOK()) {
                     Utils.showLongToast(R.string.unbind_tag_success_to_continue, mContext);
                     if (command == NFC_UNBIND) {
@@ -686,29 +684,38 @@ public class NfcActivity extends NfcBaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
+            }
+
+            @Override
+            public void onLost() {
                 loginAgain();
             }
+
         });
-        task.execute(Constants.unbind_tag_url);
     }
 
     private boolean openLock(Intent intent, String old_key, String new_key) throws Exception {
         boolean flag;
         TagUtil mTagUtil = TagUtil.selectTag(intent, false);
 
+        Utils.saveRecordToFile(NfcActivity.class.getSimpleName(), mainApp.getUid() + "\n" + "Auth" + old_key + "\n\n");
 
-        byte[] keyBytes = string2Bytes(old_key, 16);
-        String keyStr = bytes2HexString(keyBytes, 0, keyBytes.length);
-
-
+        byte[] keyBytes = Utils.string2Bytes(old_key, 16);
+        String keyStr = Utils.bytes2HexString(keyBytes, 0, keyBytes.length);
         flag = mTagUtil.authentication(intent, keyStr, false);
 
+        Utils.saveRecordToFile(NfcActivity.class.getSimpleName(), mainApp.getUid() + "\n" + flag + "\n\n");
 
-        flag = writeNewKey(mTagUtil, intent, new_key);
+        if (!flag) {
+            return flag;
+        }
 
-        TLog.d("TAG", flag + "");
-        mTagUtil.close();
+        flag = false;
+        while (!flag) {
+            flag = writeNewKey(mTagUtil, intent, new_key);
+        }
         return flag;
     }
 

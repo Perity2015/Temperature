@@ -6,17 +6,26 @@ import android.nfc.Tag;
 import android.os.Vibrator;
 import android.widget.TextView;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
-import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.utils.CoordinateConverter;
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
+import com.amap.api.location.CoordinateConverter;
+import com.amap.api.maps.model.LatLng;
 import com.huiwu.model.utils.CrashHandler;
+import com.lzy.okhttputils.OkHttpUtils;
+import com.lzy.okhttputils.cookie.store.PersistentCookieStore;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
+import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 
-import java.math.BigDecimal;
+import java.io.File;
 
 /**
  * Created by HuiWu on 2016/4/11.
@@ -141,11 +150,12 @@ public class MainApp extends Application {
     }
 
 
-    public LocationClient mLocationClient;
+    public AMapLocationClient locationClient = null;
+    public AMapLocationClientOption locationOption = null;
     public MyLocationListener mMyLocationListener;
     public Vibrator mVibrator;
     public TextView locationText;
-    public BDLocation bdLocation;
+    public AMapLocation bdLocation;
 
     @Override
     public void onCreate() {
@@ -154,73 +164,105 @@ public class MainApp extends Application {
         CrashHandler crashHandler = CrashHandler.getInstance(getApplicationContext());
         crashHandler.init(getApplicationContext());
 
-        mLocationClient = new LocationClient(getApplicationContext());
-        LocationClientOption option = new LocationClientOption();
-        option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
-        option.setCoorType("bd09ll");
-        option.setScanSpan(10000);
-        option.setOpenGps(true);
-        option.setIsNeedAddress(true);
-        option.setIsNeedLocationPoiList(true);
-        mLocationClient.setLocOption(option);
-        mMyLocationListener = new MyLocationListener();
-        mLocationClient.registerLocationListener(mMyLocationListener);
-
         mVibrator = (Vibrator) getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
 
-        ImageLoaderConfiguration configuration = ImageLoaderConfiguration
-                .createDefault(this);
-        ImageLoader.getInstance().init(configuration);
+
+        initOkHttp();
+
+        initImageLoader();
+
+        initLocation();
+    }
+
+    private void initOkHttp() {
+        //必须调用初始化
+        OkHttpUtils.init(this);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.put("commonHeaderKey1", "commonHeaderValue1");    //所有的 header 都 不支持 中文
+//        headers.put("commonHeaderKey2", "commonHeaderValue2");
+//        HttpParams params = new HttpParams();
+//        params.put("lat", String.valueOf(desLatLng.latitude));     //所有的 params 都 支持 中文
+//        params.put("lng", String.valueOf(desLatLng.longitude));
+//        params.put("address", address);
+        //以下都不是必须的，根据需要自行选择
+        OkHttpUtils.getInstance()//
+                .debug("OkHttpUtils")                                              //是否打开调试
+                .setConnectTimeout(OkHttpUtils.DEFAULT_MILLISECONDS)               //全局的连接超时时间
+                .setReadTimeOut(OkHttpUtils.DEFAULT_MILLISECONDS)                  //全局的读取超时时间
+                .setWriteTimeOut(OkHttpUtils.DEFAULT_MILLISECONDS)                 //全局的写入超时时间
+//                .setCookieStore(new MemoryCookieStore())                           //cookie使用内存缓存（app退出后，cookie消失）
+//                .addCommonParams(params)
+                .setCookieStore(new PersistentCookieStore());                    //cookie持久化存储，如果cookie不过期，则一直有效
+    }
+
+    private void initImageLoader() {
+        File cacheDir = StorageUtils.getCacheDirectory(getApplicationContext());  //缓存文件夹路径
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
+                .memoryCacheExtraOptions(360, 640) // default = device screen dimensions 内存缓存文件的最大长宽
+                .threadPoolSize(3) // default  线程池内加载的数量
+                .threadPriority(Thread.NORM_PRIORITY - 2) // default 设置当前线程的优先级
+                .tasksProcessingOrder(QueueProcessingType.FIFO) // default
+                .denyCacheImageMultipleSizesInMemory()
+                .memoryCache(new LruMemoryCache(2 * 1024 * 1024)) //可以通过自己的内存缓存实现
+                .memoryCacheSize(2 * 1024 * 1024)  // 内存缓存的最大值
+                .memoryCacheSizePercentage(13) // default
+                .diskCache(new UnlimitedDiscCache(cacheDir)) // default 可以自定义缓存路径
+                .diskCacheSize(50 * 1024 * 1024) // 50 Mb sd卡(本地)缓存的最大值
+                .diskCacheFileCount(100)  // 可以缓存的文件数量
+                // default为使用HASHCODE对UIL进行加密命名， 还可以用MD5(new Md5FileNameGenerator())加密
+                .diskCacheFileNameGenerator(new HashCodeFileNameGenerator())
+                .imageDownloader(new BaseImageDownloader(getApplicationContext())) // default
+                .defaultDisplayImageOptions(DisplayImageOptions.createSimple()) // default
+                .writeDebugLogs() // 打印debug log
+                .build(); //开始构建
+        ImageLoader.getInstance().init(config);
+    }
+
+    private void initLocation() {
+        locationClient = new AMapLocationClient(this.getApplicationContext());
+        locationOption = new AMapLocationClientOption();
+
+        // 设置定位模式为高精度模式
+        locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        locationOption.setOnceLocation(false);
+        locationOption.setNeedAddress(true);
+        locationOption.setGpsFirst(true);
+        locationOption.setInterval(10000);
+        locationClient.setLocationOption(locationOption);
+
+        // 设置定位监听
+        locationClient.setLocationListener(new MyLocationListener());
     }
 
     public void startLocation() {
-        if (!mLocationClient.isStarted()) {
-            mLocationClient.start();
+        if (!locationClient.isStarted()) {
+            locationClient.startLocation();
         }
     }
 
     public void stopLocation() {
-        if (mLocationClient.isStarted()) {
-            mLocationClient.stop();
+        if (locationClient.isStarted()) {
+            locationClient.stopLocation();
         }
     }
 
 
-    public class MyLocationListener implements BDLocationListener {
+    public class MyLocationListener implements AMapLocationListener {
+
 
         @Override
-        public void onReceiveLocation(BDLocation location) {
-            if (location != null) {
+        public void onLocationChanged(AMapLocation aMapLocation) {
+            if (aMapLocation != null) {
                 if (locationText != null) {
-                    locationText.setText(location.getAddrStr());
+                    locationText.setText(aMapLocation.getAddress());
                 }
-//                LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
-//                latLng = convertBaiduToGPS(latLng);
-//                location.setLatitude(latLng.latitude);
-//                location.setLongitude(latLng.longitude);
+                LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
+                latLng = LocationUtils.convertGToGPS(getApplicationContext(), latLng);
+                aMapLocation.setLatitude(latLng.latitude);
+                aMapLocation.setLongitude(latLng.longitude);
+                bdLocation = aMapLocation;
             }
-            bdLocation = location;
         }
     }
 
-    public LatLng convertBaiduToGPS(LatLng sourceLatLng) {
-        CoordinateConverter converter = new CoordinateConverter();
-        converter.from(CoordinateConverter.CoordType.GPS);
-        converter.coord(sourceLatLng);
-        LatLng desLatLng = converter.convert();
-        double latitude = 2 * sourceLatLng.latitude - desLatLng.latitude;
-        double longitude = 2 * sourceLatLng.longitude - desLatLng.longitude;
-        BigDecimal bdLatitude = new BigDecimal(latitude);
-        bdLatitude = bdLatitude.setScale(6, BigDecimal.ROUND_HALF_UP);
-        BigDecimal bdLongitude = new BigDecimal(longitude);
-        bdLongitude = bdLongitude.setScale(6, BigDecimal.ROUND_HALF_UP);
-        return new LatLng(bdLatitude.doubleValue(), bdLongitude.doubleValue());
-    }
-
-    public LatLng convertGPSToBaidu(LatLng sourceLatLng) {
-        CoordinateConverter converter = new CoordinateConverter();
-        converter.from(CoordinateConverter.CoordType.GPS);
-        converter.coord(sourceLatLng);
-        return converter.convert();
-    }
 }

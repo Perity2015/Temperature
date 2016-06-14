@@ -1,23 +1,27 @@
 package com.huiwu.temperaturecontrol;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class PasswordActivity extends BaseActivity {
 
@@ -74,30 +78,24 @@ public class PasswordActivity extends BaseActivity {
     }
 
     private void changePassword(String oldPassword, String newPassword) {
-        cancelConnectionTask();
         final HashMap<String, String> map = getDefaultMap();
         map.put("pwd", oldPassword);
         map.put("newpwd", newPassword);
-        task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.revise_url, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("提交信息中");
                 progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,mContext);
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 Utils.showLongToast(returnObject.getsMsg(), mContext);
 
                 if (!returnObject.isbOK()) {
@@ -110,10 +108,15 @@ public class PasswordActivity extends BaseActivity {
             }
 
             @Override
-            public void sendLost(String result) {
-
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, mContext);
             }
+
+            @Override
+            public void onLost() {
+                loginAgain();
+            }
+
         });
-        task.execute(Constants.revise_url);
     }
 }

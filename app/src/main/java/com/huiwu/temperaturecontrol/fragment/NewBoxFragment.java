@@ -13,25 +13,27 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.huiwu.model.http.ConnectionHandler;
-import com.huiwu.model.http.ConnectionTask;
+import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.model.view.MyAlertDialog;
 import com.huiwu.temperaturecontrol.ManageActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,7 +52,7 @@ public class NewBoxFragment extends Fragment {
 
     private JSONModel.UserInfo userInfo;
 
-    private String[] sealStatus = {"","normal", "seal", "lock"};
+    private String[] sealStatus = {"", "normal", "seal", "lock"};
 
     public NewBoxFragment() {
         // Required empty public constructor
@@ -107,33 +109,27 @@ public class NewBoxFragment extends Fragment {
     }
 
     private void addNewBox(final String describe) {
-        manageActivity.cancelConnectionTask();
         HashMap<String, String> map = manageActivity.getDefaultMap();
         map.put("boxno", manageActivity.box.getBoxno());
         map.put("boxmemo", describe);
         map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
         map.put("orgna_id", String.valueOf(userInfo.getUserPower().getOrgna_id()));
         map.put("boxtype", sealStatus[spinnerSealStatus.getSelectedItemPosition()]);
-        manageActivity.task = new ConnectionTask(map, new ConnectionHandler() {
+        ConnectionUtil.postParams(Constants.add_box, map, new StringConnectionCallBack() {
             @Override
-            public void sendStart() {
+            public void sendStart(BaseRequest baseRequest) {
                 manageActivity.progressDialog.setMessage("提交信息");
                 manageActivity.progressDialog.show();
             }
 
             @Override
-            public void sendFinish() {
+            public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
                 manageActivity.progressDialog.dismiss();
             }
 
             @Override
-            public void sendFailed(String result) {
-                Utils.showLongToast(R.string.net_error,getContext());
-            }
-
-            @Override
-            public void sendSuccess(String result) {
-                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(result, JSONModel.ReturnObject.class);
+            public void onParse(String s, Response response) {
+                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), getContext());
                     return;
@@ -143,11 +139,16 @@ public class NewBoxFragment extends Fragment {
             }
 
             @Override
-            public void sendLost(String result) {
-
+            public void onParseFailed(@Nullable Response response) {
+                Utils.showLongToast(R.string.net_error, getContext());
             }
+
+            @Override
+            public void onLost() {
+                manageActivity.loginAgain();
+            }
+
         });
-        manageActivity.task.execute(Constants.add_box);
     }
 
     private void showFinishAddDialog() {
