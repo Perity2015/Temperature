@@ -23,10 +23,12 @@ import android.widget.TextView;
 
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
+import com.huiwu.temperaturecontrol.BaseActivity;
 import com.huiwu.temperaturecontrol.ChooseActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.huiwu.temperaturecontrol.sqlite.bean.RfidGood;
 import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
@@ -51,7 +53,7 @@ public class ChooseObjectFragment extends Fragment {
 
     private int selectId = -1;
 
-    private ChooseActivity chooseActivity;
+    private BaseActivity baseActivity;
     private JSONModel.UserInfo userInfo;
 
     private ArrayList<JSONModel.RfidGood> allObjects = new ArrayList<>();
@@ -68,8 +70,8 @@ public class ChooseObjectFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        chooseActivity = (ChooseActivity) getActivity();
-        userInfo = chooseActivity.userInfo;
+        baseActivity = (ChooseActivity) getActivity();
+        userInfo = baseActivity.userInfo;
     }
 
     @Override
@@ -137,15 +139,15 @@ public class ChooseObjectFragment extends Fragment {
                 JSONModel.RfidGood rfidGood = searchObjects.get(selectId);
                 Intent intent = new Intent();
                 intent.putExtra(Constants.select_object, rfidGood);
-                chooseActivity.setResult(Activity.RESULT_OK, intent);
-                chooseActivity.finish();
+                baseActivity.setResult(Activity.RESULT_OK, intent);
+                baseActivity.finish();
                 return true;
             }
         });
     }
 
     private void getAllObjects() {
-        HashMap<String, String> map = chooseActivity.getDefaultMap();
+        HashMap<String, String> map = baseActivity.getDefaultMap();
         ConnectionUtil.postParams(Constants.get_all_objects_url, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
@@ -159,8 +161,11 @@ public class ChooseObjectFragment extends Fragment {
 
             @Override
             public void onParse(String s, Response response) {
-                JSONModel.ReturnData returnData = chooseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
-                JSONModel.RfidGood[] tempObjects = chooseActivity.gson.fromJson(returnData.getRows(), JSONModel.RfidGood[].class);
+                JSONModel.ReturnData returnData = baseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
+                JSONModel.RfidGood[] tempObjects = baseActivity.gson.fromJson(returnData.getRows(), JSONModel.RfidGood[].class);
+                RfidGood[] rfidGoods = baseActivity.gson.fromJson(returnData.getRows(), RfidGood[].class);
+                baseActivity.sqLiteManage.insertRfidGoods(baseActivity.mainApp.daoMaster.newSession(), rfidGoods);
+
                 Arrays.sort(tempObjects);
                 searchObjects.clear();
                 for (JSONModel.RfidGood rfidGood : tempObjects) {
@@ -183,7 +188,7 @@ public class ChooseObjectFragment extends Fragment {
 
             @Override
             public void onLost() {
-                chooseActivity.loginAgain();
+                baseActivity.loginAgain();
             }
 
         });

@@ -24,6 +24,7 @@ import com.huiwu.temperaturecontrol.ChooseActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
 import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
@@ -146,6 +147,8 @@ public class ChooseGoodsFragment extends Fragment {
             public void onParse(String s, Response response) {
                 JSONModel.ReturnObject returnObject = chooseActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 parentGoods = chooseActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), JSONModel.Goods[].class);
+                GoodsType[] goodsTypes = chooseActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), GoodsType[].class);
+                chooseActivity.sqLiteManage.insertGoodsTypes(chooseActivity.mainApp.daoMaster.newSession(), goodsTypes);
                 allGoods = new ArrayList<>();
                 for (int i = 0; i < parentGoods.length; i++) {
                     allGoods.add(new JSONModel.Goods[0]);
@@ -185,6 +188,8 @@ public class ChooseGoodsFragment extends Fragment {
             public void onParse(String s, Response response) {
                 JSONModel.ReturnData returnData = chooseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
                 JSONModel.Goods[] Goods = chooseActivity.gson.fromJson(returnData.getData(), JSONModel.Goods[].class);
+                GoodsType[] goodsTypes = chooseActivity.gson.fromJson(returnData.getData(), GoodsType[].class);
+                chooseActivity.sqLiteManage.insertGoodsTypes(chooseActivity.mainApp.daoMaster.newSession(), goodsTypes);
                 allGoods.set(groupPosition, Goods);
                 adapter.notifyDataSetChanged();
             }

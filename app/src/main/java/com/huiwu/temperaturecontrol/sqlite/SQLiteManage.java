@@ -8,15 +8,58 @@ import android.database.sqlite.SQLiteDatabase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
+import com.huiwu.temperaturecontrol.sqlite.bean.RfidGood;
+import com.huiwu.temperaturecontrol.sqlite.dao.DaoSession;
+import com.huiwu.temperaturecontrol.sqlite.dao.GoodsTypeDao;
+import com.huiwu.temperaturecontrol.sqlite.dao.RfidGoodDao;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
+import de.greenrobot.dao.query.Query;
 
 /**
  * Created by HuiWu on 2015/11/27.
  */
 public class SQLiteManage {
+
+    /**
+     * @param daoSession
+     * @param rfidGoods
+     */
+    public void insertRfidGoods(DaoSession daoSession, RfidGood[] rfidGoods) {
+        for (RfidGood rfidGood : rfidGoods) {
+            Query query = daoSession.getRfidGoodDao().queryBuilder()
+                    .where(RfidGoodDao.Properties.Rfidgoodname.eq(rfidGood.getRfidgoodname()))
+                    .build();
+            List<RfidGood> list = query.list();
+            if (list.size() == 0) {
+                daoSession.getRfidGoodDao().insert(rfidGood);
+            } else {
+                rfidGood.setId(list.get(0).getId());
+                daoSession.getRfidGoodDao().update(rfidGood);
+            }
+        }
+    }
+
+    public void insertGoodsTypes(DaoSession daoSession, GoodsType[] goodsTypes) {
+        for (GoodsType goodsType : goodsTypes) {
+            Query query = daoSession.getGoodsTypeDao().queryBuilder()
+                    .where(GoodsTypeDao.Properties.Id.eq(goodsType.getId()))
+                    .build();
+            List<GoodsType> list = query.list();
+            if (list.size() == 0) {
+                daoSession.getGoodsTypeDao().insert(goodsType);
+            } else {
+                daoSession.getGoodsTypeDao().update(goodsType);
+            }
+        }
+    }
+
+
     public static SQLiteManage instance;
     private static TempSQLite sqLite;
 
@@ -167,6 +210,7 @@ public class SQLiteManage {
         SQLiteDatabase db = null;
         try {
             db = sqLite.getWritableDatabase();
+
             JSONModel.TagInfo tagInfo = new JSONModel.TagInfo();
             tagInfo.setUid(uid);
             tagInfo.setLinkuuid(linkuuid);
