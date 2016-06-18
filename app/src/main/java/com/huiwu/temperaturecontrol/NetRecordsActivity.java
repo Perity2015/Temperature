@@ -27,6 +27,7 @@ import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
@@ -323,7 +324,7 @@ public class NetRecordsActivity extends BaseActivity {
                     return;
                 }
                 JSONModel.TempData[] tempDatas = gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), JSONModel.TempData[].class);
-                JSONModel.TagInfo tagInfo = new JSONModel.TagInfo();
+                TagInfo tagInfo = new TagInfo();
                 tagInfo.setUid(tempLink.getRfid());
                 tagInfo.setLinkuuid(tempLink.getLinkuuid());
                 tagInfo.setObject(tempLink.getCarno());
@@ -332,7 +333,7 @@ public class NetRecordsActivity extends BaseActivity {
                 JSONModel.Box box = new JSONModel.Box();
                 box.setBoxno(tempLink.getBoxno());
                 box.setBoxtype(tempLink.getBoxtype());
-                tagInfo.setBox(box);
+                tagInfo.setBox(gson.toJson(box));
 
                 JSONModel.Goods goods = new JSONModel.Goods();
                 goods.setGoodtype(tempLink.getGoodchildtype());
@@ -344,13 +345,11 @@ public class NetRecordsActivity extends BaseActivity {
                 goods.setHighhumiditynumber((int) tempData.getHighhumiditynumber());
                 goods.setLowtmpnumber((int) tempData.getLowtmpnumber());
                 goods.setHightmpnumber((int) tempData.getHightmpnumber());
-                tagInfo.setGoods(goods);
-                tagInfo.setHum_now(tempData.getHumiditynumber());
-                tagInfo.setHum_min(tempData.getHumiditynumber());
-                tagInfo.setHum_max(tempData.getHumiditynumber());
-                tagInfo.setTem_now(tempData.getTmpnumber());
-                tagInfo.setTemp_min(tempData.getTmpnumber());
-                tagInfo.setTemp_max(tempData.getTmpnumber());
+                tagInfo.setGoods(gson.toJson(goods));
+                tagInfo.setHumMin(tempData.getHumiditynumber());
+                tagInfo.setHumMax(tempData.getHumiditynumber());
+                tagInfo.setTempMin(tempData.getTmpnumber());
+                tagInfo.setTempMax(tempData.getTmpnumber());
                 if (tempData.getHumiditynumber() == -99) {
                     tagInfo.setJustTemp(true);
                 }
@@ -364,14 +363,14 @@ public class NetRecordsActivity extends BaseActivity {
                     temp_list.add(tempData1.getTmpnumber());
                     timeArray.add(tempData1.getRecordtime().replaceAll("/", "-"));
 
-                    tagInfo.setTemp_min(Math.min(tempData1.getTmpnumber(), tagInfo.getTemp_min()));
-                    tagInfo.setTemp_max(Math.max(tempData1.getTmpnumber(), tagInfo.getTemp_max()));
-                    tagInfo.setHum_min(Math.min(tempData1.getHumiditynumber(), tagInfo.getHum_min()));
-                    tagInfo.setHum_max(Math.max(tempData1.getHumiditynumber(), tagInfo.getHum_max()));
+                    tagInfo.setTempMin(Math.min(tempData1.getTmpnumber(), tagInfo.getTempMin()));
+                    tagInfo.setTempMax(Math.max(tempData1.getTmpnumber(), tagInfo.getTempMax()));
+                    tagInfo.setHumMin(Math.min(tempData1.getHumiditynumber(), tagInfo.getHumMin()));
+                    tagInfo.setHumMax(Math.max(tempData1.getHumiditynumber(), tagInfo.getHumMax()));
                 }
 
-                tagInfo.setTempList(temp_list);
-                tagInfo.setHumList(hum_list);
+                tagInfo.setDataarray(gson.toJson(temp_list));
+                tagInfo.setHumidityArray(gson.toJson(hum_list));
 
                 Intent intent = new Intent(mContext, ChartActivity.class);
                 intent.putExtra("tagInfo", tagInfo);

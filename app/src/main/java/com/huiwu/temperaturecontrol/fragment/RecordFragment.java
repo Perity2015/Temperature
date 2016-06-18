@@ -32,6 +32,8 @@ import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.sqlite.SQLiteManage;
+import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
+import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
@@ -56,15 +58,12 @@ public class RecordFragment extends Fragment {
 
     private MainActivity mainActivity;
 
-    private int index;
+    private ArrayList<TagInfo> records = new ArrayList<>();
 
-    private long load_time;
-
-    private ArrayList<JSONModel.TagInfo> records = new ArrayList<>();
+    private long index = Integer.MAX_VALUE;
 
     private TagInfoAdapter adapter;
 
-    Handler mhandler = new Handler();
 
     public RecordFragment() {
         // Required empty public constructor
@@ -107,13 +106,22 @@ public class RecordFragment extends Fragment {
                 int position = mLayoutManager.findLastCompletelyVisibleItemPosition();
                 swipeLayout.setEnabled(mLayoutManager.findFirstVisibleItemPosition() == 0);
                 if (position == records.size() - 1) {
-                    if (System.currentTimeMillis() - load_time > 2000) {
-                        new LoadRecordsTask().execute(index);
+                    ArrayList<TagInfo> tagInfos = mainActivity.sqLiteManage.getConfigTagInfos(mainActivity.mainApp.getDaoSession(), index);
+                    if (tagInfos.size() < 10) {
+                        index = 0;
+                    } else {
+                        index = tagInfos.get(tagInfos.size() - 1).getId();
+                    }
+                    records.addAll(tagInfos);
+                    if (adapter == null) {
+                        adapter = new TagInfoAdapter();
+                        recyclerViewRecords.setAdapter(adapter);
+                    } else {
+                        adapter.notifyDataSetChanged();
                     }
                 }
             }
         });
-//        swipeLayout.setColorSchemeColors(android.R.color.holo_blue_dark, android.R.color.holo_blue_light, android.R.color.holo_green_light, android.R.color.holo_green_light);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -127,7 +135,20 @@ public class RecordFragment extends Fragment {
 
     public void initData() {
         records.clear();
-        new LoadRecordsTask().execute(Integer.MAX_VALUE);
+        index = Integer.MAX_VALUE;
+        ArrayList<TagInfo> tagInfos = mainActivity.sqLiteManage.getConfigTagInfos(mainActivity.mainApp.getDaoSession(), index);
+        if (tagInfos.size() < 10) {
+            index = 0;
+        } else {
+            index = tagInfos.get(tagInfos.size() - 1).getId();
+        }
+        records.addAll(tagInfos);
+        if (adapter == null) {
+            adapter = new TagInfoAdapter();
+            recyclerViewRecords.setAdapter(adapter);
+        } else {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -150,42 +171,7 @@ public class RecordFragment extends Fragment {
         ButterKnife.unbind(this);
     }
 
-    private class LoadRecordsTask extends AsyncTask<Integer, Void, Boolean> {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            if (load_time != 0) {
-                mainActivity.progressDialog.setMessage(getString(R.string.continue_load_data));
-                mainActivity.progressDialog.show();
-            }
-        }
-
-        @Override
-        protected Boolean doInBackground(Integer... params) {
-            HashMap<String, Object> map = mainActivity.sqLiteManage.getDefaultSearchRecords(params[0]);
-            if (map != null) {
-                ArrayList<JSONModel.TagInfo> temp = (ArrayList<JSONModel.TagInfo>) map.get(SQLiteManage.RECORDS);
-                records.addAll(temp);
-                index = (int) map.get(SQLiteManage.RECORDS_INDEX);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            load_time = System.currentTimeMillis();
-            if (mainActivity.progressDialog.isShowing())
-                mainActivity.progressDialog.dismiss();
-            if (adapter == null) {
-                adapter = new TagInfoAdapter();
-                recyclerViewRecords.setAdapter(adapter);
-            } else {
-                adapter.notifyDataSetChanged();
-            }
-        }
-    }
 
     private class TagInfoAdapter extends RecyclerView.Adapter {
 
@@ -199,18 +185,18 @@ public class RecordFragment extends Fragment {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
             TagInfoHolder holder = (TagInfoHolder) viewHolder;
-            final JSONModel.TagInfo tagInfo = records.get(position);
+            final TagInfo tagInfo = records.get(position);
             holder.textRecordItemObject.setText(tagInfo.getObject());
-            if (tagInfo.getBox() != null) {
-                holder.textRecordItemBox.setText(tagInfo.getBox().getBoxno());
-            }
-            if (tagInfo.getGoods() != null) {
-                holder.textRecordItemGoods.setText(tagInfo.getGoods().getParentgoodtype() + "  " + tagInfo.getGoods().getGoodtype());
-            }
+            JSONModel.Box box = mainActivity.gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
+            holder.textRecordItemBox.setText(box.getBoxno());
+
+            GoodsType goodsType = mainActivity.gson.fromJson(tagInfo.getGoods(), GoodsType.class);
+            holder.textRecordItemGoods.setText(goodsType.getParentgoodtype() + "  " + goodsType.getGoodtype());
+
             holder.imageRecordItemUpload.setVisibility(tagInfo.isHavepost() ? View.INVISIBLE : View.VISIBLE);
             holder.btnRecordItemTime.setText(DateFormat.format("MM-dd kk:mm:ss", tagInfo.getReadTime()));
-            holder.btnRecordItemTemp.setText(tagInfo.getTemp_min() + "℃ - " + tagInfo.getTemp_max() + "℃");
-            holder.btnRecordItemHum.setText(tagInfo.getHum_min() + "% - " + tagInfo.getHum_max() + "%");
+            holder.btnRecordItemTemp.setText(tagInfo.getTempMin() + "℃ - " + tagInfo.getTempMax() + "℃");
+            holder.btnRecordItemHum.setText(tagInfo.getHumMin() + "% - " + tagInfo.getHumMax() + "%");
 
             if (tagInfo.isJustTemp()) {
                 holder.imageRecordItemHum.setVisibility(View.GONE);
@@ -270,23 +256,23 @@ public class RecordFragment extends Fragment {
         }
     }
 
-    private void uploadData(final JSONModel.TagInfo tagInfo) {
+    private void uploadData(final TagInfo tagInfo) {
         HashMap<String, String> map = mainActivity.getDefaultMap();
         if (mainActivity.mainApp.bdLocation != null) {
             map.put("address", mainActivity.mainApp.bdLocation.getAddress());
         } else {
             map.put("address", "为获取定位信息");
         }
-        map.put("dataarray", mainActivity.gson.toJson(tagInfo.getTempList()));
+        map.put("dataarray", tagInfo.getDataarray());
         if (!tagInfo.isJustTemp()) {
-            map.put("humidityArray", mainActivity.gson.toJson(tagInfo.getHumList()));
+            map.put("humidityArray", tagInfo.getHumidityArray());
         }
         map.put("m_begintime", DateFormat.format("yyyy-MM-dd kk:mm:ss", tagInfo.getStartTime()).toString());
         map.put("linkuuid", tagInfo.getLinkuuid());
         map.put("rfid", tagInfo.getUid());
         map.put("bover", String.valueOf(false));
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
-        map.put("index", String.valueOf(tagInfo.getIndex()));
+        map.put("index", String.valueOf(tagInfo.getNumber()));
 
         ConnectionUtil.postParams(Constants.upload_data_url, map, new StringConnectionCallBack() {
             @Override
@@ -309,7 +295,7 @@ public class RecordFragment extends Fragment {
                 }
                 tagInfo.setHavepost(true);
                 adapter.notifyDataSetChanged();
-                mainActivity.sqLiteManage.changeRecordStatus(tagInfo);
+                mainActivity.sqLiteManage.updateConfigTagInfoStatus(mainActivity.mainApp.getDaoSession(), tagInfo);
             }
 
             @Override
@@ -326,22 +312,22 @@ public class RecordFragment extends Fragment {
         });
     }
 
-    private void uploadOfflineData(final JSONModel.TagInfo tagInfo) {
+    private void uploadOfflineData(final TagInfo tagInfo) {
         HashMap<String, String> map = mainActivity.getDefaultMap();
         if (mainActivity.mainApp.bdLocation != null) {
             map.put("address", mainActivity.mainApp.bdLocation.getAddress());
         } else {
             map.put("address", "为获取定位信息");
         }
-        map.put("dataarray", mainActivity.gson.toJson(tagInfo.getTempList()));
+        map.put("dataarray", tagInfo.getDataarray());
         if (!tagInfo.isJustTemp()) {
-            map.put("humidityArray", mainActivity.gson.toJson(tagInfo.getHumList()));
+            map.put("humidityArray", tagInfo.getHumidityArray());
         }
         map.put("rfid", tagInfo.getUid());
         map.put("bover", String.valueOf(false));
         map.put("begintime", DateFormat.format("yyyy-MM-dd kk:mm:ss", tagInfo.getStartTime()).toString());
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
-        map.put("index", String.valueOf(tagInfo.getIndex()));
+        map.put("index", String.valueOf(tagInfo.getNumber()));
         map.put("linkuuid", tagInfo.getLinkuuid());
         map.put("createtime", Utils.formatDateTimeOffLine(tagInfo.getReadTime()));
 
@@ -361,7 +347,7 @@ public class RecordFragment extends Fragment {
             @Override
             public void onParse(String s, Response response) {
                 tagInfo.setHavepost(true);
-                mainActivity.sqLiteManage.changeRecordStatus(tagInfo);
+                mainActivity.sqLiteManage.updateConfigTagInfoStatus(mainActivity.mainApp.getDaoSession(), tagInfo);
                 adapter.notifyDataSetChanged();
                 JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {

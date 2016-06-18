@@ -4,6 +4,7 @@ package com.huiwu.temperaturecontrol.fragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -118,6 +119,13 @@ public class HomeFragment extends Fragment {
                 JsonObject jsonObject = returnObject.getM_ReturnOBJJsonObject();
                 String option = jsonObject.get("option").getAsString();
                 if (TextUtils.equals("unBind", option)) {
+                    NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getContext());
+                    if (nfcAdapter == null) {
+                        Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
+                        intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_UNBIND);
+                        startActivity(intent_ble);
+                        return;
+                    }
                     showUnbindDialog();
                     return;
                 }

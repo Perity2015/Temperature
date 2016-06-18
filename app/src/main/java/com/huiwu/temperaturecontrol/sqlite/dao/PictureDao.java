@@ -47,31 +47,27 @@ public class PictureDao extends AbstractDao<Picture, Long> {
      * Creates the underlying database table.
      */
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
-        String constraint = ifNotExists ? "IF NOT EXISTS " : "";
+        String constraint = ifNotExists ? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"PICTURE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"BOXNO\" TEXT NOT NULL ," + // 1: boxno
                 "\"LINKUUID\" TEXT NOT NULL ," + // 2: linkuuid
                 "\"FILE\" TEXT NOT NULL ," + // 3: file
                 "\"SEAL_OROPEN\" TEXT NOT NULL ," + // 4: sealOropen
-                "\"HAVEPOST\" INTEGER);"); // 5: havepost
+                "\"HAVEPOST\" INTEGER DEFAULT 0);"); // 5: havepost
     }
 
-    /**
-     * Drops the underlying database table.
-     */
+    /** Drops the underlying database table. */
     public static void dropTable(SQLiteDatabase db, boolean ifExists) {
         String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"PICTURE\"";
         db.execSQL(sql);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     protected void bindValues(SQLiteStatement stmt, Picture entity) {
         stmt.clearBindings();
-
+ 
         Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
@@ -80,24 +76,20 @@ public class PictureDao extends AbstractDao<Picture, Long> {
         stmt.bindString(3, entity.getLinkuuid());
         stmt.bindString(4, entity.getFile());
         stmt.bindString(5, entity.getSealOropen());
-
+ 
         Boolean havepost = entity.getHavepost();
         if (havepost != null) {
-            stmt.bindLong(6, havepost ? 1L : 0L);
+            stmt.bindLong(6, havepost ? 1L: 0L);
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public Long readKey(Cursor cursor, int offset) {
         return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public Picture readEntity(Cursor cursor, int offset) {
         Picture entity = new Picture( //
@@ -111,9 +103,7 @@ public class PictureDao extends AbstractDao<Picture, Long> {
         return entity;
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, Picture entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
@@ -124,18 +114,14 @@ public class PictureDao extends AbstractDao<Picture, Long> {
         entity.setHavepost(cursor.isNull(offset + 5) ? null : cursor.getShort(offset + 5) != 0);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     protected Long updateKeyAfterInsert(Picture entity, long rowId) {
         entity.setId(rowId);
         return rowId;
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public Long getKey(Picture entity) {
         if (entity != null) {
@@ -148,9 +134,9 @@ public class PictureDao extends AbstractDao<Picture, Long> {
     /**
      * @inheritdoc
      */
-    @Override
+    @Override    
     protected boolean isEntityUpdateable() {
         return true;
     }
-
+    
 }

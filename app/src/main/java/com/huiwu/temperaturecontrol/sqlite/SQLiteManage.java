@@ -10,16 +10,20 @@ import com.google.gson.reflect.TypeToken;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
 import com.huiwu.temperaturecontrol.sqlite.bean.RfidGood;
+import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.huiwu.temperaturecontrol.sqlite.dao.DaoSession;
 import com.huiwu.temperaturecontrol.sqlite.dao.GoodsTypeDao;
 import com.huiwu.temperaturecontrol.sqlite.dao.RfidGoodDao;
+import com.huiwu.temperaturecontrol.sqlite.dao.TagInfoDao;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import de.greenrobot.dao.Property;
 import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
 
 /**
  * Created by HuiWu on 2015/11/27.
@@ -45,6 +49,10 @@ public class SQLiteManage {
         }
     }
 
+    /**
+     * @param daoSession
+     * @param goodsTypes
+     */
     public void insertGoodsTypes(DaoSession daoSession, GoodsType[] goodsTypes) {
         for (GoodsType goodsType : goodsTypes) {
             Query query = daoSession.getGoodsTypeDao().queryBuilder()
@@ -57,6 +65,75 @@ public class SQLiteManage {
                 daoSession.getGoodsTypeDao().update(goodsType);
             }
         }
+    }
+
+    /**
+     * @param daoSession
+     * @param tagInfo
+     */
+    public void insertConfigTagInfo(DaoSession daoSession, TagInfo tagInfo) {
+        QueryBuilder queryBuilder = daoSession.getTagInfoDao().queryBuilder();
+        queryBuilder.where(queryBuilder.and(TagInfoDao.Properties.Uid.eq(tagInfo.getUid()), TagInfoDao.Properties.Linkuuid.eq(tagInfo.getLinkuuid())));
+        queryBuilder.orderDesc(TagInfoDao.Properties.Id);
+        Query query = queryBuilder.build();
+        List<TagInfo> tagInfos = query.list();
+        if (tagInfos.size() > 0) {
+            tagInfo.setId(tagInfos.get(0).getId());
+            daoSession.getTagInfoDao().update(tagInfo);
+        } else {
+            daoSession.getTagInfoDao().insert(tagInfo);
+        }
+    }
+
+    /**
+     * @param daoSession
+     * @param linkuuid
+     * @param uid
+     * @return
+     */
+    public TagInfo getConfigTagInfo(DaoSession daoSession, String linkuuid, String uid) {
+        QueryBuilder queryBuilder = daoSession.getTagInfoDao().queryBuilder();
+        queryBuilder.where(queryBuilder.and(TagInfoDao.Properties.Uid.eq(uid), TagInfoDao.Properties.Linkuuid.eq(linkuuid)));
+        queryBuilder.orderDesc(TagInfoDao.Properties.Id);
+        Query query = queryBuilder.build();
+        List<TagInfo> tagInfos = query.list();
+        if (tagInfos.size() > 0) {
+            return tagInfos.get(0);
+        } else {
+            return new TagInfo();
+        }
+    }
+
+    /**
+     * @param daoSession
+     * @param tagInfo
+     */
+    public void updateConfigTagInfoStatus(DaoSession daoSession, TagInfo tagInfo) {
+        QueryBuilder queryBuilder = daoSession.getTagInfoDao().queryBuilder();
+        queryBuilder.where(queryBuilder.and(TagInfoDao.Properties.Uid.eq(tagInfo.getUid()), TagInfoDao.Properties.Linkuuid.eq(tagInfo.getLinkuuid())));
+        queryBuilder.orderDesc(TagInfoDao.Properties.Id);
+        Query query = queryBuilder.build();
+        List<TagInfo> tagInfos = query.list();
+        if (tagInfos.size() > 0) {
+            tagInfo.setId(tagInfos.get(0).getId());
+            daoSession.getTagInfoDao().update(tagInfo);
+        } else {
+            daoSession.getTagInfoDao().insert(tagInfo);
+        }
+    }
+
+    /**
+     * @param daoSession
+     * @param id
+     * @return
+     */
+    public ArrayList<TagInfo> getConfigTagInfos(DaoSession daoSession, long id) {
+        QueryBuilder queryBuilder = daoSession.getTagInfoDao().queryBuilder();
+        queryBuilder.where(queryBuilder.and(TagInfoDao.Properties.StartTime.gt(0), TagInfoDao.Properties.Id.lt(id)));
+        queryBuilder.orderDesc(TagInfoDao.Properties.Id);
+        queryBuilder.limit(10);
+        Query query = queryBuilder.build();
+        return (ArrayList<TagInfo>) query.list();
     }
 
 

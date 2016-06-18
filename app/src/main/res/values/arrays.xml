@@ -23,8 +23,8 @@
     </string-array>
 
     <string-array name="selectConfigs">
-        <item>NFC配置</item>
         <item>蓝牙配置</item>
+        <item>NFC配置</item>
     </string-array>
 
     <string-array name="unbindItems">

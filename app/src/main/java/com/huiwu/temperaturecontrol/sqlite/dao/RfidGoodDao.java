@@ -25,9 +25,9 @@ public class RfidGoodDao extends AbstractDao<RfidGood, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Rfidgoodid = new Property(1, Integer.class, "rfidgoodid", false, "RFIDGOODID");
+        public final static Property Rfidgoodid = new Property(1, int.class, "rfidgoodid", false, "RFIDGOODID");
         public final static Property Rfidgoodname = new Property(2, String.class, "rfidgoodname", false, "RFIDGOODNAME");
-        public final static Property Companyid = new Property(3, Integer.class, "companyid", false, "COMPANYID");
+        public final static Property Companyid = new Property(3, int.class, "companyid", false, "COMPANYID");
         public final static Property Company = new Property(4, String.class, "company", false, "COMPANY");
     }
 
@@ -46,103 +46,81 @@ public class RfidGoodDao extends AbstractDao<RfidGood, Long> {
      * Creates the underlying database table.
      */
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
-        String constraint = ifNotExists ? "IF NOT EXISTS " : "";
+        String constraint = ifNotExists ? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"RFID_GOOD\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"RFIDGOODID\" INTEGER," + // 1: rfidgoodid
+                "\"RFIDGOODID\" INTEGER ," + // 1: rfidgoodid
                 "\"RFIDGOODNAME\" TEXT," + // 2: rfidgoodname
-                "\"COMPANYID\" INTEGER," + // 3: companyid
+                "\"COMPANYID\" INTEGER DEFAULT 0," + // 3: companyid
                 "\"COMPANY\" TEXT);"); // 4: company
     }
 
-    /**
-     * Drops the underlying database table.
-     */
+    /** Drops the underlying database table. */
     public static void dropTable(SQLiteDatabase db, boolean ifExists) {
         String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"RFID_GOOD\"";
         db.execSQL(sql);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     protected void bindValues(SQLiteStatement stmt, RfidGood entity) {
         stmt.clearBindings();
-
+ 
         Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
         }
-
-        Integer rfidgoodid = entity.getRfidgoodid();
-        if (rfidgoodid != null) {
-            stmt.bindLong(2, rfidgoodid);
-        }
-
+        stmt.bindLong(2, entity.getRfidgoodid());
+ 
         String rfidgoodname = entity.getRfidgoodname();
         if (rfidgoodname != null) {
             stmt.bindString(3, rfidgoodname);
         }
-
-        Integer companyid = entity.getCompanyid();
-        if (companyid != null) {
-            stmt.bindLong(4, companyid);
-        }
-
+        stmt.bindLong(4, entity.getCompanyid());
+ 
         String company = entity.getCompany();
         if (company != null) {
             stmt.bindString(5, company);
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public Long readKey(Cursor cursor, int offset) {
         return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public RfidGood readEntity(Cursor cursor, int offset) {
         RfidGood entity = new RfidGood( //
                 cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-                cursor.isNull(offset + 1) ? null : cursor.getInt(offset + 1), // rfidgoodid
+                cursor.getInt(offset + 1), // rfidgoodid
                 cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // rfidgoodname
-                cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3), // companyid
+                cursor.getInt(offset + 3), // companyid
                 cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // company
         );
         return entity;
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, RfidGood entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setRfidgoodid(cursor.isNull(offset + 1) ? null : cursor.getInt(offset + 1));
+        entity.setRfidgoodid(cursor.getInt(offset + 1));
         entity.setRfidgoodname(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setCompanyid(cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3));
+        entity.setCompanyid(cursor.getInt(offset + 3));
         entity.setCompany(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     protected Long updateKeyAfterInsert(RfidGood entity, long rowId) {
         entity.setId(rowId);
         return rowId;
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public Long getKey(RfidGood entity) {
         if (entity != null) {
@@ -155,9 +133,9 @@ public class RfidGoodDao extends AbstractDao<RfidGood, Long> {
     /**
      * @inheritdoc
      */
-    @Override
+    @Override    
     protected boolean isEntityUpdateable() {
         return true;
     }
-
+    
 }

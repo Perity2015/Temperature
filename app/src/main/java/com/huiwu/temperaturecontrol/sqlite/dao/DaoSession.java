@@ -24,7 +24,7 @@ import com.huiwu.temperaturecontrol.sqlite.dao.TagInfoDao;
 /**
  * {@inheritDoc}
  *
- * @see de.greenrobot.dao.AbstractDaoSession
+ * @see AbstractDaoSession
  */
 public class DaoSession extends AbstractDaoSession {
 

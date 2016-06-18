@@ -39,13 +39,11 @@ import okhttp3.Response;
  * A simple {@link Fragment} subclass.
  */
 public class ChooseGoodsFragment extends Fragment {
-
-
     @Bind(R.id.expandable_ListView_goods)
     ExpandableListView expandableListViewGoods;
 
-    private JSONModel.Goods[] parentGoods;
-    private ArrayList<JSONModel.Goods[]> allGoods;
+    private GoodsType[] parentGoods;
+    private ArrayList<GoodsType[]> allGoods;
 
     private ChooseActivity chooseActivity;
     private JSONModel.UserInfo userInfo;
@@ -119,7 +117,7 @@ public class ChooseGoodsFragment extends Fragment {
                     Utils.showLongToast("请选择一个商品类型", getContext());
                     return true;
                 }
-                JSONModel.Goods goods = allGoods.get(gId)[cId];
+                GoodsType goods = allGoods.get(gId)[cId];
                 Intent intent = new Intent();
                 intent.putExtra(Constants.select_object, goods);
                 chooseActivity.setResult(Activity.RESULT_OK, intent);
@@ -146,12 +144,11 @@ public class ChooseGoodsFragment extends Fragment {
             @Override
             public void onParse(String s, Response response) {
                 JSONModel.ReturnObject returnObject = chooseActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
-                parentGoods = chooseActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), JSONModel.Goods[].class);
-                GoodsType[] goodsTypes = chooseActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), GoodsType[].class);
-                chooseActivity.sqLiteManage.insertGoodsTypes(chooseActivity.mainApp.daoMaster.newSession(), goodsTypes);
+                parentGoods = chooseActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), GoodsType[].class);
+                chooseActivity.sqLiteManage.insertGoodsTypes(chooseActivity.mainApp.daoMaster.newSession(), parentGoods);
                 allGoods = new ArrayList<>();
                 for (int i = 0; i < parentGoods.length; i++) {
-                    allGoods.add(new JSONModel.Goods[0]);
+                    allGoods.add(new GoodsType[0]);
                 }
                 adapter = new GoodsAdapter();
                 expandableListViewGoods.setAdapter(adapter);
@@ -170,7 +167,7 @@ public class ChooseGoodsFragment extends Fragment {
         });
     }
 
-    private void getChildGoods(int id, final int groupPosition) {
+    private void getChildGoods(long id, final int groupPosition) {
         HashMap<String, String> map = chooseActivity.getDefaultMap();
         map.put("pid", String.valueOf(id));
         ConnectionUtil.postParams(Constants.get_child_goods_url, map, new StringConnectionCallBack() {
@@ -187,10 +184,9 @@ public class ChooseGoodsFragment extends Fragment {
             @Override
             public void onParse(String s, Response response) {
                 JSONModel.ReturnData returnData = chooseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
-                JSONModel.Goods[] Goods = chooseActivity.gson.fromJson(returnData.getData(), JSONModel.Goods[].class);
                 GoodsType[] goodsTypes = chooseActivity.gson.fromJson(returnData.getData(), GoodsType[].class);
                 chooseActivity.sqLiteManage.insertGoodsTypes(chooseActivity.mainApp.daoMaster.newSession(), goodsTypes);
-                allGoods.set(groupPosition, Goods);
+                allGoods.set(groupPosition, goodsTypes);
                 adapter.notifyDataSetChanged();
             }
 

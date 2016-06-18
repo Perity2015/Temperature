@@ -1,6 +1,7 @@
 package com.huiwu.temperaturecontrol;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -31,6 +33,8 @@ import com.huiwu.model.utils.Utils;
 import com.huiwu.model.view.utils.ScreenUtils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
+import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
+import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.ArrayList;
@@ -87,7 +91,11 @@ public class ChartActivity extends BaseActivity {
     @Bind(R.id.action_up)
     FloatingActionButton actionUp;
 
-    private JSONModel.TagInfo tagInfo;
+    private TagInfo tagInfo;
+    private double[] dataArray;
+    private double[] humArray;
+    private GoodsType goodsType;
+    private JSONModel.Box box;
 
     private LineData data;
     private int screen_width;
@@ -119,12 +127,18 @@ public class ChartActivity extends BaseActivity {
         tagInfo = getIntent().getParcelableExtra(Constants.tag_info);
 
         haveUpload = tagInfo.isHavepost();
+
+        dataArray = gson.fromJson(tagInfo.getDataarray(), double[].class);
+        humArray = gson.fromJson(tagInfo.getHumidityArray(), double[].class);
+        goodsType = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
+        box = gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
+
         if (getIntent().getBooleanExtra(Constants.is_on_line, false)) {
             timeArray = getIntent().getStringArrayListExtra("timeArray");
         } else {
             timeArray = new ArrayList<>();
-            for (int i = 0; i < tagInfo.getTempList().size(); i++) {
-                String time = DateFormat.format("yyyy-MM-dd kk:mm:ss", tagInfo.getStartTime() + tagInfo.getGoods().getOnetime() * 60 * 1000L * i).toString();
+            for (int i = 0; i < dataArray.length; i++) {
+                String time = DateFormat.format("yyyy-MM-dd kk:mm:ss", tagInfo.getStartTime() + goodsType.getOnetime() * 60 * 1000L * i).toString();
                 timeArray.add(time);
             }
         }
@@ -181,19 +195,13 @@ public class ChartActivity extends BaseActivity {
                 JSONModel.Box box = new JSONModel.Box();
                 box.setBoxtype(tempLink.getBoxtype());
                 box.setBoxno(tempLink.getBoxno());
-                tagInfo.setBox(box);
+                tagInfo.setBox(gson.toJson(box));
 
-                JSONModel.Goods goods;
-                if (tagInfo.getGoods() != null) {
-                    goods = tagInfo.getGoods();
-                } else {
-                    goods = new JSONModel.Goods();
-                }
-                goods.setParentgoodtype(tempLink.getGoodtype());
-                goods.setGoodtype(tempLink.getGoodchildtype());
-                tagInfo.setGoods(goods);
+                goodsType.setParentgoodtype(tempLink.getGoodtype());
+                goodsType.setGoodtype(tempLink.getGoodchildtype());
+                tagInfo.setGoods(gson.toJson(goodsType));
 
-                sqLiteManage.updateRecords(tagInfo);
+                sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
             }
 
             @Override
@@ -213,23 +221,22 @@ public class ChartActivity extends BaseActivity {
         if (tagInfo.isJustTemp()) {
             rowHumSize.setVisibility(View.GONE);
             rowHumWaring.setVisibility(View.GONE);
-            textRecordNow.setText(tagInfo.getTempList().get(tagInfo.getTempList().size() - 1) + "℃");
+            textRecordNow.setText(dataArray[dataArray.length - 1] + "℃");
         } else {
-            textRecordNow.setText((tagInfo.getTempList().get(tagInfo.getTempList().size() - 1)) + "℃、" + tagInfo.getHumList().get(tagInfo.getHumList().size() - 1) + "%");
+            textRecordNow.setText(dataArray[dataArray.length - 1] + "℃、" + humArray[humArray.length - 1] + "%");
         }
 
         if (tagInfo.getObject() != null) {
             textInfoObject.setText(tagInfo.getObject());
         }
         if (tagInfo.getBox() != null) {
-            textBoxNo.setText(tagInfo.getBox().getBoxno());
+            textBoxNo.setText(box.getBoxno());
         }
 
 
-        JSONModel.Goods goods = tagInfo.getGoods();
-        textSampleInterval.setText(goods.getOnetime() + "分钟");
-        textTempWaring.setText(goods.getLowtmpnumber() + "℃、" + goods.getHightmpnumber() + "℃");
-        textHumWaring.setText(goods.getLowhumiditynumber() + "%、" + goods.getHighhumiditynumber() + "%");
+        textSampleInterval.setText(goodsType.getOnetime() + "分钟");
+        textTempWaring.setText(goodsType.getLowtmpnumber() + "℃、" + goodsType.getHightmpnumber() + "℃");
+        textHumWaring.setText(goodsType.getLowhumiditynumber() + "%、" + goodsType.getHighhumiditynumber() + "%");
 
         String timeStart = timeArray.get(0);
         String timeEnd = timeArray.get(timeArray.size() - 1);
@@ -244,8 +251,8 @@ public class ChartActivity extends BaseActivity {
         textTimeRecordEndDay.setText(end[1] + "-" + end[2]);
         textTimeRecordYear.setText(end[0]);
 
-        textTempSize.setText(tagInfo.getTemp_min() + "℃ - " + tagInfo.getTemp_max() + "℃");
-        textHumSize.setText(tagInfo.getHum_min() + "% - " + tagInfo.getHum_max() + "%");
+        textTempSize.setText(tagInfo.getTempMin() + "℃ - " + tagInfo.getTempMax() + "℃");
+        textHumSize.setText(tagInfo.getHumMin() + "% - " + tagInfo.getHumMax() + "%");
     }
 
     @Override
@@ -254,13 +261,20 @@ public class ChartActivity extends BaseActivity {
         return true;
     }
 
+    public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+
+        setRequestedOrientation(newConfig.orientation);
+
+    }
+
     private LineData getData() {
         ArrayList<LineDataSet> dataSets = new ArrayList<>();
 
         ArrayList<String> xVals = timeArray;
         ArrayList<Entry> yVals = new ArrayList<>();
-        for (int i = 0; i < tagInfo.getTempList().size(); i++) {
-            double val = tagInfo.getTempList().get(i);
+        for (int i = 0; i < dataArray.length; i++) {
+            double val = dataArray[i];
             yVals.add(new Entry((float) val, i));
         }
         LineDataSet set1 = new LineDataSet(yVals, "温度℃");
@@ -276,8 +290,8 @@ public class ChartActivity extends BaseActivity {
 
         if (!tagInfo.isJustTemp()) {
             yVals = new ArrayList<>();
-            for (int i = 0; i < tagInfo.getHumList().size(); i++) {
-                double val = tagInfo.getHumList().get(i);
+            for (int i = 0; i < humArray.length; i++) {
+                double val = humArray[i];
                 yVals.add(new Entry((float) val, i));
             }
             LineDataSet set2 = new LineDataSet(yVals, "湿度%");
@@ -312,8 +326,8 @@ public class ChartActivity extends BaseActivity {
                 return String.format("%.1f℃", value);
             }
         });
-        leftAxis.setAxisMaxValue((float) (tagInfo.getTemp_max() + 5));
-        leftAxis.setAxisMinValue((float) (tagInfo.getTemp_min() - 5));
+        leftAxis.setAxisMaxValue((float) (tagInfo.getTempMax() + 5));
+        leftAxis.setAxisMinValue((float) (tagInfo.getTempMin() - 5));
 
         if (!tagInfo.isJustTemp()) {
             YAxis rightAxis = lineChart.getAxisRight();
@@ -328,8 +342,8 @@ public class ChartActivity extends BaseActivity {
                     return String.format("%.1f", value) + "%";
                 }
             });
-            rightAxis.setAxisMaxValue((float) (tagInfo.getHum_max() + 5));
-            rightAxis.setAxisMinValue((float) (tagInfo.getHum_min() - 5));
+            rightAxis.setAxisMaxValue((float) (tagInfo.getHumMax() + 5));
+            rightAxis.setAxisMinValue((float) (tagInfo.getHumMin() - 5));
         } else {
             YAxis rightAxis = lineChart.getAxisRight();
             rightAxis.setTextColor(Color.parseColor("#ECEFF4"));
@@ -485,16 +499,16 @@ public class ChartActivity extends BaseActivity {
         } else {
             map.put("address", "为获取定位信息");
         }
-        map.put("dataarray", gson.toJson(tagInfo.getTempList()));
+        map.put("dataarray", tagInfo.getDataarray());
         if (!tagInfo.isJustTemp()) {
-            map.put("humidityArray", gson.toJson(tagInfo.getHumList()));
+            map.put("humidityArray", tagInfo.getHumidityArray());
         }
         map.put("m_begintime", timeArray.get(0));
         map.put("linkuuid", tagInfo.getLinkuuid());
         map.put("rfid", tagInfo.getUid());
         map.put("bover", String.valueOf(false));
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
-        map.put("index", String.valueOf(tagInfo.getIndex()));
+        map.put("index", String.valueOf(tagInfo.getNumber()));
 
         ConnectionUtil.postParams(Constants.upload_data_url, map, new StringConnectionCallBack() {
             @Override
@@ -516,7 +530,8 @@ public class ChartActivity extends BaseActivity {
                     return;
                 }
                 haveUpload = true;
-                sqLiteManage.changeRecordStatus(tagInfo);
+                tagInfo.setHavepost(true);
+                sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
                 showNoticeDialog(returnObject.getsMsg(), false);
             }
 
@@ -541,15 +556,15 @@ public class ChartActivity extends BaseActivity {
         } else {
             map.put("address", "为获取定位信息");
         }
-        map.put("dataarray", gson.toJson(tagInfo.getTempList()));
+        map.put("dataarray", tagInfo.getDataarray());
         if (!tagInfo.isJustTemp()) {
-            map.put("humidityArray", gson.toJson(tagInfo.getHumList()));
+            map.put("humidityArray", tagInfo.getHumidityArray());
         }
         map.put("rfid", tagInfo.getUid());
         map.put("bover", String.valueOf(false));
         map.put("begintime", timeArray.get(0));
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
-        map.put("index", String.valueOf(tagInfo.getIndex()));
+        map.put("index", String.valueOf(tagInfo.getNumber()));
         map.put("linkuuid", tagInfo.getLinkuuid());
         map.put("createtime", Utils.formatDateTimeOffLine(tagInfo.getReadTime()));
 
@@ -574,7 +589,8 @@ public class ChartActivity extends BaseActivity {
                     return;
                 }
                 haveUpload = true;
-                sqLiteManage.changeRecordStatus(tagInfo);
+                tagInfo.setHavepost(true);
+                sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
                 showNoticeDialog(returnObject.getsMsg(), false);
             }
 

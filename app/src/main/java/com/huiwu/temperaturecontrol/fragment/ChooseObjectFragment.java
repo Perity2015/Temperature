@@ -2,6 +2,7 @@ package com.huiwu.temperaturecontrol.fragment;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,8 +17,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -34,6 +38,7 @@ import com.lzy.okhttputils.request.BaseRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -56,8 +61,8 @@ public class ChooseObjectFragment extends Fragment {
     private BaseActivity baseActivity;
     private JSONModel.UserInfo userInfo;
 
-    private ArrayList<JSONModel.RfidGood> allObjects = new ArrayList<>();
-    private ArrayList<JSONModel.RfidGood> searchObjects = new ArrayList<>();
+    private RfidGood[] allObjects;
+    private List<RfidGood> searchObjects = new ArrayList<>();
     private ObjectAdapter adapter;
 
     public ChooseObjectFragment() {
@@ -87,7 +92,6 @@ public class ChooseObjectFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
         textObject.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -96,29 +100,13 @@ public class ChooseObjectFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                String object = s.toString().trim();
+                adapter.getFilter().filter(object);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                String object = s.toString().trim();
-                if (TextUtils.isEmpty(object)) {
-                    searchObjects = allObjects;
-                } else {
-                    searchObjects.clear();
-                    for (JSONModel.RfidGood rfidGood : allObjects) {
-                        if (rfidGood.getRfidgoodname().toUpperCase().contains(object.toUpperCase())) {
-                            searchObjects.add(rfidGood);
 
-                        }
-                    }
-                }
-//                adapter = new ObjectAdapter();
-//                listViewObjects.setAdapter(adapter);
-
-                selectId = -1;
-                adapter = new ObjectAdapter();
-                listViewObjects.setAdapter(adapter);
             }
         });
 
@@ -136,7 +124,7 @@ public class ChooseObjectFragment extends Fragment {
                 if (selectId == -1) {
                     return true;
                 }
-                JSONModel.RfidGood rfidGood = searchObjects.get(selectId);
+                RfidGood rfidGood = searchObjects.get(selectId);
                 Intent intent = new Intent();
                 intent.putExtra(Constants.select_object, rfidGood);
                 baseActivity.setResult(Activity.RESULT_OK, intent);
@@ -162,19 +150,18 @@ public class ChooseObjectFragment extends Fragment {
             @Override
             public void onParse(String s, Response response) {
                 JSONModel.ReturnData returnData = baseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
-                JSONModel.RfidGood[] tempObjects = baseActivity.gson.fromJson(returnData.getRows(), JSONModel.RfidGood[].class);
-                RfidGood[] rfidGoods = baseActivity.gson.fromJson(returnData.getRows(), RfidGood[].class);
-                baseActivity.sqLiteManage.insertRfidGoods(baseActivity.mainApp.daoMaster.newSession(), rfidGoods);
+                allObjects = baseActivity.gson.fromJson(returnData.getRows(), RfidGood[].class);
+                baseActivity.sqLiteManage.insertRfidGoods(baseActivity.mainApp.daoMaster.newSession(), allObjects);
 
-                Arrays.sort(tempObjects);
+                Arrays.sort(allObjects);
                 searchObjects.clear();
-                for (JSONModel.RfidGood rfidGood : tempObjects) {
-                    allObjects.add(rfidGood);
+                for (RfidGood rfidGood : allObjects) {
                     searchObjects.add(rfidGood);
                 }
+
                 selectId = -1;
                 if (adapter == null) {
-                    adapter = new ObjectAdapter();
+                    adapter = new ObjectAdapter(getContext(), R.layout.layout_parent_goods_item, searchObjects);
                     listViewObjects.setAdapter(adapter);
                 } else {
                     adapter.notifyDataSetChanged();
@@ -194,27 +181,17 @@ public class ChooseObjectFragment extends Fragment {
         });
     }
 
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
     }
 
-    private class ObjectAdapter extends BaseAdapter {
+    private class ObjectAdapter extends ArrayAdapter {
 
-        @Override
-        public int getCount() {
-            return searchObjects.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return searchObjects.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
+        public ObjectAdapter(Context context, int resource, List objects) {
+            super(context, resource, objects);
         }
 
         @Override

@@ -15,7 +15,7 @@ import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
 /**
  * DAO for table "GOODS_TYPE".
  */
-public class GoodsTypeDao extends AbstractDao<GoodsType, Void> {
+public class GoodsTypeDao extends AbstractDao<GoodsType, Long> {
 
     public static final String TABLENAME = "GOODS_TYPE";
 
@@ -24,18 +24,18 @@ public class GoodsTypeDao extends AbstractDao<GoodsType, Void> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, Integer.class, "id", false, "ID");
+        public final static Property Id = new Property(0, Long.class, "id", true, "ID");
         public final static Property Company = new Property(1, String.class, "company", false, "COMPANY");
-        public final static Property Companyid = new Property(2, Integer.class, "companyid", false, "COMPANYID");
+        public final static Property Companyid = new Property(2, int.class, "companyid", false, "COMPANYID");
         public final static Property Parentgoodtype = new Property(3, String.class, "parentgoodtype", false, "PARENTGOODTYPE");
         public final static Property Goodtype = new Property(4, String.class, "goodtype", false, "GOODTYPE");
-        public final static Property Onetime = new Property(5, Integer.class, "onetime", false, "ONETIME");
-        public final static Property Hightmpnumber = new Property(6, Integer.class, "hightmpnumber", false, "HIGHTMPNUMBER");
-        public final static Property Lowtmpnumber = new Property(7, Integer.class, "lowtmpnumber", false, "LOWTMPNUMBER");
-        public final static Property Parentid = new Property(8, Integer.class, "parentid", false, "PARENTID");
+        public final static Property Onetime = new Property(5, int.class, "onetime", false, "ONETIME");
+        public final static Property Hightmpnumber = new Property(6, int.class, "hightmpnumber", false, "HIGHTMPNUMBER");
+        public final static Property Lowtmpnumber = new Property(7, int.class, "lowtmpnumber", false, "LOWTMPNUMBER");
+        public final static Property Parentid = new Property(8, int.class, "parentid", false, "PARENTID");
         public final static Property Createtime = new Property(9, String.class, "createtime", false, "CREATETIME");
-        public final static Property Highhumiditynumber = new Property(10, Integer.class, "highhumiditynumber", false, "HIGHHUMIDITYNUMBER");
-        public final static Property Lowhumiditynumber = new Property(11, Integer.class, "lowhumiditynumber", false, "LOWHUMIDITYNUMBER");
+        public final static Property Highhumiditynumber = new Property(10, int.class, "highhumiditynumber", false, "HIGHHUMIDITYNUMBER");
+        public final static Property Lowhumiditynumber = new Property(11, int.class, "lowhumiditynumber", false, "LOWHUMIDITYNUMBER");
     }
 
     ;
@@ -53,170 +53,132 @@ public class GoodsTypeDao extends AbstractDao<GoodsType, Void> {
      * Creates the underlying database table.
      */
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
-        String constraint = ifNotExists ? "IF NOT EXISTS " : "";
+        String constraint = ifNotExists ? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"GOODS_TYPE\" (" + //
-                "\"ID\" INTEGER," + // 0: id
+                "\"ID\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"COMPANY\" TEXT," + // 1: company
-                "\"COMPANYID\" INTEGER," + // 2: companyid
+                "\"COMPANYID\" INTEGER DEFAULT 0," + // 2: companyid
                 "\"PARENTGOODTYPE\" TEXT," + // 3: parentgoodtype
                 "\"GOODTYPE\" TEXT," + // 4: goodtype
-                "\"ONETIME\" INTEGER," + // 5: onetime
-                "\"HIGHTMPNUMBER\" INTEGER," + // 6: hightmpnumber
-                "\"LOWTMPNUMBER\" INTEGER," + // 7: lowtmpnumber
-                "\"PARENTID\" INTEGER," + // 8: parentid
+                "\"ONETIME\" INTEGER DEFAULT 0," + // 5: onetime
+                "\"HIGHTMPNUMBER\" INTEGER  DEFAULT 0," + // 6: hightmpnumber
+                "\"LOWTMPNUMBER\" INTEGER  DEFAULT 0," + // 7: lowtmpnumber
+                "\"PARENTID\" INTEGER DEFAULT 0," + // 8: parentid
                 "\"CREATETIME\" TEXT," + // 9: createtime
-                "\"HIGHHUMIDITYNUMBER\" INTEGER," + // 10: highhumiditynumber
-                "\"LOWHUMIDITYNUMBER\" INTEGER);"); // 11: lowhumiditynumber
+                "\"HIGHHUMIDITYNUMBER\" INTEGER  DEFAULT 0," + // 10: highhumiditynumber
+                "\"LOWHUMIDITYNUMBER\" INTEGER  DEFAULT 0);"); // 11: lowhumiditynumber
     }
 
-    /**
-     * Drops the underlying database table.
-     */
+    /** Drops the underlying database table. */
     public static void dropTable(SQLiteDatabase db, boolean ifExists) {
         String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"GOODS_TYPE\"";
         db.execSQL(sql);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     protected void bindValues(SQLiteStatement stmt, GoodsType entity) {
         stmt.clearBindings();
 
-        Integer id = entity.getId();
+        Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
         }
-
+ 
         String company = entity.getCompany();
         if (company != null) {
             stmt.bindString(2, company);
         }
-
-        Integer companyid = entity.getCompanyid();
-        if (companyid != null) {
-            stmt.bindLong(3, companyid);
-        }
-
+        stmt.bindLong(3, entity.getCompanyid());
+ 
         String parentgoodtype = entity.getParentgoodtype();
         if (parentgoodtype != null) {
             stmt.bindString(4, parentgoodtype);
         }
-
+ 
         String goodtype = entity.getGoodtype();
         if (goodtype != null) {
             stmt.bindString(5, goodtype);
         }
-
-        Integer onetime = entity.getOnetime();
-        if (onetime != null) {
-            stmt.bindLong(6, onetime);
-        }
-
-        Integer hightmpnumber = entity.getHightmpnumber();
-        if (hightmpnumber != null) {
-            stmt.bindLong(7, hightmpnumber);
-        }
-
-        Integer lowtmpnumber = entity.getLowtmpnumber();
-        if (lowtmpnumber != null) {
-            stmt.bindLong(8, lowtmpnumber);
-        }
-
-        Integer parentid = entity.getParentid();
-        if (parentid != null) {
-            stmt.bindLong(9, parentid);
-        }
-
+        stmt.bindLong(6, entity.getOnetime());
+        stmt.bindLong(7, entity.getHightmpnumber());
+        stmt.bindLong(8, entity.getLowtmpnumber());
+        stmt.bindLong(9, entity.getParentid());
+ 
         String createtime = entity.getCreatetime();
         if (createtime != null) {
             stmt.bindString(10, createtime);
         }
-
-        Integer highhumiditynumber = entity.getHighhumiditynumber();
-        if (highhumiditynumber != null) {
-            stmt.bindLong(11, highhumiditynumber);
-        }
-
-        Integer lowhumiditynumber = entity.getLowhumiditynumber();
-        if (lowhumiditynumber != null) {
-            stmt.bindLong(12, lowhumiditynumber);
-        }
+        stmt.bindLong(11, entity.getHighhumiditynumber());
+        stmt.bindLong(12, entity.getLowhumiditynumber());
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
-    public Void readKey(Cursor cursor, int offset) {
-        return null;
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public GoodsType readEntity(Cursor cursor, int offset) {
         GoodsType entity = new GoodsType( //
-                cursor.isNull(offset + 0) ? null : cursor.getInt(offset + 0), // id
+                cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
                 cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // company
-                cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2), // companyid
+                cursor.getInt(offset + 2), // companyid
                 cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // parentgoodtype
                 cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // goodtype
-                cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5), // onetime
-                cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6), // hightmpnumber
-                cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7), // lowtmpnumber
-                cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8), // parentid
+                cursor.getInt(offset + 5), // onetime
+                cursor.getInt(offset + 6), // hightmpnumber
+                cursor.getInt(offset + 7), // lowtmpnumber
+                cursor.getInt(offset + 8), // parentid
                 cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // createtime
-                cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10), // highhumiditynumber
-                cursor.isNull(offset + 11) ? null : cursor.getInt(offset + 11) // lowhumiditynumber
+                cursor.getInt(offset + 10), // highhumiditynumber
+                cursor.getInt(offset + 11) // lowhumiditynumber
         );
         return entity;
     }
 
-    /**
-     * @inheritdoc
-     */
+    /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, GoodsType entity, int offset) {
-        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getInt(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setCompany(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setCompanyid(cursor.isNull(offset + 2) ? null : cursor.getInt(offset + 2));
+        entity.setCompanyid(cursor.getInt(offset + 2));
         entity.setParentgoodtype(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setGoodtype(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setOnetime(cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5));
-        entity.setHightmpnumber(cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6));
-        entity.setLowtmpnumber(cursor.isNull(offset + 7) ? null : cursor.getInt(offset + 7));
-        entity.setParentid(cursor.isNull(offset + 8) ? null : cursor.getInt(offset + 8));
+        entity.setOnetime(cursor.getInt(offset + 5));
+        entity.setHightmpnumber(cursor.getInt(offset + 6));
+        entity.setLowtmpnumber(cursor.getInt(offset + 7));
+        entity.setParentid(cursor.getInt(offset + 8));
         entity.setCreatetime(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setHighhumiditynumber(cursor.isNull(offset + 10) ? null : cursor.getInt(offset + 10));
-        entity.setLowhumiditynumber(cursor.isNull(offset + 11) ? null : cursor.getInt(offset + 11));
+        entity.setHighhumiditynumber(cursor.getInt(offset + 10));
+        entity.setLowhumiditynumber(cursor.getInt(offset + 11));
+    }
+
+    /** @inheritdoc */
+    @Override
+    protected Long updateKeyAfterInsert(GoodsType entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
+    }
+
+    /** @inheritdoc */
+    @Override
+    public Long getKey(GoodsType entity) {
+        if (entity != null) {
+            return entity.getId();
+        } else {
+            return null;
+        }
     }
 
     /**
      * @inheritdoc
      */
-    @Override
-    protected Void updateKeyAfterInsert(GoodsType entity, long rowId) {
-        // Unsupported or missing PK type
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    @Override
-    public Void getKey(GoodsType entity) {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    @Override
+    @Override    
     protected boolean isEntityUpdateable() {
         return true;
     }
-
+    
 }

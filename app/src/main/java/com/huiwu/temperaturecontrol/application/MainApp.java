@@ -15,6 +15,7 @@ import com.amap.api.location.CoordinateConverter;
 import com.amap.api.maps.model.LatLng;
 import com.huiwu.model.utils.CrashHandler;
 import com.huiwu.temperaturecontrol.sqlite.dao.DaoMaster;
+import com.huiwu.temperaturecontrol.sqlite.dao.DaoSession;
 import com.lzy.okhttputils.OkHttpUtils;
 import com.lzy.okhttputils.cookie.store.PersistentCookieStore;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
@@ -188,6 +189,10 @@ public class MainApp extends Application {
         SQLiteDatabase db = helper.getWritableDatabase();
         // 注意：该数据库连接属于 DaoMaster，所以多个 Session 指的是相同的数据库连接。
         daoMaster = new DaoMaster(db);
+    }
+
+    public DaoSession getDaoSession() {
+        return daoMaster.newSession();
     }
 
     private void initOkHttp() {

@@ -4,6 +4,7 @@ package com.huiwu.temperaturecontrol.fragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,6 +27,9 @@ import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bluetooth.DeviceListActivity;
+import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
+import com.huiwu.temperaturecontrol.sqlite.bean.RfidGood;
+import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -60,10 +64,10 @@ public class ConfigFragment extends Fragment {
     private final int REQUEST_OBJECT = 202;
     private final int REQUEST_CONFIG = 203;
 
-    private JSONModel.Goods selectGoods;
-    private JSONModel.RfidGood selectRfidGoods;
+    private GoodsType selectGoods;
+    private RfidGood selectRfidGoods;
 
-    private JSONModel.TagInfo tagInfo;
+    private TagInfo tagInfo;
 
     public ConfigFragment() {
         // Required empty public constructor
@@ -76,7 +80,8 @@ public class ConfigFragment extends Fragment {
 
         manageActivity = (ManageActivity) getActivity();
         userInfo = manageActivity.userInfo;
-        tagInfo = new JSONModel.TagInfo();
+        tagInfo = new TagInfo();
+        tagInfo.setDelayTime(1);
 
         manageActivity.tempLink = new JSONModel.TempLink();
     }
@@ -95,7 +100,7 @@ public class ConfigFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         textConfigNotice.requestFocus();
         textBoxNo.setText(manageActivity.box.getBoxno());
-        tagInfo.setBox(manageActivity.box);
+        tagInfo.setBox(manageActivity.gson.toJson(manageActivity.box));
 
         seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -130,6 +135,14 @@ public class ConfigFragment extends Fragment {
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getContext());
+                if (nfcAdapter == null) {
+                    Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
+                    intent_ble.putExtra(Constants.tag_info, tagInfo);
+                    intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_CONFIG);
+                    startActivityForResult(intent_ble, REQUEST_CONFIG);
+                    return true;
+                }
                 showConfigSelectDialog();
                 return true;
             }
@@ -154,7 +167,7 @@ public class ConfigFragment extends Fragment {
             manageActivity.tempLink.setGoodtype(selectGoods.getParentgoodtype());
             manageActivity.tempLink.setGoodchildtype(selectGoods.getGoodtype());
 
-            tagInfo.setGoods(selectGoods);
+            tagInfo.setGoods(manageActivity.gson.toJson(selectGoods));
 
             String sampleInfo = "采样间隔：" + selectGoods.getOnetime() + "分钟\r\n";
             sampleInfo += "温度上限：" + selectGoods.getHightmpnumber() + "℃\r\n";
@@ -205,16 +218,16 @@ public class ConfigFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
-                        intent_nfc.putExtra(Constants.tag_info, tagInfo);
-                        intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_CONFIG);
-                        startActivityForResult(intent_nfc, REQUEST_CONFIG);
-                        break;
-                    case 1:
                         Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
                         intent_ble.putExtra(Constants.tag_info, tagInfo);
                         intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_CONFIG);
                         startActivityForResult(intent_ble, REQUEST_CONFIG);
+                        break;
+                    case 1:
+                        Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
+                        intent_nfc.putExtra(Constants.tag_info, tagInfo);
+                        intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_CONFIG);
+                        startActivityForResult(intent_nfc, REQUEST_CONFIG);
                         break;
                 }
             }

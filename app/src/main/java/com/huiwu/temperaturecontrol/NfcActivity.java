@@ -23,8 +23,11 @@ import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
 import com.huiwu.temperaturecontrol.nfc.Helper;
 import com.huiwu.temperaturecontrol.nfc.NFCCommand;
+import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
+import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.lzy.okhttputils.request.BaseRequest;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.UUID;
@@ -43,7 +46,7 @@ public class NfcActivity extends NfcBaseActivity {
     public static final String COMMAND_PARAM = "command";
     private int command;
 
-    private JSONModel.TagInfo tagInfo;
+    private TagInfo tagInfo;
 
     private int times = 0;
 
@@ -161,12 +164,16 @@ public class NfcActivity extends NfcBaseActivity {
         int index;
         String message = getString(R.string.read_tag_lost);
 
+        ArrayList<Double> tempList = new ArrayList<>();
+        ArrayList<Double> humList = new ArrayList<>();
+        GoodsType goodsType;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressDialog.setMessage(getString(R.string.keep_tag_close_to_nfc));
             progressDialog.show();
-            tagInfo = new JSONModel.TagInfo();
+            tagInfo = new TagInfo();
         }
 
         @Override
@@ -208,8 +215,14 @@ public class NfcActivity extends NfcBaseActivity {
                         nBlocks = Integer.parseInt(sNbOfBlock);
                         if (ReadMultipleBlockAnswer != null && ReadMultipleBlockAnswer.length - 1 > 0) {
                             if (ReadMultipleBlockAnswer[0] == 0x00) {
+                                tempList.clear();
+                                humList.clear();
                                 gatherTempAndHumData();
-                                sqLiteManage.insertRecords(tagInfo);
+
+                                tagInfo.setDataarray(gson.toJson(tempList));
+                                tagInfo.setHumidityArray(gson.toJson(humList));
+
+                                sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
                                 return true;
                             }
                         }
@@ -249,7 +262,7 @@ public class NfcActivity extends NfcBaseActivity {
             for (int i = 29; i <= 44; i++) {
                 linkuuid += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[i]);
             }
-            tagInfo = sqLiteManage.getLastTagInfo(linkuuid.toLowerCase(), mainApp.getUid().toUpperCase());
+            tagInfo = sqLiteManage.getConfigTagInfo(mainApp.getDaoSession(), linkuuid.toLowerCase(), mainApp.getUid().toUpperCase());
 
             if (ReadMultipleBlockAnswer[12] == 0x33
                     || ReadMultipleBlockAnswer[12] == 0x53) {
@@ -284,7 +297,7 @@ public class NfcActivity extends NfcBaseActivity {
             if (!tagInfo.isJustTemp()) {
                 index = index / 2;
             }
-            tagInfo.setIndex(index);
+            tagInfo.setNumber(index);
             if (index == 0) {
                 message = getString(R.string.tag_no_data);
                 return false;
@@ -294,28 +307,23 @@ public class NfcActivity extends NfcBaseActivity {
                 return false;
             }
             tagInfo.setUid(mainApp.getUid().toUpperCase());
-            tagInfo.setRecordStatus(ReadMultipleBlockAnswer[11]);
+            tagInfo.setRecordStatus((int) ReadMultipleBlockAnswer[11]);
 
             int onetime = ReadMultipleBlockAnswer[2];
-            JSONModel.Goods goods;
-            if (tagInfo.getGoods() == null) {
-                goods = new JSONModel.Goods();
-            } else {
-                goods = tagInfo.getGoods();
-            }
-            goods.setOnetime(onetime);
-            goods.setLowtmpnumber(ReadMultipleBlockAnswer[13]);
-            goods.setHightmpnumber(ReadMultipleBlockAnswer[14]);
-            goods.setLowhumiditynumber(ReadMultipleBlockAnswer[15]);
-            goods.setHighhumiditynumber(ReadMultipleBlockAnswer[16]);
-            tagInfo.setGoods(goods);
+            goodsType = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
+            goodsType.setOnetime(onetime);
+            goodsType.setLowtmpnumber((int) ReadMultipleBlockAnswer[13]);
+            goodsType.setHightmpnumber((int) ReadMultipleBlockAnswer[14]);
+            goodsType.setLowhumiditynumber((int) ReadMultipleBlockAnswer[15]);
+            goodsType.setHighhumiditynumber((int) ReadMultipleBlockAnswer[16]);
+            tagInfo.setGoods(gson.toJson(goodsType));
 
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.MILLISECOND, 0);
             tagInfo.setReadTime(calendar.getTimeInMillis());
 
-            tagInfo.setRoundCircle(ReadMultipleBlockAnswer[19]);
-            tagInfo.setPower(ReadMultipleBlockAnswer[20]);
+            tagInfo.setRoundCircle((int) ReadMultipleBlockAnswer[19]);
+            tagInfo.setPower((int) ReadMultipleBlockAnswer[20]);
 
 //            String startTimeStr = Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[45]);
 //            startTimeStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[46]);
@@ -332,8 +340,8 @@ public class NfcActivity extends NfcBaseActivity {
             long endTime = calendar.getTimeInMillis();
             tagInfo.setEndTime(endTime);
 
-            long startTime = tagInfo.getEndTime() - (tagInfo.getIndex() - 1) * goods.getOnetime() * 60 * 1000L;
-            if (startTime - tagInfo.getStartTime() > goods.getOnetime() * 60 * 1000L) {
+            long startTime = tagInfo.getEndTime() - (tagInfo.getNumber() - 1) * goodsType.getOnetime() * 60 * 1000L;
+            if (startTime - tagInfo.getStartTime() > goodsType.getOnetime() * 60 * 1000L) {
                 tagInfo.setStartTime(startTime);
             }
 
@@ -356,10 +364,10 @@ public class NfcActivity extends NfcBaseActivity {
                         double temp = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 2 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 2 + 1 + 48 * 4]}) / 100.00D;
                         double hum = temp;
                         if (i == index) {
-                            tagInfo.setTemp_min(temp);
-                            tagInfo.setTemp_max(temp);
-                            tagInfo.setHum_max(hum);
-                            tagInfo.setHum_min(hum);
+                            tagInfo.setTempMin(temp);
+                            tagInfo.setTempMax(temp);
+                            tagInfo.setHumMax(hum);
+                            tagInfo.setHumMin(hum);
                         }
                         checkIsOutLimit(temp, hum);
                     }
@@ -368,10 +376,10 @@ public class NfcActivity extends NfcBaseActivity {
                         double temp = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 1 + 48 * 4]}) / 100.00D;
                         double hum = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 4 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 3 + 48 * 4]}) / 100.00D;
                         if (i == index) {
-                            tagInfo.setTemp_min(temp);
-                            tagInfo.setTemp_max(temp);
-                            tagInfo.setHum_max(hum);
-                            tagInfo.setHum_min(hum);
+                            tagInfo.setTempMin(temp);
+                            tagInfo.setTempMax(temp);
+                            tagInfo.setHumMax(hum);
+                            tagInfo.setHumMin(hum);
                         }
                         checkIsOutLimit(temp, hum);
                     }
@@ -382,14 +390,10 @@ public class NfcActivity extends NfcBaseActivity {
                     double temp = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 2 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 2 + 1 + 48 * 4]}) / 100.00D;
                     double hum = temp;
                     if (i == 0 && tagInfo.getRoundCircle() == 0) {
-                        tagInfo.setTemp_min(temp);
-                        tagInfo.setTemp_max(temp);
-                        tagInfo.setHum_max(hum);
-                        tagInfo.setHum_min(hum);
-                    }
-                    if (i == index - 1) {
-                        tagInfo.setTem_now(temp);
-                        tagInfo.setHum_now(hum);
+                        tagInfo.setTempMin(temp);
+                        tagInfo.setTempMax(temp);
+                        tagInfo.setHumMax(hum);
+                        tagInfo.setHumMin(hum);
                     }
                     checkIsOutLimit(temp, hum);
                 }
@@ -398,14 +402,10 @@ public class NfcActivity extends NfcBaseActivity {
                     double temp = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 1 + 48 * 4]}) / 100.00D;
                     double hum = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 4 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 3 + 48 * 4]}) / 100.00D;
                     if (i == 0 && tagInfo.getRoundCircle() == 0) {
-                        tagInfo.setTemp_min(temp);
-                        tagInfo.setTemp_max(temp);
-                        tagInfo.setHum_max(hum);
-                        tagInfo.setHum_min(hum);
-                    }
-                    if (i == index - 1) {
-                        tagInfo.setTem_now(temp);
-                        tagInfo.setHum_now(hum);
+                        tagInfo.setTempMin(temp);
+                        tagInfo.setTempMax(temp);
+                        tagInfo.setHumMax(hum);
+                        tagInfo.setHumMin(hum);
                     }
                     checkIsOutLimit(temp, hum);
                 }
@@ -413,19 +413,19 @@ public class NfcActivity extends NfcBaseActivity {
         }
 
         private void checkIsOutLimit(double temp, double hum) {
-            tagInfo.getTempList().add(temp);
-            tagInfo.getHumList().add(hum);
-            tagInfo.setTemp_min(Math.min(tagInfo.getTemp_min(), temp));
-            tagInfo.setTemp_max(Math.max(tagInfo.getTemp_max(), temp));
-            tagInfo.setHum_max(Math.max(tagInfo.getHum_max(), hum));
-            tagInfo.setHum_min(Math.min(tagInfo.getHum_min(), hum));
+            tempList.add(temp);
+            humList.add(hum);
+            tagInfo.setTempMin(Math.min(tagInfo.getTempMin(), temp));
+            tagInfo.setTempMax(Math.max(tagInfo.getTempMax(), temp));
+            tagInfo.setHumMax(Math.max(tagInfo.getHumMax(), hum));
+            tagInfo.setHumMin(Math.min(tagInfo.getHumMin(), hum));
             if (tagInfo.isOutLimit()) {
                 return;
             }
-            if (tagInfo.getGoods().getLowtmpnumber() > temp
-                    || tagInfo.getGoods().getHightmpnumber() < temp
-                    || tagInfo.getGoods().getLowhumiditynumber() > hum
-                    || tagInfo.getGoods().getHighhumiditynumber() < hum) {
+            if (goodsType.getLowtmpnumber() > temp
+                    || goodsType.getHightmpnumber() < temp
+                    || goodsType.getLowhumiditynumber() > hum
+                    || goodsType.getHighhumiditynumber() < hum) {
                 tagInfo.setOutLimit(true);
             }
         }
@@ -458,8 +458,8 @@ public class NfcActivity extends NfcBaseActivity {
 
             tagInfo.setUid(mainApp.getUid().toUpperCase());
             tagInfo.setLinkuuid(linkuuid);
-            JSONModel.Box box = tagInfo.getBox();
-            JSONModel.Goods goods = tagInfo.getGoods();
+            JSONModel.Box box = gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
+            GoodsType goods = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
 
             String writeConfigStr = "11";
             writeConfigStr += Helper.ConvertHexByteToString((byte) goods.getOnetime());
@@ -556,8 +556,8 @@ public class NfcActivity extends NfcBaseActivity {
     }
 
     private void bindTag() {
-        JSONModel.Box box = tagInfo.getBox();
-        JSONModel.Goods goods = tagInfo.getGoods();
+        JSONModel.Box box = gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
+        GoodsType goods = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
 
         final HashMap<String, String> map = getDefaultMap();
         map.put("linkuuid", tagInfo.getLinkuuid());
@@ -608,7 +608,9 @@ public class NfcActivity extends NfcBaseActivity {
                     Utils.showLongToast(returnObject.getsMsg(), mContext);
                     return;
                 }
-                sqLiteManage.insertFirstTagInfo(tagInfo);
+                sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
+
+//                sqLiteManage.insertFirstTagInfo(tagInfo);
                 Intent intent = new Intent();
                 intent.putExtra(Constants.tag_info, tagInfo);
                 setResult(RESULT_OK, intent);

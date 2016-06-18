@@ -42,6 +42,8 @@ import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
+import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.lzy.okhttputils.request.BaseRequest;
 
 import java.nio.charset.Charset;
@@ -158,7 +160,10 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     /**
      * 配置页面发送的 封装TagInfo 或 用于组装采集 信息
      */
-    private JSONModel.TagInfo tagInfo;
+    private TagInfo tagInfo;
+    private GoodsType goodsType;
+    private ArrayList<Double> tempList = new ArrayList<>();
+    private ArrayList<Double> humList = new ArrayList<>();
 
     private final int gather_config_info = 1;
     private final int gather_error = 2;
@@ -184,7 +189,9 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                     break;
                 case gather_success:
                     progressDialog.dismiss();
-                    sqLiteManage.insertRecords(tagInfo);
+                    tagInfo.setDataarray(gson.toJson(tempList));
+                    tagInfo.setHumidityArray(gson.toJson(humList));
+                    sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
                     Intent intent = new Intent(mContext, ChartActivity.class);
                     intent.putExtra(Constants.tag_info, tagInfo);
                     startActivity(intent);
@@ -194,7 +201,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                     progressDialog.show();
                     break;
                 case send_config_info_success:
-                    sqLiteManage.insertRecords(tagInfo);
+                    sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
                     progressDialog.dismiss();
                     Utils.showLongToast((String) msg.obj, mContext);
                     bindTag();
@@ -316,7 +323,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                                 bleTags.add(bleTag);
                                 deviceAdapter.notifyDataSetChanged();
                                 if (tagInfo == null) {
-                                    tagInfo = new JSONModel.TagInfo();
+                                    tagInfo = new TagInfo();
                                 }
                                 tagInfo.setUid(mDevice.getAddress());
                                 break;
@@ -424,7 +431,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             case L2_data_temp_info:
                 Message message = new Message();
                 message.what = gather_temp_info;
-                message.obj = "获取温湿度信息" + tagInfo.getTempList().size() * 100 / tagInfo.getIndex() + "%";
+                message.obj = "获取温湿度信息" + tempList.size() * 100 / tagInfo.getNumber() + "%";
                 mHandler.sendMessage(message);
                 parseTempInfoBytes(bytes);
                 break;
@@ -495,7 +502,9 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         System.arraycopy(configBytes, 27 + remark_length + 1 + company_length + 1 + goodType_length + 1 + place_length + 1 + 1, back_bytes, 0, back_length);
         String back = new String(back_bytes, Charset.forName("GB2312"));
 
-        tagInfo = sqLiteManage.getLastTagInfo(tagInfo.getLinkuuid(), tagInfo.getUid());
+        tagInfo = sqLiteManage.getConfigTagInfo(mainApp.getDaoSession(), tagInfo.getLinkuuid(), tagInfo.getUid());
+        tempList.clear();
+        humList.clear();
 
         byte[] systemStatus = BluetoothUtil.byteToBitBytes(configBytes[3]);
         if (systemStatus[7] == 0x01 && systemStatus[6] == 0x00) {
@@ -504,8 +513,8 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             tagInfo.setJustTemp(true);
         }
 
-        tagInfo.setIndex(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{configBytes[4], configBytes[5]}));
-        if (tagInfo.getIndex() == 0) {
+        tagInfo.setNumber(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{configBytes[4], configBytes[5]}));
+        if (tagInfo.getNumber() == 0) {
             Message message = new Message();
             message.what = gather_error;
             message.obj = "没有记录信息";
@@ -526,16 +535,16 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         calendar.set(Calendar.MILLISECOND, 0);
         tagInfo.setEndTime(calendar.getTimeInMillis());
 
-        JSONModel.Goods goods = new JSONModel.Goods();
-        goods.setHightmpnumber(configBytes[13]);
-        goods.setLowtmpnumber(configBytes[14]);
-        goods.setHighhumiditynumber(configBytes[15]);
-        goods.setLowhumiditynumber(configBytes[16]);
-        goods.setOnetime(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{configBytes[17], configBytes[18]}));
-        tagInfo.setGoods(goods);
+        goodsType = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
+        goodsType.setHightmpnumber(configBytes[13]);
+        goodsType.setLowtmpnumber(configBytes[14]);
+        goodsType.setHighhumiditynumber(configBytes[15]);
+        goodsType.setLowhumiditynumber(configBytes[16]);
+        goodsType.setOnetime(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{configBytes[17], configBytes[18]}));
+        tagInfo.setGoods(gson.toJson(goodsType));
 
-        long startTime = tagInfo.getEndTime() - (tagInfo.getIndex() - 1) * goods.getOnetime() * 60 * 1000L;
-        if (startTime - tagInfo.getStartTime() > goods.getOnetime() * 60 * 1000L) {
+        long startTime = tagInfo.getEndTime() - (tagInfo.getNumber() - 1) * goodsType.getOnetime() * 60 * 1000L;
+        if (startTime - tagInfo.getStartTime() > goodsType.getOnetime() * 60 * 1000L) {
             tagInfo.setStartTime(startTime);
         }
 
@@ -569,25 +578,25 @@ public class DeviceListActivity extends BluetoothBaseActivity {
 //        if (temp == 2.55 || hum == 255){
 //            return;
 //        }
-        tagInfo.getTempList().add(temp);
-        tagInfo.getHumList().add(hum);
-        if (tagInfo.getHum_max() == 0 && tagInfo.getTemp_max() == 0) {
-            tagInfo.setTemp_max(temp);
-            tagInfo.setTemp_min(temp);
-            tagInfo.setHum_max(hum);
-            tagInfo.setHum_min(hum);
+        tempList.add(temp);
+        humList.add(hum);
+        if (tagInfo.getTempMin() == 0 && tagInfo.getTempMax() == 0) {
+            tagInfo.setTempMin(temp);
+            tagInfo.setTempMax(temp);
+            tagInfo.setHumMax(hum);
+            tagInfo.setHumMin(hum);
         }
-        tagInfo.setTemp_min(Math.min(tagInfo.getTemp_min(), temp));
-        tagInfo.setTemp_max(Math.max(tagInfo.getTemp_max(), temp));
-        tagInfo.setHum_max(Math.max(tagInfo.getHum_max(), hum));
-        tagInfo.setHum_min(Math.min(tagInfo.getHum_min(), hum));
+        tagInfo.setTempMin(Math.min(tagInfo.getTempMin(), temp));
+        tagInfo.setTempMax(Math.max(tagInfo.getTempMax(), temp));
+        tagInfo.setHumMax(Math.max(tagInfo.getHumMax(), hum));
+        tagInfo.setHumMin(Math.min(tagInfo.getHumMin(), hum));
         if (tagInfo.isOutLimit()) {
             return;
         }
-        if (tagInfo.getGoods().getLowtmpnumber() > temp
-                || tagInfo.getGoods().getHightmpnumber() < temp
-                || tagInfo.getGoods().getLowhumiditynumber() > hum
-                || tagInfo.getGoods().getHighhumiditynumber() < hum) {
+        if (goodsType.getLowtmpnumber() > temp
+                || goodsType.getHightmpnumber() < temp
+                || goodsType.getLowhumiditynumber() > hum
+                || goodsType.getHighhumiditynumber() < hum) {
             tagInfo.setOutLimit(true);
         }
     }
@@ -674,12 +683,12 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         return L1;
     }
 
-    private byte[] getConfigBytes(JSONModel.TagInfo tagInfo) throws Exception {
+    private byte[] getConfigBytes(TagInfo tagInfo) throws Exception {
         sequence_id += 1;
 
-        JSONModel.Goods goods = tagInfo.getGoods();
+        goodsType = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
         byte[] configValues_1 = {-1, -1, -127,
-                (byte) goods.getHightmpnumber(), (byte) goods.getLowtmpnumber(), (byte) goods.getHighhumiditynumber(), (byte) goods.getLowhumiditynumber(),
+                (byte) goodsType.getHightmpnumber(), (byte) goodsType.getLowtmpnumber(), (byte) goodsType.getHighhumiditynumber(), (byte) goodsType.getLowhumiditynumber(),
                 0x00, 0x01,
                 0x00, 0x01
         };
@@ -706,12 +715,14 @@ public class DeviceListActivity extends BluetoothBaseActivity {
         linkuuidBytes_1[0] = (byte) linkuuidBytes.length;
         System.arraycopy(linkuuidBytes, 0, linkuuidBytes_1, 1, linkuuidBytes.length);
 
-        byte[] boxidBytes = String.valueOf(tagInfo.getBox().getBoxid()).getBytes("GB2312");
+        JSONModel.Box box = gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
+
+        byte[] boxidBytes = String.valueOf(box.getBoxid()).getBytes("GB2312");
         byte[] boxidBytes_1 = new byte[boxidBytes.length + 1];
         boxidBytes_1[0] = (byte) boxidBytes.length;
         System.arraycopy(boxidBytes, 0, boxidBytes_1, 1, boxidBytes.length);
 
-        byte[] goodsIdBytes = String.valueOf(tagInfo.getGoods().getId()).getBytes("GB2312");
+        byte[] goodsIdBytes = String.valueOf(goodsType.getId()).getBytes("GB2312");
         byte[] goodsIdBytes_1 = new byte[goodsIdBytes.length + 1];
         goodsIdBytes_1[0] = (byte) goodsIdBytes.length;
         System.arraycopy(goodsIdBytes, 0, goodsIdBytes_1, 1, goodsIdBytes.length);
@@ -900,7 +911,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                     if (mScanning == true)
                         scanLeDevice(false);
                     if (bleManageState == BLE_UNBIND) {
-                        tagInfo = new JSONModel.TagInfo();
+                        tagInfo = new TagInfo();
                         tagInfo.setUid(bleTag.getAddress());
                         unBindTag();
                         return;
@@ -1018,8 +1029,8 @@ public class DeviceListActivity extends BluetoothBaseActivity {
     }
 
     private void bindTag() {
-        JSONModel.Box box = tagInfo.getBox();
-        JSONModel.Goods goods = tagInfo.getGoods();
+        JSONModel.Box box = gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
+        GoodsType goods = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
 
         final HashMap<String, String> map = getDefaultMap();
         map.put("linkuuid", tagInfo.getLinkuuid());
@@ -1070,7 +1081,7 @@ public class DeviceListActivity extends BluetoothBaseActivity {
                     Utils.showLongToast(returnObject.getsMsg(), mContext);
                     return;
                 }
-                sqLiteManage.insertFirstTagInfo(tagInfo);
+                sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
                 Intent intent = new Intent();
                 intent.putExtra(Constants.tag_info, tagInfo);
                 setResult(RESULT_OK, intent);
