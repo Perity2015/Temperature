@@ -59,7 +59,7 @@ public class StartActivity extends AppCompatActivity {
     }
 
     public static class PlaceholderFragment extends Fragment {
-        private int[] imageIds = {R.drawable.image_guide_1, R.drawable.image_guide_2, R.drawable.image_guide_3};
+        private int[] imageIds = {R.drawable.ic_guide_1, R.drawable.ic_guide_2, R.drawable.ic_guide_3};
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 

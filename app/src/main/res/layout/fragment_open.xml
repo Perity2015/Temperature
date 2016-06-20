@@ -15,7 +15,7 @@
             android:paddingRight="@dimen/activity_horizontal_margin">
 
             <TextView
-                android:drawableLeft="@drawable/image_manage_address"
+                android:drawableLeft="@drawable/ic_manage_address"
                 android:gravity="center_vertical"
                 android:text="@string/text_address"
                 android:textColor="@color/colorRecordText3"
@@ -43,7 +43,7 @@
             android:paddingRight="@dimen/activity_horizontal_margin">
 
             <TextView
-                android:drawableLeft="@drawable/image_manage_box"
+                android:drawableLeft="@drawable/ic_manage_box"
                 android:gravity="center_vertical"
                 android:text="@string/text_box"
                 android:textColor="@color/colorRecordText2"
@@ -72,7 +72,7 @@
             android:gravity="center_vertical">
 
             <TextView
-                android:drawableLeft="@drawable/image_manage_goods"
+                android:drawableLeft="@drawable/ic_manage_goods"
                 android:gravity="center_vertical"
                 android:text="@string/text_goods"
                 android:textColor="@color/colorRecordText2"
@@ -102,7 +102,7 @@
             android:gravity="center_vertical">
 
             <TextView
-                android:drawableLeft="@drawable/image_manage_object"
+                android:drawableLeft="@drawable/ic_manage_object"
                 android:gravity="center_vertical"
                 android:text="@string/text_object"
                 android:textColor="@color/colorRecordText2"
@@ -132,7 +132,7 @@
             android:paddingRight="@dimen/activity_horizontal_margin">
 
             <TextView
-                android:drawableLeft="@drawable/image_manage_seal_status"
+                android:drawableLeft="@drawable/ic_manage_seal_status"
                 android:gravity="center_vertical"
                 android:text="@string/text_exception"
                 android:textColor="@color/colorRecordText2"
@@ -159,7 +159,7 @@
             android:visibility="gone">
 
             <TextView
-                android:drawableLeft="@drawable/image_manage_describe"
+                android:drawableLeft="@drawable/ic_manage_describe"
                 android:gravity="center_vertical"
                 android:text="@string/text_exception_info"
                 android:textColor="@color/colorRecordText2"
@@ -191,7 +191,7 @@
 
             <TextView
                 android:id="@+id/text_seal_title"
-                android:drawableLeft="@drawable/image_manage_seal"
+                android:drawableLeft="@drawable/ic_manage_seal"
                 android:gravity="center_vertical"
                 android:text="@string/text_seal"
                 android:textColor="@color/colorRecordText2"
@@ -200,7 +200,7 @@
             <TextView
                 android:id="@+id/text_seal"
                 android:layout_weight="1.0"
-                android:drawableRight="@drawable/icon_text_right"
+                android:drawableRight="@drawable/ic_text_right"
                 android:ellipsize="start"
                 android:gravity="center_vertical"
                 android:hint="点击读取"
@@ -223,7 +223,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_centerInParent="true"
-                android:src="@drawable/image_manage_picture" />
+                android:src="@drawable/ic_manage_picture" />
 
             <ImageView
                 android:id="@+id/image_delete"
@@ -231,7 +231,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/image_manage_delete"
+                android:src="@drawable/ic_manage_delete"
                 android:visibility="gone" />
 
         </RelativeLayout>

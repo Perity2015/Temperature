@@ -18,9 +18,6 @@ import com.huiwu.temperaturecontrol.bean.JSONModel;
  */
 public class ManageFragment extends BaseFragment {
     public ManageActivity manageActivity;
-    public JSONModel.Box box;
-    public JSONModel.TempLink tempLink;
-    public String option;
 
     public ManageFragment() {
     }
@@ -29,8 +26,5 @@ public class ManageFragment extends BaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         manageActivity = (ManageActivity) getActivity();
-        box = manageActivity.box;
-        tempLink = manageActivity.tempLink;
-        option = manageActivity.option;
     }
 }

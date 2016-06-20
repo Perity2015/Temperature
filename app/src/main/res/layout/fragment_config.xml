@@ -31,7 +31,7 @@
                 <TableRow android:gravity="center_vertical">
 
                     <TextView
-                        android:drawableLeft="@drawable/image_manage_box"
+                        android:drawableLeft="@drawable/ic_manage_box"
                         android:gravity="center_vertical"
                         android:text="@string/text_box"
                         android:textColor="@color/colorRecordText2"
@@ -54,7 +54,7 @@
                 <TableRow android:gravity="center_vertical">
 
                     <TextView
-                        android:drawableLeft="@drawable/image_manage_goods"
+                        android:drawableLeft="@drawable/ic_manage_goods"
                         android:gravity="center_vertical"
                         android:text="@string/text_goods"
                         android:textColor="@color/colorRecordText2"
@@ -63,7 +63,7 @@
                     <TextView
                         android:id="@+id/text_goods"
                         android:layout_weight="1.0"
-                        android:drawableRight="@drawable/icon_text_right"
+                        android:drawableRight="@drawable/ic_text_right"
                         android:ellipsize="start"
                         android:gravity="center_vertical"
                         android:hint="点击选择"
@@ -81,7 +81,7 @@
                 <TableRow>
 
                     <TextView
-                        android:drawableLeft="@drawable/image_manage_sample_info"
+                        android:drawableLeft="@drawable/ic_manage_sample_info"
                         android:gravity="center_vertical"
                         android:text="@string/text_sample_info"
                         android:textColor="@color/colorRecordText2"
@@ -105,7 +105,7 @@
                 <TableRow android:gravity="center_vertical">
 
                     <TextView
-                        android:drawableLeft="@drawable/image_manage_object"
+                        android:drawableLeft="@drawable/ic_manage_object"
                         android:gravity="center_vertical"
                         android:text="@string/text_object"
                         android:textColor="@color/colorRecordText2"
@@ -114,7 +114,7 @@
                     <TextView
                         android:id="@+id/text_object"
                         android:layout_weight="1.0"
-                        android:drawableRight="@drawable/icon_text_right"
+                        android:drawableRight="@drawable/ic_text_right"
                         android:ellipsize="start"
                         android:gravity="center_vertical"
                         android:hint="点击选择"

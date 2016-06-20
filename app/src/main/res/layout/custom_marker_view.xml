@@ -11,8 +11,6 @@
         android:background="@android:color/darker_gray"
         android:ellipsize="end"
         android:gravity="left"
-        android:lines="3"
-        android:text=""
         android:textColor="@android:color/black"
         android:textSize="12sp"
         android:padding="2dp"

@@ -12,13 +12,13 @@
         android:id="@+id/btn_bluetooth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/image_bluetooth_connect" />
+        android:src="@drawable/ic_bluetooth_connect" />
 
     <ImageView
         android:id="@+id/btn_nfc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:src="@drawable/image_nfc_read" />
+        android:src="@drawable/ic_nfc_read" />
 
 </LinearLayout>

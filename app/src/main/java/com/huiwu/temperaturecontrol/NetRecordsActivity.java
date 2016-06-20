@@ -72,7 +72,7 @@ public class NetRecordsActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_back);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
         recyclerView_links = (RecyclerView) findViewById(R.id.recycler_links);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
@@ -372,9 +372,9 @@ public class NetRecordsActivity extends BaseActivity {
                 tagInfo.setHumidityArray(gson.toJson(hum_list));
 
                 Intent intent = new Intent(mContext, ChartActivity.class);
-                intent.putExtra("tagInfo", tagInfo);
+                intent.putExtra(Constants.TAG_INFO, tagInfo);
                 intent.putExtra(Constants.IS_ON_LINE, true);
-                intent.putExtra("timeArray", timeArray);
+                intent.putExtra(Constants.TIME_ARRAY, timeArray);
                 startActivity(intent);
             }
 

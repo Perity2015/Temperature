@@ -43,7 +43,7 @@
             android:id="@+id/image_device_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon_right" />
+            android:src="@drawable/ic_right" />
 
         <Button
             android:id="@+id/btn_device_config"

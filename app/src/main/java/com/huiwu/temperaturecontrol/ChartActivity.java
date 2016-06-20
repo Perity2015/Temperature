@@ -89,6 +89,8 @@ public class ChartActivity extends BaseActivity {
     LinearLayout layoutChart;
     @Bind(R.id.action_up)
     FloatingActionButton actionUp;
+    @Bind(R.id.title_chart)
+    TextView titleChart;
 
     private TagInfo tagInfo;
     private double[] dataArray;
@@ -116,7 +118,7 @@ public class ChartActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_back);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
         screen_width = ScreenUtils.getScreenWidth(mContext);
         screen_height = ScreenUtils.getScreenHeight(mContext);
@@ -134,7 +136,7 @@ public class ChartActivity extends BaseActivity {
         box = gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
 
         if (getIntent().getBooleanExtra(Constants.IS_ON_LINE, false)) {
-            timeArray = getIntent().getStringArrayListExtra("timeArray");
+            timeArray = getIntent().getStringArrayListExtra(Constants.TIME_ARRAY);
         } else {
             timeArray = new ArrayList<>();
             for (int i = 0; i < dataArray.length; i++) {
@@ -259,9 +261,9 @@ public class ChartActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         menuItem = menu.add(R.string.confirm);
         if (haveUpload) {
-            menuItem.setVisible(false);
+            hideMenuItem();
         }
-        menuItem.setIcon(R.drawable.icon_upload);
+        menuItem.setIcon(R.drawable.ic_upload);
         menuItem.setTitle(R.string.action_upload);
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -455,6 +457,11 @@ public class ChartActivity extends BaseActivity {
         view_to_right.startAnimation(animation_to_roght);
     }
 
+    private void hideMenuItem() {
+        titleChart.setPadding(0, 0, (int) getResources().getDimension(android.R.dimen.app_icon_size), 0);
+        menuItem.setVisible(false);
+    }
+
     public class MyMarkerView extends MarkerView {
         private TextView tvContent;
 
@@ -531,7 +538,7 @@ public class ChartActivity extends BaseActivity {
                     return;
                 }
                 haveUpload = true;
-                menuItem.setVisible(false);
+                hideMenuItem();
                 tagInfo.setHavepost(true);
                 sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
                 showNoticeDialog(returnObject.getsMsg(), false);
@@ -592,7 +599,7 @@ public class ChartActivity extends BaseActivity {
                 }
                 haveUpload = true;
                 tagInfo.setHavepost(true);
-                menuItem.setVisible(false);
+                hideMenuItem();
                 sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
                 showNoticeDialog(returnObject.getsMsg(), false);
             }

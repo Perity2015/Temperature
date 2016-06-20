@@ -1,10 +1,12 @@
 package com.huiwu.temperaturecontrol.fragment;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,7 +17,6 @@ import android.widget.ImageView;
 
 import com.huiwu.temperaturecontrol.NfcActivity;
 import com.huiwu.temperaturecontrol.R;
-import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bluetooth.DeviceListActivity;
 
 import butterknife.Bind;
@@ -68,20 +69,46 @@ public class GatherFragment extends BaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        MenuItem menuItem = menu.add(R.string.confirm);
-        menuItem.setIcon(R.drawable.image_unbind);
+        MenuItem menuItem = menu.add("解绑");
+        menuItem.setIcon(R.drawable.ic_unbind);
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(getContext(), NfcActivity.class);
-                intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_UNBIND);
-                startActivity(intent);
+                showUnbindDialog();
                 return true;
             }
         });
     }
 
+    private void showUnbindDialog() {
+        if (mNfcAdapter == null) {
+            Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
+            intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_UNBIND);
+            startActivity(intent_ble);
+            return;
+        }
+        String[] items = getResources().getStringArray(R.array.unbindItems);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
+                        intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_UNBIND);
+                        startActivity(intent_nfc);
+                        break;
+                    case 1:
+                        Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
+                        intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_UNBIND);
+                        startActivity(intent_ble);
+                        break;
+                }
+            }
+        });
+        builder.show();
+    }
 
     @OnClick({R.id.btn_bluetooth, R.id.btn_nfc})
     public void onClick(View view) {

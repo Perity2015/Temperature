@@ -1,6 +1,6 @@
 package com.huiwu.temperaturecontrol.bluetooth;
 
-import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.bean.TestLog;
 
 import java.util.Arrays;
 
@@ -60,7 +60,7 @@ public class BluetoothUtil {
         for (int i = 0; i < bitBytes.length; i++) {
             bitBytes[i] = (byte) ((b >> i) & 0x1);
         }
-        TLog.d(TAG, Arrays.toString(bitBytes));
+        TestLog.d(TAG, Arrays.toString(bitBytes));
         return bitBytes;
     }
 

@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"
-        android:src="@drawable/image_home_page" />
+        android:src="@drawable/ic_home_page" />
 
     <ImageView
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:src="@drawable/image_qrcode" />
+            android:src="@drawable/ic_qrcode" />
 
         <TextView
             android:layout_width="wrap_content"

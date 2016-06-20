@@ -1,7 +1,10 @@
 package com.huiwu.temperaturecontrol;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +13,7 @@ import android.view.SurfaceView;
 import com.huiwu.qrcode.BaseCaptureActivity;
 import com.huiwu.qrcode.view.ViewfinderView;
 import com.huiwu.temperaturecontrol.bean.Constants;
+import com.huiwu.temperaturecontrol.bluetooth.DeviceListActivity;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -51,11 +55,39 @@ public class CaptureActivity extends BaseCaptureActivity {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         } else if (item.getItemId() == R.id.action_nfc) {
-            Intent intent = new Intent(CaptureActivity.this, NfcActivity.class);
-            intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_READ_UID);
-            startActivityForResult(intent, REQUEST_NFC);
+            showUidDialog();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showUidDialog() {
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (nfcAdapter == null) {
+            Intent intent_ble = new Intent(CaptureActivity.this, DeviceListActivity.class);
+            intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_READ_UID);
+            startActivityForResult(intent_ble, REQUEST_NFC);
+            return;
+        }
+        String[] items = {"蓝牙读取", "NFC读取"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        Intent intent_ble = new Intent(CaptureActivity.this, DeviceListActivity.class);
+                        intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_READ_UID);
+                        startActivityForResult(intent_ble, REQUEST_NFC);
+                        break;
+                    case 1:
+                        Intent intent_nfc = new Intent(CaptureActivity.this, NfcActivity.class);
+                        intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_READ_UID);
+                        startActivityForResult(intent_nfc, REQUEST_NFC);
+                        break;
+                }
+            }
+        });
+        builder.show();
     }
 
     @Override

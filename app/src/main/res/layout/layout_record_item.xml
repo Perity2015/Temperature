@@ -33,7 +33,7 @@
                 <TableRow>
 
                     <TextView
-                        android:drawableLeft="@drawable/image_record_object"
+                        android:drawableLeft="@drawable/ic_record_object"
                         android:gravity="center_vertical"
                         android:text="@string/text_object"
                         android:textColor="@color/colorRecordText3"
@@ -51,7 +51,7 @@
                 <TableRow>
 
                     <TextView
-                        android:drawableLeft="@drawable/image_record_box"
+                        android:drawableLeft="@drawable/ic_record_box"
                         android:gravity="center_vertical"
                         android:text="@string/text_box"
                         android:textColor="@color/colorRecordText3"
@@ -69,7 +69,7 @@
                 <TableRow>
 
                     <TextView
-                        android:drawableLeft="@drawable/image_record_goods"
+                        android:drawableLeft="@drawable/ic_record_goods"
                         android:gravity="center_vertical"
                         android:text="@string/text_goods"
                         android:textColor="@color/colorRecordText3"
@@ -89,7 +89,7 @@
                 android:id="@+id/image_record_item_upload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/image_upload" />
+                android:src="@drawable/ic_record_upload" />
         </LinearLayout>
 
         <ImageView
@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
                 android:background="@android:color/transparent"
-                android:drawableTop="@drawable/image_record_time"
+                android:drawableTop="@drawable/ic_record_time"
                 android:ellipsize="start"
                 android:singleLine="true" />
 
@@ -127,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
                 android:background="@android:color/transparent"
-                android:drawableTop="@drawable/image_record_hum"
+                android:drawableTop="@drawable/ic_record_hum"
                 android:ellipsize="start"
                 android:singleLine="true" />
 
@@ -143,7 +143,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
                 android:background="@android:color/transparent"
-                android:drawableTop="@drawable/image_record_temp"
+                android:drawableTop="@drawable/ic_record_temp"
                 android:ellipsize="start"
                 android:singleLine="true" />
 

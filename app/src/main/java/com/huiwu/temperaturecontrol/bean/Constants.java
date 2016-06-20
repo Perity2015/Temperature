@@ -16,6 +16,8 @@ public class Constants {
 
     public static final String SHARED = "SHARED";
 
+    public static final String DB_NAME = "temperature-db";
+
     public static final String USER_INFO = "USER_INFO";
 
     public static final String LOGIN_TIME = "LOGIN_TIME";
@@ -32,6 +34,8 @@ public class Constants {
 
     public static final String TAG_INFO = "TAG_INFO";
 
+    public static final String TIME_ARRAY = "TIME_ARRAY";
+
     public static final String SELECT_OBJECT = "SELECT_OBJECT";
 
     public static final String READ_UID = "READ_UID";
@@ -40,7 +44,7 @@ public class Constants {
 
     public static final String PICTURE_FILE = "PICTURE_FILE";
 
-    public static final String HOST = "http://hello.yunrfid.com";
+    public static String HOST = "http://hello.yunrfid.com";
 
     public static final String LOGIN_URL = HOST + "/CoreSYS.SYS/LGKeyLogin.ajax";
 

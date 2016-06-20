@@ -47,8 +47,6 @@ import okhttp3.Response;
  * A simple {@link Fragment} subclass.
  */
 public class OpenFragment extends ManageFragment {
-
-
     @Bind(R.id.text_address)
     TextView textAddress;
     @Bind(R.id.text_box_no)
@@ -101,11 +99,11 @@ public class OpenFragment extends ManageFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         textAddress.requestFocus();
-        textBoxNo.setText(box.getBoxno());
-        textGoods.setText(tempLink.getGoodtype() + "  " + tempLink.getGoodchildtype());
-        textObject.setText(tempLink.getCarno());
-        textSeal.setText(tempLink.getSealrfid());
-        if (box.getBoxtype().equals("LOCK")) {
+        textBoxNo.setText(manageActivity.box.getBoxno());
+        textGoods.setText(manageActivity.tempLink.getGoodtype() + "  " + manageActivity.tempLink.getGoodchildtype());
+        textObject.setText(manageActivity.tempLink.getCarno());
+        textSeal.setText(manageActivity.tempLink.getSealrfid());
+        if (manageActivity.box.getBoxtype().equals("LOCK")) {
             textSealTitle.setText("电子锁：");
         }
 
@@ -165,7 +163,7 @@ public class OpenFragment extends ManageFragment {
 
     private void openTag() {
         final HashMap<String, String> map = baseActivity.getDefaultMap();
-        map.put("boxno", box.getBoxno());
+        map.put("boxno", manageActivity.box.getBoxno());
         if (mainApp.bdLocation != null) {
             map.put("addr", mainApp.bdLocation.getAddress());
             map.put("lat", String.valueOf(mainApp.bdLocation.getLatitude()));
@@ -176,9 +174,6 @@ public class OpenFragment extends ManageFragment {
         map.put("iserror", String.valueOf(checkException.isChecked()));
         map.put("errormsg", textException.getText().toString().trim());
         map.put("sealrfid", textSeal.getText().toString());
-//        HashMap<String, File> fileHashMap = new HashMap<>();
-//        File file = new File(Constants.getStoragePath(), picName);
-//        fileHashMap.put("pic", file);
         ConnectionUtil.postParams(Constants.OPEN_TAG, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
@@ -200,19 +195,20 @@ public class OpenFragment extends ManageFragment {
                 }
                 File file = new File(Constants.getStoragePath(), picName);
                 Picture picture = new Picture();
-                picture.setBoxno(box.getBoxno());
-                picture.setLinkuuid(box.getLinkuuid());
+                picture.setBoxno(manageActivity.box.getBoxno());
+                picture.setLinkuuid(manageActivity.box.getLinkuuid());
                 picture.setFile(file.getAbsolutePath());
+                picture.setSealOropen("open");
                 sqLiteManage.insertPicture(mainApp.getDaoSession(), picture);
 
                 Bundle bundle = new Bundle();
                 bundle.putString("LGKey", userInfo.getLGKey());
-                bundle.putString("boxno", box.getBoxno());
-                bundle.putString("linkuuid", box.getLinkuuid());
+                bundle.putString("boxno", manageActivity.box.getBoxno());
+                bundle.putString("linkuuid", manageActivity.box.getLinkuuid());
                 bundle.putString("file", file.getAbsolutePath());
                 bundle.putString("sealOropen", "open");
                 SyncService.startActionNow(getContext(), bundle);
-                if (box.getBoxtype().equals("LOCK")) {
+                if (manageActivity.box.getBoxtype().equals("LOCK")) {
                     JSONModel.Lock lock = gson.fromJson(returnObject.getM_ReturnOBJJsonObject(), JSONModel.Lock.class);
                     Intent intent = new Intent(getContext(), NfcActivity.class);
                     intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_OPEN);
@@ -264,7 +260,7 @@ public class OpenFragment extends ManageFragment {
                 startActivityForResult(intent, REQUEST_PHOTO_CAMERA);
                 break;
             case R.id.image_delete:
-                imagePicture.setImageResource(R.drawable.image_manage_picture);
+                imagePicture.setImageResource(R.drawable.ic_manage_picture);
                 imagePicture.setTag("");
                 imageDelete.setVisibility(View.GONE);
                 break;

@@ -97,9 +97,9 @@ public class SealFragment extends ManageFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         textAddress.requestFocus();
-        textGoods.setText(tempLink.getGoodtype() + "  " + tempLink.getGoodchildtype());
-        textObject.setText(tempLink.getCarno());
-        textBoxNo.setText(box.getBoxno());
+        textGoods.setText(manageActivity.tempLink.getGoodtype() + "  " + manageActivity.tempLink.getGoodchildtype());
+        textObject.setText(manageActivity.tempLink.getCarno());
+        textBoxNo.setText(manageActivity.box.getBoxno());
         if (manageActivity.box.getBoxtype().equals("LOCK")) {
             textSealTitle.setText("电子锁：");
         }
@@ -220,7 +220,7 @@ public class SealFragment extends ManageFragment {
 
     private void sealTag() {
         final HashMap<String, String> map = manageActivity.getDefaultMap();
-        map.put("boxno", box.getBoxno());
+        map.put("boxno", manageActivity.box.getBoxno());
         map.put("sealrfid", textSeal.getText().toString());
         if (mainApp.bdLocation != null) {
             map.put("addr", mainApp.bdLocation.getAddress());
@@ -253,15 +253,16 @@ public class SealFragment extends ManageFragment {
                 }
                 File file = new File(Constants.getStoragePath(), picName);
                 Picture picture = new Picture();
-                picture.setBoxno(box.getBoxno());
-                picture.setLinkuuid(box.getLinkuuid());
+                picture.setBoxno(manageActivity.box.getBoxno());
+                picture.setLinkuuid(manageActivity.box.getLinkuuid());
                 picture.setFile(file.getAbsolutePath());
+                picture.setSealOropen("seal");
                 sqLiteManage.insertPicture(mainApp.getDaoSession(), picture);
 
                 Bundle bundle = new Bundle();
                 bundle.putString("LGKey", userInfo.getLGKey());
-                bundle.putString("boxno", box.getBoxno());
-                bundle.putString("linkuuid", box.getLinkuuid());
+                bundle.putString("boxno", manageActivity.box.getBoxno());
+                bundle.putString("linkuuid", manageActivity.box.getLinkuuid());
                 bundle.putString("file", file.getAbsolutePath());
                 bundle.putString("sealOropen", "seal");
                 SyncService.startActionNow(getContext(), bundle);
@@ -291,6 +292,10 @@ public class SealFragment extends ManageFragment {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.text_seal:
+                if (mNfcAdapter == null) {
+                    Utils.showLongToast(getString(R.string.unSupport_nfc), mContext);
+                    return;
+                }
                 Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
                 intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_READ_UID);
                 startActivityForResult(intent_nfc, REQUEST_READ_UID);
@@ -314,7 +319,7 @@ public class SealFragment extends ManageFragment {
                 startActivityForResult(intent, REQUEST_PHOTO_CAMERA);
                 break;
             case R.id.image_delete:
-                imagePicture.setImageResource(R.drawable.image_manage_picture);
+                imagePicture.setImageResource(R.drawable.ic_manage_picture);
                 imagePicture.setTag("");
                 imageDelete.setVisibility(View.GONE);
                 break;

@@ -38,8 +38,6 @@ import butterknife.OnClick;
  * A simple {@link Fragment} subclass.
  */
 public class ConfigFragment extends ManageFragment {
-
-
     @Bind(R.id.text_box_no)
     TextView textBoxNo;
     @Bind(R.id.text_goods)
@@ -74,7 +72,7 @@ public class ConfigFragment extends ManageFragment {
         setHasOptionsMenu(true);
 
         tagInfo = new TagInfo();
-        tempLink = new JSONModel.TempLink();
+        manageActivity.tempLink = new JSONModel.TempLink();
     }
 
     @Override
@@ -90,8 +88,8 @@ public class ConfigFragment extends ManageFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         textConfigNotice.requestFocus();
-        textBoxNo.setText(box.getBoxno());
-        tagInfo.setBox(gson.toJson(box));
+        textBoxNo.setText(manageActivity.box.getBoxno());
+        tagInfo.setBox(gson.toJson(manageActivity.box));
 
         seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -149,13 +147,13 @@ public class ConfigFragment extends ManageFragment {
             selectRfidGoods = data.getParcelableExtra(Constants.SELECT_OBJECT);
             textObject.setText(selectRfidGoods.getRfidgoodname());
             tagInfo.setObject(selectRfidGoods.getRfidgoodname());
-            tempLink.setCarno(selectRfidGoods.getRfidgoodname());
+            manageActivity.tempLink.setCarno(selectRfidGoods.getRfidgoodname());
         } else if (requestCode == REQUEST_GOODS) {
             selectGoods = data.getParcelableExtra(Constants.SELECT_OBJECT);
             textGoods.setText(selectGoods.getParentgoodtype() + "    " + selectGoods.getGoodtype());
 
-            tempLink.setGoodtype(selectGoods.getParentgoodtype());
-            tempLink.setGoodchildtype(selectGoods.getGoodtype());
+            manageActivity.tempLink.setGoodtype(selectGoods.getParentgoodtype());
+            manageActivity.tempLink.setGoodchildtype(selectGoods.getGoodtype());
 
             tagInfo.setGoods(gson.toJson(selectGoods));
 
@@ -168,9 +166,9 @@ public class ConfigFragment extends ManageFragment {
             textSampleInfo.setText(sampleInfo);
 
         } else if (requestCode == REQUEST_CONFIG) {
-            if (!TextUtils.equals("normal", box.getBoxtype())) {
+            if (!TextUtils.equals("normal", manageActivity.box.getBoxtype())) {
                 TagInfo tagInfo = data.getParcelableExtra(Constants.TAG_INFO);
-                box.setLinkuuid(tagInfo.getLinkuuid());
+                manageActivity.box.setLinkuuid(tagInfo.getLinkuuid());
                 showFinishAddDialog();
             } else {
                 manageActivity.finish();
@@ -187,8 +185,8 @@ public class ConfigFragment extends ManageFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                option = ManageActivity.OPTION_SEAL;
-                manageActivity.setSelectFragment(option);
+                manageActivity.option = ManageActivity.OPTION_SEAL;
+                manageActivity.setSelectFragment(manageActivity.option);
             }
         });
         builder.setNegativeButton("结束", new DialogInterface.OnClickListener() {

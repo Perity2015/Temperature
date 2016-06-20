@@ -35,7 +35,7 @@ public class ChooseActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_back);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
         setSelectFragment(getIntent().getStringExtra(CHOOSE_FLAG));
     }

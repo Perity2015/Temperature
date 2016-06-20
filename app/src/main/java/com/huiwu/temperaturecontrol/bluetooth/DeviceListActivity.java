@@ -22,7 +22,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +40,7 @@ import com.huiwu.temperaturecontrol.ChartActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.bean.TestLog;
 import com.huiwu.temperaturecontrol.nfc.Helper;
 import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
 import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
@@ -96,6 +95,7 @@ public class DeviceListActivity extends BaseActivity {
     public static final int BLE_CONFIG = 1;
     public static final int BLE_GATHER = 2;
     public static final int BLE_UNBIND = 3;
+    public static final int BLE_READ_UID = 4;
     public int bleManageState = BLE_GATHER;
 
     /**
@@ -240,7 +240,7 @@ public class DeviceListActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_back);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -284,7 +284,7 @@ public class DeviceListActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAG, Arrays.toString(scanRecord));
+                        TestLog.d(TAG, Arrays.toString(scanRecord));
                         //0xFF,0xFF,0xFF 标识符
                         if (scanRecord[4] == (byte) 0xFF && scanRecord[5] == (byte) 0xFF && scanRecord[6] == (byte) 0xFF)
                             addDevice(device, rssi, scanRecord);
@@ -296,9 +296,9 @@ public class DeviceListActivity extends BaseActivity {
         mServiceConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder rawBinder) {
                 mService = ((BluetoothService.LocalBinder) rawBinder).getService();
-                Log.d(TAG, "onServiceConnected mService= " + mService);
+                TestLog.d(TAG, "onServiceConnected mService= " + mService);
                 if (!mService.initialize()) {
-                    Log.e(TAG, "Unable to initialize Bluetooth");
+                    TestLog.e(TAG, "Unable to initialize Bluetooth");
                     finish();
                 }
             }
@@ -313,7 +313,7 @@ public class DeviceListActivity extends BaseActivity {
             public void onReceive(Context context, Intent intent) {
                 switch (intent.getAction()) {
                     case BluetoothService.ACTION_GATT_CONNECTED:
-                        Log.d(TAG, "UART_CONNECT_MSG");
+                        TestLog.d(TAG, "UART_CONNECT_MSG");
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
@@ -334,7 +334,7 @@ public class DeviceListActivity extends BaseActivity {
                         mState = UART_PROFILE_CONNECTED;
                         break;
                     case BluetoothService.ACTION_GATT_DISCONNECTED:
-                        Log.d(TAG, "UART_DISCONNECT_MSG");
+                        TestLog.d(TAG, "UART_DISCONNECT_MSG");
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
@@ -346,7 +346,7 @@ public class DeviceListActivity extends BaseActivity {
                         mService.close();
                         break;
                     case BluetoothService.ACTION_GATT_WRITE_SUCCESSED:
-                        Log.d(TAG, "WRITE_CONFIG_SUCCESS");
+                        TestLog.d(TAG, "WRITE_CONFIG_SUCCESS");
                         write_config_info_success = true;
                         if (!parse_config_info_success) {
                             parse_config_info_success = true;
@@ -354,13 +354,13 @@ public class DeviceListActivity extends BaseActivity {
                         }
                         break;
                     case BluetoothService.ACTION_GATT_SERVICES_DISCOVERED:
-                        TLog.d(TAG, "GATT_SERVICES_DISCOVERED");
+                        TestLog.d(TAG, "GATT_SERVICES_DISCOVERED");
                         mService.enableTXNotification(true);
                         break;
                     case BluetoothService.ACTION_DATA_AVAILABLE:
-                        TLog.d(TAG, "DATA_AVAILABLE");
+                        TestLog.d(TAG, "DATA_AVAILABLE");
                         final byte[] receiverBytes = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
-                        TLog.d(TAG, Arrays.toString(receiverBytes));
+                        TestLog.d(TAG, Arrays.toString(receiverBytes));
                         if (receiverBytes[0] == (byte) 0xAB && receiverBytes.length == 8) {
                             temp_sequence_id = Helper.Convert2bytesHexaFormatToInt(new byte[]{receiverBytes[6], receiverBytes[7]});
 //                            if (temp_sequence_id != sequence_id && L2_data_state == L2_data_temp_info) {
@@ -396,12 +396,12 @@ public class DeviceListActivity extends BaseActivity {
                                 parseAvailableData(receiverBytes);
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                Log.d("TAG", e.getLocalizedMessage());
+                                TestLog.d("TAG", e.getLocalizedMessage());
                             }
                         }
                         break;
                     case BluetoothService.DEVICE_DOES_NOT_SUPPORT_UART:
-                        TLog.d(TAG, "Device doesn't support UART. Disconnecting");
+                        TestLog.d(TAG, "Device doesn't support UART. Disconnecting");
                         mService.disconnect();
                         break;
                 }
@@ -442,7 +442,7 @@ public class DeviceListActivity extends BaseActivity {
                 return;
         }
         L2_data_length_received += bytes.length;
-        Log.d(TAG, String.valueOf(L2_data_length_received));
+        TestLog.d(TAG, String.valueOf(L2_data_length_received));
         if (L2_data_length_received >= L2_data_length) {
             switch (L2_data_state) {
                 case L2_date_config_info:
@@ -466,7 +466,6 @@ public class DeviceListActivity extends BaseActivity {
     }
 
     private void parseConfigInfoBytes(byte[] bytes) {
-        Log.d(TAG, "START PARSE");
         if (bytes[0] != 0x01 || bytes[2] != 0x04) {
             Message message = new Message();
             message.what = gather_error;
@@ -631,7 +630,7 @@ public class DeviceListActivity extends BaseActivity {
 
         System.arraycopy(L2, 0, L1, 8, L2.length);
 
-        Log.d(TAG, Arrays.toString(L1));
+        TestLog.d(TAG, Arrays.toString(L1));
         return L1;
     }
 
@@ -664,7 +663,7 @@ public class DeviceListActivity extends BaseActivity {
 
         System.arraycopy(L2, 0, L1, 8, L2.length);
 
-        Log.d(TAG, Arrays.toString(L1));
+        TestLog.d(TAG, Arrays.toString(L1));
         return L1;
     }
 
@@ -679,7 +678,7 @@ public class DeviceListActivity extends BaseActivity {
         L1[7] = (byte) (0xFF & (byte) temp_sequence_id);
 
 
-        Log.d(TAG, Arrays.toString(L1));
+        TestLog.d(TAG, Arrays.toString(L1));
         return L1;
     }
 
@@ -862,7 +861,7 @@ public class DeviceListActivity extends BaseActivity {
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
         } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+            TestLog.e(TAG, ignore.toString());
         }
         unbindService(mServiceConnection);
         mService.stopSelf();
@@ -914,6 +913,10 @@ public class DeviceListActivity extends BaseActivity {
                         tagInfo = new TagInfo();
                         tagInfo.setUid(bleTag.getAddress());
                         unBindTag();
+                        return;
+                    } else if (bleManageState == BLE_READ_UID) {
+                        setResult(RESULT_OK, getIntent().putExtra(Constants.READ_UID, bleTag.getAddress()));
+                        finish();
                         return;
                     }
                     if (mDevice != null) {
@@ -1007,7 +1010,7 @@ public class DeviceListActivity extends BaseActivity {
 
                         byte[] bytes = new byte[num > 20 ? 20 : num];
                         System.arraycopy(L1_data, L1_data_length_sent, bytes, 0, num > 20 ? 20 : num);
-                        Log.d(TAG, Arrays.toString(bytes));
+                        TestLog.d(TAG, Arrays.toString(bytes));
 
                         mService.writeRXCharacteristic(bytes);
 

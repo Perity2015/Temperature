@@ -20,7 +20,7 @@ import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.bean.TestLog;
 import com.huiwu.temperaturecontrol.nfc.Helper;
 import com.huiwu.temperaturecontrol.nfc.NFCCommand;
 import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
@@ -60,7 +60,7 @@ public class NfcActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_back);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
         ImageView image_tag = (ImageView) findViewById(R.id.image_tag);
         image_tag.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.tag_right_to_left));
@@ -97,7 +97,7 @@ public class NfcActivity extends BaseActivity {
                 case NFC_PASSWORD:
                     JSONModel.Lock lock = getIntent().getParcelableExtra(Constants.LOCK);
 
-                    TLog.d("TAG", lock.toString());
+                    TestLog.d("TAG", lock.toString());
 
                     try {
                         boolean flag = false;

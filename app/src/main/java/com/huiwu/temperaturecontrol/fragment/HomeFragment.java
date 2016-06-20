@@ -2,13 +2,10 @@ package com.huiwu.temperaturecontrol.fragment;
 
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -111,15 +108,20 @@ public class HomeFragment extends BaseFragment {
                 }
                 JsonObject jsonObject = returnObject.getM_ReturnOBJJsonObject();
                 String option = jsonObject.get("option").getAsString();
+                JSONModel.Box box;
+                if (jsonObject.has("box")) {
+                    box = gson.fromJson(jsonObject.get("box"), JSONModel.Box.class);
+                } else {
+                    box = new JSONModel.Box();
+                    box.setBoxno(qrcode);
+                }
+                JSONModel.TempLink tempLink = null;
+                if (jsonObject.has("boxlink")) {
+                    tempLink = gson.fromJson(jsonObject.get("boxlink"), JSONModel.TempLink.class);
+                }
+
                 if (TextUtils.equals("unBind", option)) {
-                    NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getContext());
-                    if (nfcAdapter == null) {
-                        Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
-                        intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_UNBIND);
-                        startActivity(intent_ble);
-                        return;
-                    }
-                    showUnbindDialog();
+                    unbindTag(tempLink);
                     return;
                 }
                 if (TextUtils.equals(ManageActivity.OPTION_NEW_BOX, option)) {
@@ -128,18 +130,12 @@ public class HomeFragment extends BaseFragment {
                         return;
                     }
                 }
-                JSONModel.Box box;
-                if (jsonObject.has("box")) {
-                    box = gson.fromJson(jsonObject.get("box"), JSONModel.Box.class);
-                } else {
-                    box = new JSONModel.Box();
-                    box.setBoxno(qrcode);
-                }
+
                 Intent intent = new Intent(getContext(), ManageActivity.class);
                 intent.putExtra(ManageActivity.BOX_EXTRA, box);
                 intent.putExtra(ManageActivity.OPTION_EXTRA, option);
-                if (jsonObject.has("boxlink")) {
-                    intent.putExtra(ManageActivity.TMP_LINK_EXTRA, gson.fromJson(jsonObject.get("boxlink"), JSONModel.TempLink.class));
+                if (tempLink != null) {
+                    intent.putExtra(ManageActivity.TMP_LINK_EXTRA, tempLink);
                 }
                 startActivity(intent);
             }
@@ -158,25 +154,22 @@ public class HomeFragment extends BaseFragment {
         });
     }
 
-    private void showUnbindDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setItems(getResources().getStringArray(R.array.unbindItems), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
-                        intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_UNBIND);
-                        startActivity(intent_nfc);
-                        break;
-                    case 1:
-                        Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
-                        intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_UNBIND);
-                        startActivity(intent_ble);
-                        break;
-                }
+    private void unbindTag(JSONModel.TempLink tempLink) {
+        if (tempLink == null) {
+            return;
+        }
+        if (tempLink.getRfid().indexOf(":") == -1) {
+            if (mNfcAdapter == null) {
+                Utils.showLongToast(getString(R.string.unSupport_nfc), mContext);
+                return;
             }
-        });
-        builder.show();
+            Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
+            intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_UNBIND);
+            startActivity(intent_nfc);
+        } else {
+            Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
+            intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_UNBIND);
+            startActivity(intent_ble);
+        }
     }
 }

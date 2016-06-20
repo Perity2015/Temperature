@@ -1,14 +1,12 @@
 package com.huiwu.temperaturecontrol;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.widget.TextView;
 
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.fragment.NewBoxFragment;
 import com.huiwu.temperaturecontrol.fragment.utils.FragmentUtils;
 
 public class ManageActivity extends BaseActivity {
@@ -51,7 +49,7 @@ public class ManageActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.icon_back);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
 
         setSelectFragment(option);

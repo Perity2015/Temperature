@@ -42,14 +42,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:src="@drawable/image_nfc_tag" />
+            android:src="@drawable/ic_nfc_tag" />
 
         <ImageView
             android:id="@+id/image_phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:src="@drawable/image_nfc_phone" />
+            android:src="@drawable/ic_nfc_phone" />
 
         <TextView
             android:layout_width="match_parent"

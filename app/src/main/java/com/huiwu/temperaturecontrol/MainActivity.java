@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        textMainTitle = (TextView)findViewById(R.id.text_main_title);
+        textMainTitle = (TextView) findViewById(R.id.text_main_title);
 
         titles = getResources().getStringArray(R.array.mTitles);
 
@@ -105,7 +105,7 @@ public class MainActivity extends BaseActivity {
                         radioGroup.check(R.id.radio_home);
                         break;
                     case 1:
-                        textMainTitle.setPadding(0, 0, 0, 0);
+                        textMainTitle.setPadding((int) getResources().getDimension(android.R.dimen.app_icon_size), 0, 0, 0);
                         radioGroup.check(R.id.radio_gather);
                         break;
                     case 2:

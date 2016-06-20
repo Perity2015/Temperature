@@ -43,7 +43,7 @@
             android:id="@+id/image_year_pre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon_year_pre" />
+            android:src="@drawable/ic_year_pre" />
 
         <TextView
             android:id="@+id/text_year"
@@ -59,7 +59,7 @@
             android:id="@+id/image_year_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon_year_next" />
+            android:src="@drawable/ic_year_next" />
 
 
     </LinearLayout>
@@ -73,7 +73,7 @@
         android:maxHeight="1dp"
         android:minHeight="1dp"
         android:progressDrawable="@drawable/seekbar_month"
-        android:thumb="@drawable/thumb_month" />
+        android:thumb="@drawable/ic_thumb_month" />
 
     <RadioGroup
         android:id="@+id/layout_month"

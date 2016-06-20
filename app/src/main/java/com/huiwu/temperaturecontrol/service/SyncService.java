@@ -8,7 +8,7 @@ import android.text.TextUtils;
 
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.temperaturecontrol.bean.Constants;
-import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.bean.TestLog;
 
 import java.io.File;
 import java.util.HashMap;
@@ -98,7 +98,7 @@ public class SyncService extends IntentService {
             }
         }
         String result = ConnectionUtil.getResponse(Constants.UPLOAD_PICTURE, map, fileHashMap);
-        TLog.d("DEBUG", result);
+        TestLog.d("DEBUG", result);
     }
 
     /**

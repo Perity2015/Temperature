@@ -71,7 +71,7 @@ public class NewBoxFragment extends ManageFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        textBoxNo.setText(box.getBoxno());
+        textBoxNo.setText(manageActivity.box.getBoxno());
         spinnerSealStatus.setAdapter(new ArrayAdapter<>(getContext(), R.layout.layout_seal_status_item, getResources().getStringArray(R.array.sealStatus)));
     }
 
@@ -102,7 +102,7 @@ public class NewBoxFragment extends ManageFragment {
 
     private void addNewBox(final String describe) {
         HashMap<String, String> map = baseActivity.getDefaultMap();
-        map.put("boxno", box.getBoxno());
+        map.put("boxno", manageActivity.box.getBoxno());
         map.put("boxmemo", describe);
         map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
         map.put("orgna_id", String.valueOf(userInfo.getUserPower().getOrgna_id()));
@@ -126,7 +126,7 @@ public class NewBoxFragment extends ManageFragment {
                     Utils.showLongToast(returnObject.getsMsg(), getContext());
                     return;
                 }
-                box = gson.fromJson(returnObject.getM_ReturnOBJJsonObject().get("box"), JSONModel.Box.class);
+                manageActivity.box = gson.fromJson(returnObject.getM_ReturnOBJJsonObject().get("box"), JSONModel.Box.class);
                 showFinishAddDialog();
             }
 
@@ -152,8 +152,8 @@ public class NewBoxFragment extends ManageFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                option = ManageActivity.OPTION_CONFIG;
-                manageActivity.setSelectFragment(option);
+                manageActivity.option = ManageActivity.OPTION_CONFIG;
+                manageActivity.setSelectFragment(manageActivity.option);
             }
         });
         builder.setNegativeButton("结束", new DialogInterface.OnClickListener() {

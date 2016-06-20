@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.application.MainApp;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
@@ -97,10 +98,10 @@ public class BaseActivity extends AppCompatActivity {
         mFilters = new IntentFilter[]{ndef};
         mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}, new String[]{android.nfc.tech.NfcA.class.getName()}};
 
-        if (mNfcAdapter == null) {
-            Toast.makeText(this, getString(R.string.unSupport_nfc), Toast.LENGTH_SHORT).show();
-            finish();
-        }
+//        if (mNfcAdapter == null) {
+////            Utils.showLongToast(getString(R.string.unSupport_nfc), mContext);
+////            finish();
+//        }
     }
 
     @Override
@@ -116,7 +117,7 @@ public class BaseActivity extends AppCompatActivity {
             if (mNfcAdapter.isEnabled()) {
                 mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
             } else {
-                Toast.makeText(this, getString(R.string.please_open_nfc), Toast.LENGTH_SHORT).show();
+                Utils.showLongToast(getString(R.string.please_open_nfc), mContext);
                 openNfc();
             }
         }

@@ -63,7 +63,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_margin="@dimen/activity_horizontal_margin"
         android:background="@android:color/transparent"
-        android:drawableTop="@drawable/image_bluetooth_scan"
+        android:drawableTop="@drawable/ic_bluetooth_scan"
         android:text="@string/scan_device" />
 
 </LinearLayout>

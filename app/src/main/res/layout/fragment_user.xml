@@ -19,7 +19,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scaleType="centerCrop"
-                android:src="@drawable/image_user_page" />
+                android:src="@drawable/ic_user_page" />
 
             <com.huiwu.model.view.CircleImageView
                 android:id="@+id/image_user"
@@ -28,7 +28,7 @@
                 android:layout_below="@+id/image_user_page"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="-36dp"
-                android:src="@drawable/icon_user" />
+                android:src="@drawable/ic_user" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -68,8 +68,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
             android:background="@color/colorUserPageButton"
-            android:drawableLeft="@drawable/image_change_password"
-            android:drawableRight="@drawable/icon_right"
+            android:drawableLeft="@drawable/ic_change_password"
+            android:drawableRight="@drawable/ic_right"
             android:gravity="center_vertical|left"
             android:text="@string/change_password"
             android:textColor="@color/colorRecordText1"
@@ -82,7 +82,7 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:background="@color/colorUserPageButton"
-            android:drawableLeft="@drawable/image_check_update"
+            android:drawableLeft="@drawable/ic_check_update"
             android:gravity="center_vertical|left"
             android:text="@string/check_update"
             android:textColor="@color/colorRecordText1"
