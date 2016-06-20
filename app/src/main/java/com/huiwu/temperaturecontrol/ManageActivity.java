@@ -60,20 +60,20 @@ public class ManageActivity extends BaseActivity {
     public void setSelectFragment(String tagFlag) {
         int position = 0;
         switch (tagFlag) {
+            case OPTION_NEW_BOX:
+                position = 0;
+                break;
             case OPTION_CONFIG:
                 position = 1;
                 break;
-            case OPTION_NEW_BOX:
-                position = 0;
+            case OPTION_SEAL:
+                position = 2;
                 break;
             case OPTION_OPENED:
                 position = 3;
                 break;
             case OPTION_UNBIND:
                 position = 4;
-                break;
-            case OPTION_SEAL:
-                position = 2;
                 break;
         }
         TextView text_title = (TextView) findViewById(R.id.text_manage_title);
@@ -89,8 +89,4 @@ public class ManageActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 }

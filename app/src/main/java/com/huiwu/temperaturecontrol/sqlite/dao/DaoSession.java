@@ -23,7 +23,7 @@ import com.huiwu.temperaturecontrol.sqlite.dao.TagInfoDao;
 
 /**
  * {@inheritDoc}
- *
+ * 
  * @see AbstractDaoSession
  */
 public class DaoSession extends AbstractDaoSession {

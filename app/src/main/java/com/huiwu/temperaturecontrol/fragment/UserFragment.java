@@ -30,7 +30,7 @@ import butterknife.OnClick;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class UserFragment extends Fragment {
+public class UserFragment extends BaseFragment {
 
 
     @Bind(R.id.image_user)
@@ -47,9 +47,6 @@ public class UserFragment extends Fragment {
     Button btnSignOut;
 
     private final int REQUEST_CHANGE_PASSWORD = 202;
-
-    private MainActivity mainActivity;
-    private JSONModel.UserInfo userInfo;
 
     public UserFragment() {
         // Required empty public constructor
@@ -68,8 +65,6 @@ public class UserFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mainActivity = (MainActivity) getActivity();
-        userInfo = mainActivity.userInfo;
         textUserInfoName.setText(userInfo.getRealname());
         textUserInfoCompany.setText(userInfo.getCompany() + "    " + userInfo.getOrgna_name() + "\n" + userInfo.getPowername());
     }
@@ -98,7 +93,7 @@ public class UserFragment extends Fragment {
                 startActivityForResult(new Intent(getContext(), PasswordActivity.class), REQUEST_CHANGE_PASSWORD);
                 break;
             case R.id.btn_check_update:
-                UpdateManage updateManage = new UpdateManage(getContext(), mainActivity.progressDialog, true);
+                UpdateManage updateManage = new UpdateManage(getContext(), progressDialog, true);
                 updateManage.checkVersion(Constants.app_name);
                 break;
             case R.id.btn_sign_out:
@@ -114,7 +109,7 @@ public class UserFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        mainActivity.mShared.edit().putString(Constants.user_info, "").commit();
+                        mShared.edit().putString(Constants.user_info, "").commit();
                         Utils.saveUserImage(getContext(), null, Constants.user_image);
                         startActivity(new Intent(getContext(), LoginActivity.class));
                         getActivity().finish();

@@ -14,6 +14,7 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.CoordinateConverter;
 import com.amap.api.maps.model.LatLng;
 import com.huiwu.model.utils.CrashHandler;
+import com.huiwu.temperaturecontrol.nfc.Helper;
 import com.huiwu.temperaturecontrol.sqlite.dao.DaoMaster;
 import com.huiwu.temperaturecontrol.sqlite.dao.DaoSession;
 import com.lzy.okhttputils.OkHttpUtils;
@@ -152,10 +153,167 @@ public class MainApp extends Application {
         return MemoryExceed2048bytesSize;
     }
 
+    /**
+     * 解析Tag属性信息
+     *
+     * @param GetSystemInfoResponse
+     * @return
+     */
+    public boolean DecodeGetSystemInfoResponse(byte[] GetSystemInfoResponse) {
+        //if the tag has returned a good response
+        if (GetSystemInfoResponse[0] == (byte) 0x00 && GetSystemInfoResponse.length >= 12) {
+            String uidToString = "";
+            byte[] uid = new byte[8];
+            // change uid format from byteArray to a String
+            for (int i = 1; i <= 8; i++) {
+                uid[i - 1] = GetSystemInfoResponse[10 - i];
+                uidToString += Helper.ConvertHexByteToString(uid[i - 1]);
+            }
+
+            //***** TECHNO ******
+//            mainApp.setUid(uidToString);
+            if (uid[0] == (byte) 0xE0)
+                setTechno("ISO 15693");
+            else if (uid[0] == (byte) 0xD0)
+                setTechno("ISO 14443");
+            else
+                setTechno("Unknown techno");
+
+            //***** MANUFACTURER ****
+            if (uid[1] == (byte) 0x02)
+                setManufacturer("STMicroelectronics");
+            else if (uid[1] == (byte) 0x04)
+                setManufacturer("NXP");
+            else if (uid[1] == (byte) 0x07)
+                setManufacturer("Texas Instrument");
+            else
+                setManufacturer("Unknown manufacturer");
+
+            //**** PRODUCT NAME *****
+            if (uid[2] >= (byte) 0x04 && uid[2] <= (byte) 0x07) {
+                setProductName("LRI512");
+                setMultipleReadSupported(false);
+                setMemoryExceed2048bytesSize(false);
+            } else if (uid[2] >= (byte) 0x14 && uid[2] <= (byte) 0x17) {
+                setProductName("LRI64");
+                setMultipleReadSupported(false);
+                setMemoryExceed2048bytesSize(false);
+            } else if (uid[2] >= (byte) 0x20 && uid[2] <= (byte) 0x23) {
+                setProductName("LRI2K");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(false);
+            } else if (uid[2] >= (byte) 0x28 && uid[2] <= (byte) 0x2B) {
+                setProductName("LRIS2K");
+                setMultipleReadSupported(false);
+                setMemoryExceed2048bytesSize(false);
+            } else if (uid[2] >= (byte) 0x2C && uid[2] <= (byte) 0x2F) {
+                setProductName("M24LR64");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+            } else if (uid[2] >= (byte) 0x40 && uid[2] <= (byte) 0x43) {
+                setProductName("LRI1K");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(false);
+            } else if (uid[2] >= (byte) 0x44 && uid[2] <= (byte) 0x47) {
+                setProductName("LRIS64K");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+            } else if (uid[2] >= (byte) 0x48 && uid[2] <= (byte) 0x4B) {
+                setProductName("M24LR01E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(false);
+            } else if (uid[2] >= (byte) 0x4C && uid[2] <= (byte) 0x4F) {
+                setProductName("M24LR16E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+                if (isBasedOnTwoBytesAddress() == false)
+                    return false;
+            } else if (uid[2] >= (byte) 0x50 && uid[2] <= (byte) 0x53) {
+                setProductName("M24LR02E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(false);
+            } else if (uid[2] >= (byte) 0x54 && uid[2] <= (byte) 0x57) {
+                setProductName("M24LR32E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+                if (isBasedOnTwoBytesAddress() == false)
+                    return false;
+            } else if (uid[2] >= (byte) 0x58 && uid[2] <= (byte) 0x5B) {
+                setProductName("M24LR04E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+            } else if (uid[2] >= (byte) 0x5C && uid[2] <= (byte) 0x5F) {
+                setProductName("M24LR64E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+                if (isBasedOnTwoBytesAddress() == false)
+                    return false;
+            } else if (uid[2] >= (byte) 0x60 && uid[2] <= (byte) 0x63) {
+                setProductName("M24LR08E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+            } else if (uid[2] >= (byte) 0x64 && uid[2] <= (byte) 0x67) {
+                setProductName("M24LR128E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+                if (isBasedOnTwoBytesAddress() == false)
+                    return false;
+            } else if (uid[2] >= (byte) 0x6C && uid[2] <= (byte) 0x6F) {
+                setProductName("M24LR256E");
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+                if (isBasedOnTwoBytesAddress() == false)
+                    return false;
+            } else if (uid[2] >= (byte) 0xF8 && uid[2] <= (byte) 0xFB) {
+                setProductName("detected product");
+                setBasedOnTwoBytesAddress(true);
+                setMultipleReadSupported(true);
+                setMemoryExceed2048bytesSize(true);
+            } else {
+                setProductName("Unknown product");
+                setBasedOnTwoBytesAddress(false);
+                setMultipleReadSupported(false);
+                setMemoryExceed2048bytesSize(false);
+            }
+
+            //*** DSFID ***
+            setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
+
+            //*** AFI ***
+            setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
+
+            //*** MEMORY SIZE ***
+            if (isBasedOnTwoBytesAddress()) {
+                String temp = new String();
+                temp += Helper.ConvertHexByteToString(GetSystemInfoResponse[13]);
+                temp += Helper.ConvertHexByteToString(GetSystemInfoResponse[12]);
+                setMemorySize(temp);
+            } else
+                setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+
+            //*** BLOCK SIZE ***
+            if (isBasedOnTwoBytesAddress())
+                setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+            else
+                setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
+
+            //*** IC REFERENCE ***
+            if (isBasedOnTwoBytesAddress())
+                setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[15]));
+            else
+                setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+
+            return true;
+        }
+
+        //if the tag has returned an error code
+        else
+            return false;
+    }
+
 
     public AMapLocationClient locationClient = null;
     public AMapLocationClientOption locationOption = null;
-    public MyLocationListener mMyLocationListener;
     public Vibrator mVibrator;
     public TextView locationText;
     public AMapLocation bdLocation;
@@ -166,8 +324,8 @@ public class MainApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        CrashHandler crashHandler = CrashHandler.getInstance(getApplicationContext());
-        crashHandler.init(getApplicationContext());
+//        CrashHandler crashHandler = CrashHandler.getInstance(getApplicationContext());
+//        crashHandler.init(getApplicationContext());
 
         mVibrator = (Vibrator) getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
 

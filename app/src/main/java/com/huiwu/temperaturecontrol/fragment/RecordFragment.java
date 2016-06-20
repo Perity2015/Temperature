@@ -47,7 +47,7 @@ import okhttp3.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class RecordFragment extends Fragment {
+public class RecordFragment extends BaseFragment {
 
     @Bind(R.id.recyclerView_Records)
     RecyclerView recyclerViewRecords;
@@ -55,8 +55,6 @@ public class RecordFragment extends Fragment {
     SwipeRefreshLayout swipeLayout;
 
     private LinearLayoutManager mLayoutManager;
-
-    private MainActivity mainActivity;
 
     private ArrayList<TagInfo> records = new ArrayList<>();
 
@@ -73,7 +71,6 @@ public class RecordFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mainActivity = (MainActivity) getActivity();
     }
 
     @Override
@@ -106,7 +103,7 @@ public class RecordFragment extends Fragment {
                 int position = mLayoutManager.findLastCompletelyVisibleItemPosition();
                 swipeLayout.setEnabled(mLayoutManager.findFirstVisibleItemPosition() == 0);
                 if (position == records.size() - 1) {
-                    ArrayList<TagInfo> tagInfos = mainActivity.sqLiteManage.getConfigTagInfos(mainActivity.mainApp.getDaoSession(), index);
+                    ArrayList<TagInfo> tagInfos = sqLiteManage.getConfigTagInfos(mainApp.getDaoSession(), index);
                     if (tagInfos.size() < 10) {
                         index = 0;
                     } else {
@@ -136,7 +133,7 @@ public class RecordFragment extends Fragment {
     public void initData() {
         records.clear();
         index = Integer.MAX_VALUE;
-        ArrayList<TagInfo> tagInfos = mainActivity.sqLiteManage.getConfigTagInfos(mainActivity.mainApp.getDaoSession(), index);
+        ArrayList<TagInfo> tagInfos = sqLiteManage.getConfigTagInfos(mainApp.getDaoSession(), index);
         if (tagInfos.size() < 10) {
             index = 0;
         } else {
@@ -187,10 +184,10 @@ public class RecordFragment extends Fragment {
             TagInfoHolder holder = (TagInfoHolder) viewHolder;
             final TagInfo tagInfo = records.get(position);
             holder.textRecordItemObject.setText(tagInfo.getObject());
-            JSONModel.Box box = mainActivity.gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
+            JSONModel.Box box = gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
             holder.textRecordItemBox.setText(box.getBoxno());
 
-            GoodsType goodsType = mainActivity.gson.fromJson(tagInfo.getGoods(), GoodsType.class);
+            GoodsType goodsType = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
             holder.textRecordItemGoods.setText(goodsType.getParentgoodtype() + "  " + goodsType.getGoodtype());
 
             holder.imageRecordItemUpload.setVisibility(tagInfo.isHavepost() ? View.INVISIBLE : View.VISIBLE);
@@ -257,9 +254,9 @@ public class RecordFragment extends Fragment {
     }
 
     private void uploadData(final TagInfo tagInfo) {
-        HashMap<String, String> map = mainActivity.getDefaultMap();
-        if (mainActivity.mainApp.bdLocation != null) {
-            map.put("address", mainActivity.mainApp.bdLocation.getAddress());
+        HashMap<String, String> map = baseActivity.getDefaultMap();
+        if (mainApp.bdLocation != null) {
+            map.put("address", mainApp.bdLocation.getAddress());
         } else {
             map.put("address", "为获取定位信息");
         }
@@ -277,25 +274,25 @@ public class RecordFragment extends Fragment {
         ConnectionUtil.postParams(Constants.upload_data_url, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                mainActivity.progressDialog.setMessage("上传记录信息中……");
-                mainActivity.progressDialog.show();
+                progressDialog.setMessage("上传记录信息中……");
+                progressDialog.show();
             }
 
             @Override
             public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
-                mainActivity.progressDialog.dismiss();
+                progressDialog.dismiss();
             }
 
             @Override
             public void onParse(String s, Response response) {
-                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     uploadOfflineData(tagInfo);
                     return;
                 }
                 tagInfo.setHavepost(true);
                 adapter.notifyDataSetChanged();
-                mainActivity.sqLiteManage.updateConfigTagInfoStatus(mainActivity.mainApp.getDaoSession(), tagInfo);
+                sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
             }
 
             @Override
@@ -305,7 +302,7 @@ public class RecordFragment extends Fragment {
 
             @Override
             public void onLost() {
-                mainActivity.loginAgain();
+                baseActivity.loginAgain();
             }
 
 
@@ -313,9 +310,9 @@ public class RecordFragment extends Fragment {
     }
 
     private void uploadOfflineData(final TagInfo tagInfo) {
-        HashMap<String, String> map = mainActivity.getDefaultMap();
-        if (mainActivity.mainApp.bdLocation != null) {
-            map.put("address", mainActivity.mainApp.bdLocation.getAddress());
+        HashMap<String, String> map = baseActivity.getDefaultMap();
+        if (mainApp.bdLocation != null) {
+            map.put("address", mainApp.bdLocation.getAddress());
         } else {
             map.put("address", "为获取定位信息");
         }
@@ -335,21 +332,21 @@ public class RecordFragment extends Fragment {
         ConnectionUtil.postParams(Constants.upload_data_offline_url, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                mainActivity.progressDialog.setMessage("上传记录信息中……");
-                mainActivity.progressDialog.show();
+                progressDialog.setMessage("上传记录信息中……");
+                progressDialog.show();
             }
 
             @Override
             public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
-                mainActivity.progressDialog.dismiss();
+                progressDialog.dismiss();
             }
 
             @Override
             public void onParse(String s, Response response) {
                 tagInfo.setHavepost(true);
-                mainActivity.sqLiteManage.updateConfigTagInfoStatus(mainActivity.mainApp.getDaoSession(), tagInfo);
+                sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
                 adapter.notifyDataSetChanged();
-                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), getContext());
                     return;
@@ -363,7 +360,7 @@ public class RecordFragment extends Fragment {
 
             @Override
             public void onLost() {
-                mainActivity.loginAgain();
+                baseActivity.loginAgain();
             }
 
 

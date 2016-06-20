@@ -36,7 +36,7 @@ import android.widget.Toast;
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
-import com.huiwu.temperaturecontrol.BluetoothBaseActivity;
+import com.huiwu.temperaturecontrol.BaseActivity;
 import com.huiwu.temperaturecontrol.ChartActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
@@ -59,7 +59,7 @@ import butterknife.OnClick;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class DeviceListActivity extends BluetoothBaseActivity {
+public class DeviceListActivity extends BaseActivity {
     @Bind(R.id.recyclerView_devices)
     RecyclerView recyclerViewDevices;
     @Bind(R.id.btn_scan)
@@ -557,8 +557,6 @@ public class DeviceListActivity extends BluetoothBaseActivity {
             have_more_data = bytes[5] == 1;
             return;
         }
-        TLog.d(TAG + "____T", Arrays.toString(bytes));
-
         if (!tagInfo.isJustTemp()) {
             for (int i = 0; i < bytes.length / 4; i++) {
                 double temp = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[i * 4], bytes[i * 4 + 1]}) / 100.00D;

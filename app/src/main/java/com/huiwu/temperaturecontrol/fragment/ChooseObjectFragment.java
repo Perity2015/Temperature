@@ -48,7 +48,7 @@ import okhttp3.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ChooseObjectFragment extends Fragment {
+public class ChooseObjectFragment extends BaseFragment {
 
 
     @Bind(R.id.text_object)
@@ -57,9 +57,6 @@ public class ChooseObjectFragment extends Fragment {
     ListView listViewObjects;
 
     private int selectId = -1;
-
-    private BaseActivity baseActivity;
-    private JSONModel.UserInfo userInfo;
 
     private RfidGood[] allObjects;
     private List<RfidGood> searchObjects = new ArrayList<>();
@@ -72,11 +69,7 @@ public class ChooseObjectFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
-
-        baseActivity = (ChooseActivity) getActivity();
-        userInfo = baseActivity.userInfo;
     }
 
     @Override
@@ -149,9 +142,9 @@ public class ChooseObjectFragment extends Fragment {
 
             @Override
             public void onParse(String s, Response response) {
-                JSONModel.ReturnData returnData = baseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
-                allObjects = baseActivity.gson.fromJson(returnData.getRows(), RfidGood[].class);
-                baseActivity.sqLiteManage.insertRfidGoods(baseActivity.mainApp.daoMaster.newSession(), allObjects);
+                JSONModel.ReturnData returnData = gson.fromJson(s, JSONModel.ReturnData.class);
+                allObjects = gson.fromJson(returnData.getRows(), RfidGood[].class);
+                sqLiteManage.insertRfidGoods(mainApp.daoMaster.newSession(), allObjects);
 
                 Arrays.sort(allObjects);
                 searchObjects.clear();

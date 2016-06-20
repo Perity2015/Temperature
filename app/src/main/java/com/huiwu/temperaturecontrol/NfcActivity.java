@@ -35,7 +35,7 @@ import java.util.UUID;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class NfcActivity extends NfcBaseActivity {
+public class NfcActivity extends BaseActivity {
     public static final int NFC_GATHER = 0;
     public static final int NFC_CONFIG = 1;
     public static final int NFC_READ_UID = 2;
@@ -180,7 +180,7 @@ public class NfcActivity extends NfcBaseActivity {
         protected Boolean doInBackground(Tag... params) {
             try {
                 byte[] GetSystemInfoAnswer = NFCCommand.SendGetSystemInfoCommandCustom(mainApp.getCurrentTag(), mainApp);
-                if (DecodeGetSystemInfoResponse(GetSystemInfoAnswer)) {
+                if (mainApp.DecodeGetSystemInfoResponse(GetSystemInfoAnswer)) {
                     String startAddressString = "0000";
                     startAddressString = Helper.castHexKeyboard(startAddressString);
                     startAddressString = Helper.FormatStringAddressStart(startAddressString, mainApp);
@@ -498,7 +498,7 @@ public class NfcActivity extends NfcBaseActivity {
         @Override
         protected Boolean doInBackground(Tag... params) {
             byte[] GetSystemInfoAnswer = NFCCommand.SendGetSystemInfoCommandCustom(mainApp.getCurrentTag(), mainApp);
-            if (DecodeGetSystemInfoResponse(GetSystemInfoAnswer)) {
+            if (mainApp.DecodeGetSystemInfoResponse(GetSystemInfoAnswer)) {
                 byte[] ReadSingleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(mainApp.getCurrentTag(), new byte[]{0x00, 0x02}, new byte[]{0x00, 0x01}, mainApp);
                 if (ReadSingleBlockAnswer != null && ReadSingleBlockAnswer[0] == 0) {
 //					if (ReadSingleBlockAnswer[4] == 0x31 || ReadSingleBlockAnswer[4] == 0x51){

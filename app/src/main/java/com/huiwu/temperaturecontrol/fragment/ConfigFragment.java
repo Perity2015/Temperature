@@ -38,7 +38,7 @@ import butterknife.OnClick;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ConfigFragment extends Fragment {
+public class ConfigFragment extends ManageFragment {
 
 
     @Bind(R.id.text_box_no)
@@ -55,10 +55,6 @@ public class ConfigFragment extends Fragment {
     TextView textDelayTime;
     @Bind(R.id.text_config_notice)
     TextView textConfigNotice;
-
-    private ManageActivity manageActivity;
-
-    private JSONModel.UserInfo userInfo;
 
     private final int REQUEST_GOODS = 201;
     private final int REQUEST_OBJECT = 202;
@@ -78,12 +74,8 @@ public class ConfigFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        manageActivity = (ManageActivity) getActivity();
-        userInfo = manageActivity.userInfo;
         tagInfo = new TagInfo();
-        tagInfo.setDelayTime(1);
-
-        manageActivity.tempLink = new JSONModel.TempLink();
+        tempLink = new JSONModel.TempLink();
     }
 
     @Override
@@ -99,8 +91,8 @@ public class ConfigFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         textConfigNotice.requestFocus();
-        textBoxNo.setText(manageActivity.box.getBoxno());
-        tagInfo.setBox(manageActivity.gson.toJson(manageActivity.box));
+        textBoxNo.setText(box.getBoxno());
+        tagInfo.setBox(gson.toJson(box));
 
         seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -135,8 +127,7 @@ public class ConfigFragment extends Fragment {
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getContext());
-                if (nfcAdapter == null) {
+                if (mNfcAdapter == null) {
                     Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
                     intent_ble.putExtra(Constants.tag_info, tagInfo);
                     intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_CONFIG);
@@ -159,15 +150,15 @@ public class ConfigFragment extends Fragment {
             selectRfidGoods = data.getParcelableExtra(Constants.select_object);
             textObject.setText(selectRfidGoods.getRfidgoodname());
             tagInfo.setObject(selectRfidGoods.getRfidgoodname());
-            manageActivity.tempLink.setCarno(selectRfidGoods.getRfidgoodname());
+            tempLink.setCarno(selectRfidGoods.getRfidgoodname());
         } else if (requestCode == REQUEST_GOODS) {
             selectGoods = data.getParcelableExtra(Constants.select_object);
             textGoods.setText(selectGoods.getParentgoodtype() + "    " + selectGoods.getGoodtype());
 
-            manageActivity.tempLink.setGoodtype(selectGoods.getParentgoodtype());
-            manageActivity.tempLink.setGoodchildtype(selectGoods.getGoodtype());
+            tempLink.setGoodtype(selectGoods.getParentgoodtype());
+            tempLink.setGoodchildtype(selectGoods.getGoodtype());
 
-            tagInfo.setGoods(manageActivity.gson.toJson(selectGoods));
+            tagInfo.setGoods(gson.toJson(selectGoods));
 
             String sampleInfo = "采样间隔：" + selectGoods.getOnetime() + "分钟\r\n";
             sampleInfo += "温度上限：" + selectGoods.getHightmpnumber() + "℃\r\n";
@@ -178,9 +169,9 @@ public class ConfigFragment extends Fragment {
             textSampleInfo.setText(sampleInfo);
 
         } else if (requestCode == REQUEST_CONFIG) {
-            if (!TextUtils.equals("normal", manageActivity.box.getBoxtype())) {
+            if (!TextUtils.equals("normal", box.getBoxtype())) {
                 JSONModel.TagInfo tagInfo = data.getParcelableExtra(Constants.tag_info);
-                manageActivity.box.setLinkuuid(tagInfo.getLinkuuid());
+                box.setLinkuuid(tagInfo.getLinkuuid());
                 showFinishAddDialog();
             } else {
                 manageActivity.finish();
@@ -197,8 +188,8 @@ public class ConfigFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                manageActivity.option = ManageActivity.OPTION_SEAL;
-                manageActivity.setSelectFragment(manageActivity.option);
+                option = ManageActivity.OPTION_SEAL;
+                manageActivity.setSelectFragment(option);
             }
         });
         builder.setNegativeButton("结束", new DialogInterface.OnClickListener() {

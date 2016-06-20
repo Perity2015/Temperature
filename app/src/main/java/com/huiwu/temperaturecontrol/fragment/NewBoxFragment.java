@@ -38,7 +38,7 @@ import okhttp3.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NewBoxFragment extends Fragment {
+public class NewBoxFragment extends ManageFragment {
 
 
     @Bind(R.id.text_box_no)
@@ -47,10 +47,6 @@ public class NewBoxFragment extends Fragment {
     EditText textBoxDescribe;
     @Bind(R.id.spinner_seal_status)
     Spinner spinnerSealStatus;
-
-    private ManageActivity manageActivity;
-
-    private JSONModel.UserInfo userInfo;
 
     private String[] sealStatus = {"", "normal", "seal", "lock"};
 
@@ -62,9 +58,6 @@ public class NewBoxFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        manageActivity = (ManageActivity) getActivity();
-        userInfo = manageActivity.userInfo;
     }
 
     @Override
@@ -79,7 +72,7 @@ public class NewBoxFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        textBoxNo.setText(manageActivity.box.getBoxno());
+        textBoxNo.setText(box.getBoxno());
         spinnerSealStatus.setAdapter(new ArrayAdapter<>(getContext(), R.layout.layout_seal_status_item, getResources().getStringArray(R.array.sealStatus)));
     }
 
@@ -109,8 +102,8 @@ public class NewBoxFragment extends Fragment {
     }
 
     private void addNewBox(final String describe) {
-        HashMap<String, String> map = manageActivity.getDefaultMap();
-        map.put("boxno", manageActivity.box.getBoxno());
+        HashMap<String, String> map = baseActivity.getDefaultMap();
+        map.put("boxno", box.getBoxno());
         map.put("boxmemo", describe);
         map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
         map.put("orgna_id", String.valueOf(userInfo.getUserPower().getOrgna_id()));
@@ -118,23 +111,23 @@ public class NewBoxFragment extends Fragment {
         ConnectionUtil.postParams(Constants.add_box, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                manageActivity.progressDialog.setMessage("提交信息");
-                manageActivity.progressDialog.show();
+                progressDialog.setMessage("提交信息");
+                progressDialog.show();
             }
 
             @Override
             public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
-                manageActivity.progressDialog.dismiss();
+                progressDialog.dismiss();
             }
 
             @Override
             public void onParse(String s, Response response) {
-                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), getContext());
                     return;
                 }
-                manageActivity.box = manageActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonObject().get("box"), JSONModel.Box.class);
+                box = gson.fromJson(returnObject.getM_ReturnOBJJsonObject().get("box"), JSONModel.Box.class);
                 showFinishAddDialog();
             }
 
@@ -145,7 +138,7 @@ public class NewBoxFragment extends Fragment {
 
             @Override
             public void onLost() {
-                manageActivity.loginAgain();
+                baseActivity.loginAgain();
             }
 
         });
@@ -160,8 +153,8 @@ public class NewBoxFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                manageActivity.option = ManageActivity.OPTION_CONFIG;
-                manageActivity.setSelectFragment(manageActivity.option);
+                option = ManageActivity.OPTION_CONFIG;
+                manageActivity.setSelectFragment(option);
             }
         });
         builder.setNegativeButton("结束", new DialogInterface.OnClickListener() {

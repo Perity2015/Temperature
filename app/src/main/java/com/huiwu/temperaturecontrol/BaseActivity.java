@@ -1,13 +1,17 @@
 package com.huiwu.temperaturecontrol;
 
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -15,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.huiwu.model.http.ConnectionUtil;
@@ -46,6 +51,11 @@ public class BaseActivity extends AppCompatActivity {
     public JSONModel.UserInfo userInfo;
     public SQLiteManage sqLiteManage;
 
+    public NfcAdapter mNfcAdapter;
+    private PendingIntent mPendingIntent;
+    private IntentFilter[] mFilters;
+    private String[][] mTechLists;
+
     public ProgressDialog progressDialog;
     public MainApp mainApp;
 
@@ -76,11 +86,21 @@ public class BaseActivity extends AppCompatActivity {
         });
 
         try {
-            userInfo = gson.fromJson(mShared.getString(Constants.user_info, ""), JSONModel.UserInfo.class);
+            userInfo = gson.fromJson(mShared.getString(Constants.user_info, "{}"), JSONModel.UserInfo.class);
         } catch (Exception e) {
             userInfo = null;
         }
 
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+        mFilters = new IntentFilter[]{ndef};
+        mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}, new String[]{android.nfc.tech.NfcA.class.getName()}};
+
+        if (mNfcAdapter == null) {
+            Toast.makeText(this, getString(R.string.unSupport_nfc), Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     @Override
@@ -91,22 +111,38 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        try {
-            userInfo = gson.fromJson(mShared.getString(Constants.user_info, ""), JSONModel.UserInfo.class);
-        } catch (Exception e) {
-
-        }
         super.onResume();
+        if (mNfcAdapter != null) {
+            if (mNfcAdapter.isEnabled()) {
+                mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+            } else {
+                Toast.makeText(this, getString(R.string.please_open_nfc), Toast.LENGTH_SHORT).show();
+                openNfc();
+            }
+        }
+        try {
+            userInfo = gson.fromJson(mShared.getString(Constants.user_info, "{}"), JSONModel.UserInfo.class);
+        } catch (Exception e) {
+            userInfo = null;
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (mNfcAdapter != null && mNfcAdapter.isEnabled()) {
+            mNfcAdapter.disableForegroundDispatch(this);
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    public void openNfc() {
+        Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+        startActivity(intent);
     }
 
     public HashMap<String, String> getDefaultMap() {
@@ -235,158 +271,6 @@ public class BaseActivity extends AppCompatActivity {
 
     public void showLocalPicture(ImageView imageView) {
         ImageLoader.getInstance().displayImage("file:///" + imageView.getTag(), imageView, getDefaultDisplayImageOptions());
-    }
-
-    public boolean DecodeGetSystemInfoResponse(byte[] GetSystemInfoResponse) {
-        //if the tag has returned a good response
-        if (GetSystemInfoResponse[0] == (byte) 0x00 && GetSystemInfoResponse.length >= 12) {
-            String uidToString = "";
-            byte[] uid = new byte[8];
-            // change uid format from byteArray to a String
-            for (int i = 1; i <= 8; i++) {
-                uid[i - 1] = GetSystemInfoResponse[10 - i];
-                uidToString += Helper.ConvertHexByteToString(uid[i - 1]);
-            }
-
-            //***** TECHNO ******
-//            mainApp.setUid(uidToString);
-            if (uid[0] == (byte) 0xE0)
-                mainApp.setTechno("ISO 15693");
-            else if (uid[0] == (byte) 0xD0)
-                mainApp.setTechno("ISO 14443");
-            else
-                mainApp.setTechno("Unknown techno");
-
-            //***** MANUFACTURER ****
-            if (uid[1] == (byte) 0x02)
-                mainApp.setManufacturer("STMicroelectronics");
-            else if (uid[1] == (byte) 0x04)
-                mainApp.setManufacturer("NXP");
-            else if (uid[1] == (byte) 0x07)
-                mainApp.setManufacturer("Texas Instrument");
-            else
-                mainApp.setManufacturer("Unknown manufacturer");
-
-            //**** PRODUCT NAME *****
-            if (uid[2] >= (byte) 0x04 && uid[2] <= (byte) 0x07) {
-                mainApp.setProductName("LRI512");
-                mainApp.setMultipleReadSupported(false);
-                mainApp.setMemoryExceed2048bytesSize(false);
-            } else if (uid[2] >= (byte) 0x14 && uid[2] <= (byte) 0x17) {
-                mainApp.setProductName("LRI64");
-                mainApp.setMultipleReadSupported(false);
-                mainApp.setMemoryExceed2048bytesSize(false);
-            } else if (uid[2] >= (byte) 0x20 && uid[2] <= (byte) 0x23) {
-                mainApp.setProductName("LRI2K");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(false);
-            } else if (uid[2] >= (byte) 0x28 && uid[2] <= (byte) 0x2B) {
-                mainApp.setProductName("LRIS2K");
-                mainApp.setMultipleReadSupported(false);
-                mainApp.setMemoryExceed2048bytesSize(false);
-            } else if (uid[2] >= (byte) 0x2C && uid[2] <= (byte) 0x2F) {
-                mainApp.setProductName("M24LR64");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-            } else if (uid[2] >= (byte) 0x40 && uid[2] <= (byte) 0x43) {
-                mainApp.setProductName("LRI1K");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(false);
-            } else if (uid[2] >= (byte) 0x44 && uid[2] <= (byte) 0x47) {
-                mainApp.setProductName("LRIS64K");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-            } else if (uid[2] >= (byte) 0x48 && uid[2] <= (byte) 0x4B) {
-                mainApp.setProductName("M24LR01E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(false);
-            } else if (uid[2] >= (byte) 0x4C && uid[2] <= (byte) 0x4F) {
-                mainApp.setProductName("M24LR16E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-                if (mainApp.isBasedOnTwoBytesAddress() == false)
-                    return false;
-            } else if (uid[2] >= (byte) 0x50 && uid[2] <= (byte) 0x53) {
-                mainApp.setProductName("M24LR02E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(false);
-            } else if (uid[2] >= (byte) 0x54 && uid[2] <= (byte) 0x57) {
-                mainApp.setProductName("M24LR32E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-                if (mainApp.isBasedOnTwoBytesAddress() == false)
-                    return false;
-            } else if (uid[2] >= (byte) 0x58 && uid[2] <= (byte) 0x5B) {
-                mainApp.setProductName("M24LR04E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-            } else if (uid[2] >= (byte) 0x5C && uid[2] <= (byte) 0x5F) {
-                mainApp.setProductName("M24LR64E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-                if (mainApp.isBasedOnTwoBytesAddress() == false)
-                    return false;
-            } else if (uid[2] >= (byte) 0x60 && uid[2] <= (byte) 0x63) {
-                mainApp.setProductName("M24LR08E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-            } else if (uid[2] >= (byte) 0x64 && uid[2] <= (byte) 0x67) {
-                mainApp.setProductName("M24LR128E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-                if (mainApp.isBasedOnTwoBytesAddress() == false)
-                    return false;
-            } else if (uid[2] >= (byte) 0x6C && uid[2] <= (byte) 0x6F) {
-                mainApp.setProductName("M24LR256E");
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-                if (mainApp.isBasedOnTwoBytesAddress() == false)
-                    return false;
-            } else if (uid[2] >= (byte) 0xF8 && uid[2] <= (byte) 0xFB) {
-                mainApp.setProductName("detected product");
-                mainApp.setBasedOnTwoBytesAddress(true);
-                mainApp.setMultipleReadSupported(true);
-                mainApp.setMemoryExceed2048bytesSize(true);
-            } else {
-                mainApp.setProductName("Unknown product");
-                mainApp.setBasedOnTwoBytesAddress(false);
-                mainApp.setMultipleReadSupported(false);
-                mainApp.setMemoryExceed2048bytesSize(false);
-            }
-
-            //*** DSFID ***
-            mainApp.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
-
-            //*** AFI ***
-            mainApp.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
-
-            //*** MEMORY SIZE ***
-            if (mainApp.isBasedOnTwoBytesAddress()) {
-                String temp = new String();
-                temp += Helper.ConvertHexByteToString(GetSystemInfoResponse[13]);
-                temp += Helper.ConvertHexByteToString(GetSystemInfoResponse[12]);
-                mainApp.setMemorySize(temp);
-            } else
-                mainApp.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
-
-            //*** BLOCK SIZE ***
-            if (mainApp.isBasedOnTwoBytesAddress())
-                mainApp.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
-            else
-                mainApp.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
-
-            //*** IC REFERENCE ***
-            if (mainApp.isBasedOnTwoBytesAddress())
-                mainApp.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[15]));
-            else
-                mainApp.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
-
-            return true;
-        }
-
-        //if the tag has returned an error code
-        else
-            return false;
     }
 
     @Override

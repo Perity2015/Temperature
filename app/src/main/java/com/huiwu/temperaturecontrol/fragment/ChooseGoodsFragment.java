@@ -38,15 +38,12 @@ import okhttp3.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ChooseGoodsFragment extends Fragment {
+public class ChooseGoodsFragment extends BaseFragment {
     @Bind(R.id.expandable_ListView_goods)
     ExpandableListView expandableListViewGoods;
 
     private GoodsType[] parentGoods;
     private ArrayList<GoodsType[]> allGoods;
-
-    private ChooseActivity chooseActivity;
-    private JSONModel.UserInfo userInfo;
 
     private GoodsAdapter adapter;
 
@@ -60,11 +57,7 @@ public class ChooseGoodsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
-
-        chooseActivity = (ChooseActivity) getActivity();
-        userInfo = chooseActivity.userInfo;
     }
 
     @Override
@@ -120,32 +113,32 @@ public class ChooseGoodsFragment extends Fragment {
                 GoodsType goods = allGoods.get(gId)[cId];
                 Intent intent = new Intent();
                 intent.putExtra(Constants.select_object, goods);
-                chooseActivity.setResult(Activity.RESULT_OK, intent);
-                chooseActivity.finish();
+                baseActivity.setResult(Activity.RESULT_OK, intent);
+                baseActivity.finish();
                 return true;
             }
         });
     }
 
     private void getParentsGoods() {
-        HashMap<String, String> map = chooseActivity.getDefaultMap();
+        HashMap<String, String> map = baseActivity.getDefaultMap();
         ConnectionUtil.postParams(Constants.get_parent_goods_url, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                chooseActivity.progressDialog.setMessage("加载信息");
-                chooseActivity.progressDialog.show();
+                progressDialog.setMessage("加载信息");
+                progressDialog.show();
             }
 
             @Override
             public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
-                chooseActivity.progressDialog.dismiss();
+                progressDialog.dismiss();
             }
 
             @Override
             public void onParse(String s, Response response) {
-                JSONModel.ReturnObject returnObject = chooseActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
-                parentGoods = chooseActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), GoodsType[].class);
-                chooseActivity.sqLiteManage.insertGoodsTypes(chooseActivity.mainApp.daoMaster.newSession(), parentGoods);
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
+                parentGoods = gson.fromJson(returnObject.getM_ReturnOBJJsonArray(), GoodsType[].class);
+                sqLiteManage.insertGoodsTypes(mainApp.daoMaster.newSession(), parentGoods);
                 allGoods = new ArrayList<>();
                 for (int i = 0; i < parentGoods.length; i++) {
                     allGoods.add(new GoodsType[0]);
@@ -161,14 +154,14 @@ public class ChooseGoodsFragment extends Fragment {
 
             @Override
             public void onLost() {
-                chooseActivity.loginAgain();
+                baseActivity.loginAgain();
             }
 
         });
     }
 
     private void getChildGoods(long id, final int groupPosition) {
-        HashMap<String, String> map = chooseActivity.getDefaultMap();
+        HashMap<String, String> map = baseActivity.getDefaultMap();
         map.put("pid", String.valueOf(id));
         ConnectionUtil.postParams(Constants.get_child_goods_url, map, new StringConnectionCallBack() {
             @Override
@@ -183,9 +176,9 @@ public class ChooseGoodsFragment extends Fragment {
 
             @Override
             public void onParse(String s, Response response) {
-                JSONModel.ReturnData returnData = chooseActivity.gson.fromJson(s, JSONModel.ReturnData.class);
-                GoodsType[] goodsTypes = chooseActivity.gson.fromJson(returnData.getData(), GoodsType[].class);
-                chooseActivity.sqLiteManage.insertGoodsTypes(chooseActivity.mainApp.daoMaster.newSession(), goodsTypes);
+                JSONModel.ReturnData returnData = gson.fromJson(s, JSONModel.ReturnData.class);
+                GoodsType[] goodsTypes = gson.fromJson(returnData.getData(), GoodsType[].class);
+                sqLiteManage.insertGoodsTypes(mainApp.daoMaster.newSession(), goodsTypes);
                 allGoods.set(groupPosition, goodsTypes);
                 adapter.notifyDataSetChanged();
             }
@@ -197,7 +190,7 @@ public class ChooseGoodsFragment extends Fragment {
 
             @Override
             public void onLost() {
-                chooseActivity.loginAgain();
+                baseActivity.loginAgain();
             }
 
 

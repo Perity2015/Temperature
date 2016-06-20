@@ -103,6 +103,7 @@ public class ChartActivity extends BaseActivity {
 
     private boolean haveUpload;
     private boolean isAnimation;
+    private MenuItem menuItem;
     private ArrayList<String> timeArray;
 
     @Override
@@ -257,15 +258,28 @@ public class ChartActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_chart, menu);
-        return true;
+        menuItem = menu.add(R.string.confirm);
+        if (haveUpload) {
+            menuItem.setVisible(false);
+        }
+        menuItem.setIcon(R.drawable.icon_upload);
+        menuItem.setTitle(R.string.action_upload);
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (haveUpload) {
+                    Utils.showLongToast("记录已上传", mContext);
+                    return true;
+                }
+                uploadData();
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
-//        super.onConfigurationChanged(newConfig);
-
-        setRequestedOrientation(newConfig.orientation);
-
     }
 
     private LineData getData() {
@@ -367,18 +381,6 @@ public class ChartActivity extends BaseActivity {
         lineChart.getXAxis().setDrawGridLines(false);
         lineChart.invalidate();
         lineChart.animateX(2000);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_upload) {
-            if (haveUpload) {
-                Utils.showLongToast("记录已上传", mContext);
-                return true;
-            }
-            uploadData();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @OnClick(R.id.action_up)
@@ -530,6 +532,7 @@ public class ChartActivity extends BaseActivity {
                     return;
                 }
                 haveUpload = true;
+                menuItem.setVisible(false);
                 tagInfo.setHavepost(true);
                 sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
                 showNoticeDialog(returnObject.getsMsg(), false);
@@ -590,6 +593,7 @@ public class ChartActivity extends BaseActivity {
                 }
                 haveUpload = true;
                 tagInfo.setHavepost(true);
+                menuItem.setVisible(false);
                 sqLiteManage.updateConfigTagInfoStatus(mainApp.getDaoSession(), tagInfo);
                 showNoticeDialog(returnObject.getsMsg(), false);
             }

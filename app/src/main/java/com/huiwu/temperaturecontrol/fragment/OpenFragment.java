@@ -35,6 +35,7 @@ import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
 import com.huiwu.temperaturecontrol.service.SyncService;
+import com.huiwu.temperaturecontrol.sqlite.bean.Picture;
 import com.lzy.okhttputils.request.BaseRequest;
 
 import java.io.File;
@@ -49,7 +50,7 @@ import okhttp3.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class OpenFragment extends Fragment {
+public class OpenFragment extends ManageFragment {
 
 
     @Bind(R.id.text_address)
@@ -79,9 +80,6 @@ public class OpenFragment extends Fragment {
     @Bind(R.id.text_object)
     TextView textObject;
 
-
-    private ManageActivity manageActivity;
-
     private String picName;
 
     public OpenFragment() {
@@ -92,8 +90,6 @@ public class OpenFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        manageActivity = (ManageActivity) getActivity();
     }
 
     @Override
@@ -109,15 +105,15 @@ public class OpenFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         textAddress.requestFocus();
-        textBoxNo.setText(manageActivity.box.getBoxno());
-        textGoods.setText(manageActivity.tempLink.getGoodtype() + "  " + manageActivity.tempLink.getGoodchildtype());
-        textObject.setText(manageActivity.tempLink.getCarno());
-        textSeal.setText(manageActivity.tempLink.getSealrfid());
-        if (manageActivity.box.getBoxtype().equals("lock")) {
+        textBoxNo.setText(box.getBoxno());
+        textGoods.setText(tempLink.getGoodtype() + "  " + tempLink.getGoodchildtype());
+        textObject.setText(tempLink.getCarno());
+        textSeal.setText(tempLink.getSealrfid());
+        if (box.getBoxtype().equals("lock")) {
             textSealTitle.setText("电子锁：");
         }
 
-        manageActivity.mainApp.locationText = textAddress;
+        mainApp.locationText = textAddress;
 
         checkException.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -172,12 +168,12 @@ public class OpenFragment extends Fragment {
     }
 
     private void openTag() {
-        final HashMap<String, String> map = manageActivity.getDefaultMap();
-        map.put("boxno", manageActivity.box.getBoxno());
-        if (manageActivity.mainApp.bdLocation != null) {
-            map.put("addr", manageActivity.mainApp.bdLocation.getAddress());
-            map.put("lat", String.valueOf(manageActivity.mainApp.bdLocation.getLatitude()));
-            map.put("lng", String.valueOf(manageActivity.mainApp.bdLocation.getLongitude()));
+        final HashMap<String, String> map = baseActivity.getDefaultMap();
+        map.put("boxno", box.getBoxno());
+        if (mainApp.bdLocation != null) {
+            map.put("addr", mainApp.bdLocation.getAddress());
+            map.put("lat", String.valueOf(mainApp.bdLocation.getLatitude()));
+            map.put("lng", String.valueOf(mainApp.bdLocation.getLongitude()));
         } else {
             map.put("addr", "未获取定位信息");
         }
@@ -190,38 +186,38 @@ public class OpenFragment extends Fragment {
         ConnectionUtil.postParams(Constants.open_tag, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                manageActivity.progressDialog.setMessage(getString(R.string.submit_load));
-                manageActivity.progressDialog.show();
+                progressDialog.setMessage(getString(R.string.submit_load));
+                progressDialog.show();
             }
 
             @Override
             public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
-                manageActivity.progressDialog.dismiss();
+                progressDialog.dismiss();
             }
 
             @Override
             public void onParse(String s, Response response) {
-                JSONModel.ReturnObject returnObject = manageActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 Utils.showLongToast(returnObject.getsMsg(), getContext());
                 if (!returnObject.isbOK()) {
                     return;
                 }
                 File file = new File(Constants.getStoragePath(), picName);
-                ContentValues values = new ContentValues();
-                values.put("boxno", manageActivity.box.getBoxno());
-                values.put("linkuuid", manageActivity.box.getLinkuuid());
-                values.put("file", file.getAbsolutePath());
-                values.put("sealOropen", "open");
-                manageActivity.sqLiteManage.insertPicture(values);
+                Picture picture = new Picture();
+                picture.setBoxno(box.getBoxno());
+                picture.setLinkuuid(box.getLinkuuid());
+                picture.setFile(file.getAbsolutePath());
+                sqLiteManage.insertPicture(mainApp.getDaoSession(), picture);
+
                 Bundle bundle = new Bundle();
-                bundle.putString("LGKey", manageActivity.userInfo.getLGKey());
-                bundle.putString("boxno", manageActivity.box.getBoxno());
-                bundle.putString("linkuuid", manageActivity.box.getLinkuuid());
+                bundle.putString("LGKey", userInfo.getLGKey());
+                bundle.putString("boxno", box.getBoxno());
+                bundle.putString("linkuuid", box.getLinkuuid());
                 bundle.putString("file", file.getAbsolutePath());
                 bundle.putString("sealOropen", "open");
                 SyncService.startActionNow(getContext(), bundle);
-                if (manageActivity.box.getBoxtype().equals("lock")) {
-                    JSONModel.Lock lock = manageActivity.gson.fromJson(returnObject.getM_ReturnOBJJsonObject(), JSONModel.Lock.class);
+                if (box.getBoxtype().equals("lock")) {
+                    JSONModel.Lock lock = gson.fromJson(returnObject.getM_ReturnOBJJsonObject(), JSONModel.Lock.class);
                     Intent intent = new Intent(getContext(), NfcActivity.class);
                     intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_OPEN);
                     intent.putExtra(Constants.lock, lock);

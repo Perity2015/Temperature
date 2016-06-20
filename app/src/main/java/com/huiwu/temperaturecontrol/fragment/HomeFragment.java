@@ -43,10 +43,7 @@ import okhttp3.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment {
-
-    private MainActivity mainActivity;
-
+public class HomeFragment extends BaseFragment {
     @Bind(R.id.image_qrcode)
     ImageView imageQrcode;
 
@@ -59,7 +56,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mainActivity = (MainActivity) getActivity();
     }
 
     @Override
@@ -91,7 +87,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void checkQrcode(final String qrcode, boolean nfc_mode) {
-        HashMap<String, String> map = mainActivity.getDefaultMap();
+        HashMap<String, String> map = baseActivity.getDefaultMap();
         if (nfc_mode) {
             map.put("tmprfid", qrcode);
         } else {
@@ -100,18 +96,18 @@ public class HomeFragment extends Fragment {
         ConnectionUtil.postParams(Constants.check_box_status, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                mainActivity.progressDialog.setMessage(getString(R.string.check_box_status_load));
-                mainActivity.progressDialog.show();
+                progressDialog.setMessage(getString(R.string.check_box_status_load));
+                progressDialog.show();
             }
 
             @Override
             public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
-                mainActivity.progressDialog.dismiss();
+                progressDialog.dismiss();
             }
 
             @Override
             public void onParse(String s, Response response) {
-                JSONModel.ReturnObject returnObject = mainActivity.gson.fromJson(s, JSONModel.ReturnObject.class);
+                JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
                 if (!returnObject.isbOK()) {
                     Utils.showLongToast(returnObject.getsMsg(), getContext());
                     return;
@@ -130,14 +126,14 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 if (TextUtils.equals(ManageActivity.OPTION_NEW_BOX, option)) {
-                    if (!mainActivity.userInfo.isHaveAddBox()) {
-                        Utils.showLongToast("无权限添加心想提", getContext());
+                    if (!baseActivity.userInfo.isHaveAddBox()) {
+                        Utils.showLongToast("无权限添加新箱体", getContext());
                         return;
                     }
                 }
                 JSONModel.Box box;
                 if (jsonObject.has("box")) {
-                    box = mainActivity.gson.fromJson(jsonObject.get("box"), JSONModel.Box.class);
+                    box = gson.fromJson(jsonObject.get("box"), JSONModel.Box.class);
                 } else {
                     box = new JSONModel.Box();
                     box.setBoxno(qrcode);
@@ -146,7 +142,7 @@ public class HomeFragment extends Fragment {
                 intent.putExtra(ManageActivity.BOX_EXTRA, box);
                 intent.putExtra(ManageActivity.OPTION_EXTRA, option);
                 if (jsonObject.has("boxlink")) {
-                    intent.putExtra(ManageActivity.TMP_LINK_EXTRA, mainActivity.gson.fromJson(jsonObject.get("boxlink"), JSONModel.TempLink.class));
+                    intent.putExtra(ManageActivity.TMP_LINK_EXTRA, gson.fromJson(jsonObject.get("boxlink"), JSONModel.TempLink.class));
                 }
                 startActivity(intent);
             }
@@ -158,7 +154,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onLost() {
-                mainActivity.loginAgain();
+                baseActivity.loginAgain();
             }
 
 

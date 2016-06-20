@@ -3,22 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPageBackground"
-    android:gravity="center_horizontal"
-    android:padding="@dimen/activity_horizontal_margin"
+    android:gravity="center"
     android:orientation="vertical"
+    android:padding="@dimen/activity_horizontal_margin"
     tools:context="com.huiwu.temperaturecontrol.fragment.GatherFragment">
-
-    <ImageView
-        android:id="@+id/image_unbind"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:src="@drawable/image_unbind" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.0" />
 
     <ImageView
         android:id="@+id/btn_bluetooth"
@@ -32,10 +20,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:src="@drawable/image_nfc_read" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.5" />
 
 </LinearLayout>
