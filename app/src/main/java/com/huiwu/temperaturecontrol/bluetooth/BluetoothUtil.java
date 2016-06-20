@@ -64,36 +64,4 @@ public class BluetoothUtil {
         return bitBytes;
     }
 
-    public static String bytesToHexString(byte[] bArray) {
-        StringBuffer sb = new StringBuffer(bArray.length);
-
-        for (int i = 0; i <= bArray.length - 1; i++) {
-            String sTemp = Integer.toHexString(255 & bArray[i]);
-            if (sTemp.length() < 2) {
-                sb.append(0);
-            }
-            sb.append(sTemp.toUpperCase());
-        }
-
-        return sb.toString();
-    }
-
-//    public static byte[] hexStringToBytes(String hexString){
-//        char[] chars = hexString.toCharArray();
-//        byte[] bytes =
-//    }
-
-    public static int Convert2bytesHexFormatToInt(byte[] bytes) {
-        if (bytes[0] >= 0) {
-            if (bytes[1] < 0) {
-                return 256 + bytes[1] + 256 * bytes[0];
-            }
-            return bytes[1] + 256 * bytes[0];
-        } else {
-            if (bytes[1] < 0) {
-                return 256 + bytes[1] + 256 + 256 * bytes[0];
-            }
-            return bytes[1] + 256 + 256 * bytes[0];
-        }
-    }
 }

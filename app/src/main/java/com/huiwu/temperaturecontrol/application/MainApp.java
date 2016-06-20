@@ -2,6 +2,7 @@ package com.huiwu.temperaturecontrol.application;
 
 import android.app.Application;
 import android.app.Service;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.os.Vibrator;
@@ -30,6 +31,7 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.File;
+import java.math.BigDecimal;
 
 /**
  * Created by HuiWu on 2016/4/11.
@@ -425,9 +427,7 @@ public class MainApp extends Application {
         }
     }
 
-
     public class MyLocationListener implements AMapLocationListener {
-
 
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
@@ -436,13 +436,34 @@ public class MainApp extends Application {
                     locationText.setText(aMapLocation.getAddress());
                 }
                 LatLng latLng = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
-                latLng = LocationUtils.convertGToGPS(getApplicationContext(), latLng);
+                latLng = convertGToGPS(getApplicationContext(), latLng);
                 aMapLocation.setLatitude(latLng.latitude);
                 aMapLocation.setLongitude(latLng.longitude);
                 bdLocation = aMapLocation;
             }
         }
+
     }
 
+    public static LatLng convertGToGPS(Context context, LatLng sourceLatLng) {
+        com.amap.api.maps.CoordinateConverter converter = new com.amap.api.maps.CoordinateConverter(context);
+        converter.from(com.amap.api.maps.CoordinateConverter.CoordType.GPS);
+        converter.coord(sourceLatLng);
+        LatLng desLatLng = converter.convert();
+        double latitude = 2 * sourceLatLng.latitude - desLatLng.latitude;
+        double longitude = 2 * sourceLatLng.longitude - desLatLng.longitude;
+        BigDecimal bdLatitude = new BigDecimal(latitude);
+        bdLatitude = bdLatitude.setScale(6, BigDecimal.ROUND_HALF_UP);
+        BigDecimal bdLongitude = new BigDecimal(longitude);
+        bdLongitude = bdLongitude.setScale(6, BigDecimal.ROUND_HALF_UP);
+        return new LatLng(bdLatitude.doubleValue(), bdLongitude.doubleValue());
+    }
+
+    public static LatLng convertGPSToG(Context context, LatLng sourceLatLng) {
+        com.amap.api.maps.CoordinateConverter converter = new com.amap.api.maps.CoordinateConverter(context);
+        converter.from(com.amap.api.maps.CoordinateConverter.CoordType.GPS);
+        converter.coord(sourceLatLng);
+        return converter.convert();
+    }
 
 }

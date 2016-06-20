@@ -2,7 +2,6 @@ package com.huiwu.temperaturecontrol.fragment;
 
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
-import com.huiwu.temperaturecontrol.ManageActivity;
 import com.huiwu.temperaturecontrol.NfcActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.ShowPictureActivity;
@@ -102,7 +100,7 @@ public class SealFragment extends ManageFragment {
         textGoods.setText(tempLink.getGoodtype() + "  " + tempLink.getGoodchildtype());
         textObject.setText(tempLink.getCarno());
         textBoxNo.setText(box.getBoxno());
-        if (manageActivity.box.getBoxtype().equals("lock")) {
+        if (manageActivity.box.getBoxtype().equals("LOCK")) {
             textSealTitle.setText("电子锁：");
         }
         mainApp.locationText = textAddress;
@@ -112,8 +110,8 @@ public class SealFragment extends ManageFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_READ_UID && resultCode == Activity.RESULT_OK) {
-            rfid = data.getStringExtra(Constants.read_uid);
-            if (!manageActivity.box.getBoxtype().equals("lock")) {
+            rfid = data.getStringExtra(Constants.READ_UID);
+            if (!manageActivity.box.getBoxtype().equals("LOCK")) {
                 textSeal.setText(rfid);
                 return;
             }
@@ -149,7 +147,7 @@ public class SealFragment extends ManageFragment {
     private void checkLock(final String rfid) {
         HashMap<String, String> map = manageActivity.getDefaultMap();
         map.put("sealrfid", rfid);
-        ConnectionUtil.postParams(Constants.check_new_lock, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.CHECK_NEW_LOCK, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("检查电子锁信息");
@@ -201,7 +199,7 @@ public class SealFragment extends ManageFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(getContext(), NfcActivity.class);
-                intent.putExtra(Constants.lock, lock);
+                intent.putExtra(Constants.LOCK, lock);
                 if (lock.isNewPwd()) {
                     intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_PASSWORD);
                     startActivityForResult(intent, REQUEST_PASSWORD);
@@ -234,7 +232,7 @@ public class SealFragment extends ManageFragment {
 //        HashMap<String, File> fileHashMap = new HashMap<>();
 //        File file = new File(Constants.getStoragePath(), picName);
 //        fileHashMap.put("pic", file);
-        ConnectionUtil.postParams(Constants.seal_tag, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.SEAL_TAG, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.submit_load));
@@ -300,7 +298,7 @@ public class SealFragment extends ManageFragment {
             case R.id.image_picture:
                 if (!TextUtils.isEmpty((String) imagePicture.getTag())) {
                     Intent intent = new Intent(getContext(), ShowPictureActivity.class);
-                    intent.putExtra(Constants.picture_file, (String) imagePicture.getTag());
+                    intent.putExtra(Constants.PICTURE_FILE, (String) imagePicture.getTag());
                     startActivity(intent);
                     return;
                 }

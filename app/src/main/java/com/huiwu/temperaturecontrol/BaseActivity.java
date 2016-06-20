@@ -66,7 +66,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mContext = this;
         mainApp = (MainApp) getApplication();
-        mShared = getSharedPreferences(Constants.shared, MODE_PRIVATE);
+        mShared = getSharedPreferences(Constants.SHARED, MODE_PRIVATE);
         sqLiteManage = SQLiteManage.getInstance(mContext);
         progressDialog = new ProgressDialog(mContext);
         progressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
@@ -86,7 +86,7 @@ public class BaseActivity extends AppCompatActivity {
         });
 
         try {
-            userInfo = gson.fromJson(mShared.getString(Constants.user_info, "{}"), JSONModel.UserInfo.class);
+            userInfo = gson.fromJson(mShared.getString(Constants.USER_INFO, "{}"), JSONModel.UserInfo.class);
         } catch (Exception e) {
             userInfo = null;
         }
@@ -121,7 +121,7 @@ public class BaseActivity extends AppCompatActivity {
             }
         }
         try {
-            userInfo = gson.fromJson(mShared.getString(Constants.user_info, "{}"), JSONModel.UserInfo.class);
+            userInfo = gson.fromJson(mShared.getString(Constants.USER_INFO, "{}"), JSONModel.UserInfo.class);
         } catch (Exception e) {
             userInfo = null;
         }
@@ -153,7 +153,7 @@ public class BaseActivity extends AppCompatActivity {
 
     public void loginAgain() {
         Intent intent = new Intent(mContext, LoginActivity.class);
-        intent.putExtra(Constants.login_again, true);
+        intent.putExtra(Constants.LOGIN_AGAIN, true);
         startActivityForResult(intent, REQUEST_LOGIN_AGAIN);
     }
 
@@ -191,20 +191,6 @@ public class BaseActivity extends AppCompatActivity {
         }
 
         return sb.toString();
-    }
-
-    public int Convert2bytesHexFormatToInt(byte[] bytes) {
-        if (bytes[0] >= 0) {
-            if (bytes[1] < 0) {
-                return 256 + bytes[1] + 256 * bytes[0];
-            }
-            return bytes[1] + 256 * bytes[0];
-        } else {
-            if (bytes[1] < 0) {
-                return 256 + bytes[1] + 256 + 256 * bytes[0];
-            }
-            return bytes[1] + 256 + 256 * bytes[0];
-        }
     }
 
     public DisplayImageOptions getDefaultDisplayImageOptions() {

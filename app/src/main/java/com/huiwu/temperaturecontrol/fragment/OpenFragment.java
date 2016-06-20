@@ -2,7 +2,6 @@ package com.huiwu.temperaturecontrol.fragment;
 
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,7 +9,6 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,13 +25,11 @@ import android.widget.TextView;
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
-import com.huiwu.temperaturecontrol.ManageActivity;
 import com.huiwu.temperaturecontrol.NfcActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.ShowPictureActivity;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.bean.TLog;
 import com.huiwu.temperaturecontrol.service.SyncService;
 import com.huiwu.temperaturecontrol.sqlite.bean.Picture;
 import com.lzy.okhttputils.request.BaseRequest;
@@ -109,7 +105,7 @@ public class OpenFragment extends ManageFragment {
         textGoods.setText(tempLink.getGoodtype() + "  " + tempLink.getGoodchildtype());
         textObject.setText(tempLink.getCarno());
         textSeal.setText(tempLink.getSealrfid());
-        if (box.getBoxtype().equals("lock")) {
+        if (box.getBoxtype().equals("LOCK")) {
             textSealTitle.setText("电子锁：");
         }
 
@@ -134,7 +130,7 @@ public class OpenFragment extends ManageFragment {
             File file = new File(Constants.getStoragePath(), picName);
             manageActivity.dealWithPicture(imagePicture, imageDelete, file);
         } else if (requestCode == REQUEST_READ_UID && resultCode == Activity.RESULT_OK) {
-            textSeal.setText(data.getStringExtra(Constants.read_uid));
+            textSeal.setText(data.getStringExtra(Constants.READ_UID));
         }
     }
 
@@ -183,7 +179,7 @@ public class OpenFragment extends ManageFragment {
 //        HashMap<String, File> fileHashMap = new HashMap<>();
 //        File file = new File(Constants.getStoragePath(), picName);
 //        fileHashMap.put("pic", file);
-        ConnectionUtil.postParams(Constants.open_tag, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.OPEN_TAG, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.submit_load));
@@ -216,11 +212,11 @@ public class OpenFragment extends ManageFragment {
                 bundle.putString("file", file.getAbsolutePath());
                 bundle.putString("sealOropen", "open");
                 SyncService.startActionNow(getContext(), bundle);
-                if (box.getBoxtype().equals("lock")) {
+                if (box.getBoxtype().equals("LOCK")) {
                     JSONModel.Lock lock = gson.fromJson(returnObject.getM_ReturnOBJJsonObject(), JSONModel.Lock.class);
                     Intent intent = new Intent(getContext(), NfcActivity.class);
                     intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_OPEN);
-                    intent.putExtra(Constants.lock, lock);
+                    intent.putExtra(Constants.LOCK, lock);
                     startActivity(intent);
                 }
                 manageActivity.finish();
@@ -252,7 +248,7 @@ public class OpenFragment extends ManageFragment {
             case R.id.image_picture:
                 if (!TextUtils.isEmpty((String) imagePicture.getTag())) {
                     Intent intent = new Intent(getContext(), ShowPictureActivity.class);
-                    intent.putExtra(Constants.picture_file, (String) imagePicture.getTag());
+                    intent.putExtra(Constants.PICTURE_FILE, (String) imagePicture.getTag());
                     startActivity(intent);
                     return;
                 }

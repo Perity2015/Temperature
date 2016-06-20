@@ -29,7 +29,7 @@ public class MainActivity extends BaseActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
-     * The {@link ViewPager} that will host the section contents.
+     * The {@link ViewPager} that will HOST the section contents.
      */
     private ViewPager mViewPager;
 

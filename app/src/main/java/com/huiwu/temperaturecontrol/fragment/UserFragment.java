@@ -17,11 +17,9 @@ import com.huiwu.model.utils.Utils;
 import com.huiwu.model.view.CircleImageView;
 import com.huiwu.model.view.MyAlertDialog;
 import com.huiwu.temperaturecontrol.LoginActivity;
-import com.huiwu.temperaturecontrol.MainActivity;
 import com.huiwu.temperaturecontrol.PasswordActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
-import com.huiwu.temperaturecontrol.bean.JSONModel;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -94,7 +92,7 @@ public class UserFragment extends BaseFragment {
                 break;
             case R.id.btn_check_update:
                 UpdateManage updateManage = new UpdateManage(getContext(), progressDialog, true);
-                updateManage.checkVersion(Constants.app_name);
+                updateManage.checkVersion(Constants.APP_NAME);
                 break;
             case R.id.btn_sign_out:
                 showQuitDialog();
@@ -109,8 +107,8 @@ public class UserFragment extends BaseFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        mShared.edit().putString(Constants.user_info, "").commit();
-                        Utils.saveUserImage(getContext(), null, Constants.user_image);
+                        mShared.edit().putString(Constants.USER_INFO, "").commit();
+                        Utils.saveUserImage(getContext(), null, Constants.USER_IMAGE);
                         startActivity(new Intent(getContext(), LoginActivity.class));
                         getActivity().finish();
                     }

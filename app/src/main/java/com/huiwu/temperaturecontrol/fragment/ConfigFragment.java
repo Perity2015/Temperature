@@ -4,7 +4,6 @@ package com.huiwu.temperaturecontrol.fragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -129,7 +128,7 @@ public class ConfigFragment extends ManageFragment {
             public boolean onMenuItemClick(MenuItem item) {
                 if (mNfcAdapter == null) {
                     Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
-                    intent_ble.putExtra(Constants.tag_info, tagInfo);
+                    intent_ble.putExtra(Constants.TAG_INFO, tagInfo);
                     intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_CONFIG);
                     startActivityForResult(intent_ble, REQUEST_CONFIG);
                     return true;
@@ -147,12 +146,12 @@ public class ConfigFragment extends ManageFragment {
             return;
         }
         if (requestCode == REQUEST_OBJECT) {
-            selectRfidGoods = data.getParcelableExtra(Constants.select_object);
+            selectRfidGoods = data.getParcelableExtra(Constants.SELECT_OBJECT);
             textObject.setText(selectRfidGoods.getRfidgoodname());
             tagInfo.setObject(selectRfidGoods.getRfidgoodname());
             tempLink.setCarno(selectRfidGoods.getRfidgoodname());
         } else if (requestCode == REQUEST_GOODS) {
-            selectGoods = data.getParcelableExtra(Constants.select_object);
+            selectGoods = data.getParcelableExtra(Constants.SELECT_OBJECT);
             textGoods.setText(selectGoods.getParentgoodtype() + "    " + selectGoods.getGoodtype());
 
             tempLink.setGoodtype(selectGoods.getParentgoodtype());
@@ -170,7 +169,7 @@ public class ConfigFragment extends ManageFragment {
 
         } else if (requestCode == REQUEST_CONFIG) {
             if (!TextUtils.equals("normal", box.getBoxtype())) {
-                JSONModel.TagInfo tagInfo = data.getParcelableExtra(Constants.tag_info);
+                TagInfo tagInfo = data.getParcelableExtra(Constants.TAG_INFO);
                 box.setLinkuuid(tagInfo.getLinkuuid());
                 showFinishAddDialog();
             } else {
@@ -210,13 +209,13 @@ public class ConfigFragment extends ManageFragment {
                 switch (which) {
                     case 0:
                         Intent intent_ble = new Intent(getContext(), DeviceListActivity.class);
-                        intent_ble.putExtra(Constants.tag_info, tagInfo);
+                        intent_ble.putExtra(Constants.TAG_INFO, tagInfo);
                         intent_ble.putExtra(DeviceListActivity.BLE_MANAGE, DeviceListActivity.BLE_CONFIG);
                         startActivityForResult(intent_ble, REQUEST_CONFIG);
                         break;
                     case 1:
                         Intent intent_nfc = new Intent(getContext(), NfcActivity.class);
-                        intent_nfc.putExtra(Constants.tag_info, tagInfo);
+                        intent_nfc.putExtra(Constants.TAG_INFO, tagInfo);
                         intent_nfc.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_CONFIG);
                         startActivityForResult(intent_nfc, REQUEST_CONFIG);
                         break;

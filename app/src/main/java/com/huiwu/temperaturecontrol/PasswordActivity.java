@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -81,7 +80,7 @@ public class PasswordActivity extends BaseActivity {
         final HashMap<String, String> map = getDefaultMap();
         map.put("pwd", oldPassword);
         map.put("newpwd", newPassword);
-        ConnectionUtil.postParams(Constants.revise_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.REVISE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("提交信息中");
@@ -102,7 +101,7 @@ public class PasswordActivity extends BaseActivity {
                     return;
                 }
                 userInfo.setPassword("");
-                mShared.edit().putString(Constants.user_info, gson.toJson(userInfo)).commit();
+                mShared.edit().putString(Constants.USER_INFO, gson.toJson(userInfo)).commit();
                 setResult(RESULT_OK);
                 finish();
             }

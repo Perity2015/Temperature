@@ -32,7 +32,7 @@ public class ShowPictureActivity extends BaseActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_qrcode_back);
 
-        String imageUrl = getIntent().getStringExtra(Constants.picture_file);
+        String imageUrl = getIntent().getStringExtra(Constants.PICTURE_FILE);
 
         ImageLoader.getInstance().loadImage("file:///" + imageUrl, getDefaultDisplayImageOptions(), new SimpleImageLoadingListener() {
 

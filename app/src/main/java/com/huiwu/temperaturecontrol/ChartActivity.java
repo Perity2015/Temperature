@@ -16,7 +16,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -125,7 +124,7 @@ public class ChartActivity extends BaseActivity {
         MyMarkerView mv = new MyMarkerView(mContext, R.layout.custom_marker_view);
         lineChart.setMarkerView(mv);
 
-        tagInfo = getIntent().getParcelableExtra(Constants.tag_info);
+        tagInfo = getIntent().getParcelableExtra(Constants.TAG_INFO);
 
         haveUpload = tagInfo.isHavepost();
 
@@ -134,7 +133,7 @@ public class ChartActivity extends BaseActivity {
         goodsType = gson.fromJson(tagInfo.getGoods(), GoodsType.class);
         box = gson.fromJson(tagInfo.getBox(), JSONModel.Box.class);
 
-        if (getIntent().getBooleanExtra(Constants.is_on_line, false)) {
+        if (getIntent().getBooleanExtra(Constants.IS_ON_LINE, false)) {
             timeArray = getIntent().getStringArrayListExtra("timeArray");
         } else {
             timeArray = new ArrayList<>();
@@ -152,14 +151,14 @@ public class ChartActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("haveUpload", haveUpload);
-        outState.putParcelable(Constants.tag_info, tagInfo);
+        outState.putParcelable(Constants.TAG_INFO, tagInfo);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         haveUpload = savedInstanceState.getBoolean("haveUpload");
-        tagInfo = savedInstanceState.getParcelable(Constants.tag_info);
+        tagInfo = savedInstanceState.getParcelable(Constants.TAG_INFO);
         super.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -173,7 +172,7 @@ public class ChartActivity extends BaseActivity {
     private void getTempLinkInfo(String linkuuid) {
         HashMap<String, String> map = getDefaultMap();
         map.put("linkuuid", linkuuid);
-        ConnectionUtil.postParams(Constants.get_temperature_links_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.GET_TEMPERATURE_LINKS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
 
@@ -512,7 +511,7 @@ public class ChartActivity extends BaseActivity {
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
         map.put("index", String.valueOf(tagInfo.getNumber()));
 
-        ConnectionUtil.postParams(Constants.upload_data_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.UPLOAD_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("上传记录信息中……");
@@ -572,7 +571,7 @@ public class ChartActivity extends BaseActivity {
         map.put("createtime", Utils.formatDateTimeOffLine(tagInfo.getReadTime()));
 
 
-        ConnectionUtil.postParams(Constants.upload_data_offline_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.UPLOAD_DATA_OFFLINE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("上传记录信息中……");

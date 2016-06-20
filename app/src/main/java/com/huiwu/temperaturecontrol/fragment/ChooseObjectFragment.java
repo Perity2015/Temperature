@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,17 +17,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
-import com.huiwu.temperaturecontrol.BaseActivity;
-import com.huiwu.temperaturecontrol.ChooseActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
@@ -119,7 +113,7 @@ public class ChooseObjectFragment extends BaseFragment {
                 }
                 RfidGood rfidGood = searchObjects.get(selectId);
                 Intent intent = new Intent();
-                intent.putExtra(Constants.select_object, rfidGood);
+                intent.putExtra(Constants.SELECT_OBJECT, rfidGood);
                 baseActivity.setResult(Activity.RESULT_OK, intent);
                 baseActivity.finish();
                 return true;
@@ -129,7 +123,7 @@ public class ChooseObjectFragment extends BaseFragment {
 
     private void getAllObjects() {
         HashMap<String, String> map = baseActivity.getDefaultMap();
-        ConnectionUtil.postParams(Constants.get_all_objects_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.GET_ALL_OBJECTS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
 

@@ -9,7 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +25,7 @@ import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
 import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.lzy.okhttputils.request.BaseRequest;
 
@@ -220,7 +219,7 @@ public class NetRecordsActivity extends BaseActivity {
         calendar.set(Calendar.MONTH, seekBarMonth.getProgress() + 1);
         map.put("endtime", DateFormat.format("yyyy-MM-dd kk:mm:ss", calendar).toString());
 
-        ConnectionUtil.postParams(Constants.get_temperature_links_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.GET_TEMPERATURE_LINKS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("加载信息");
@@ -265,7 +264,7 @@ public class NetRecordsActivity extends BaseActivity {
     private void getGatherRecords(final JSONModel.TempLink tempLink) {
         HashMap<String, String> map = getDefaultMap();
         map.put("linkuuid", tempLink.getLinkuuid());
-        ConnectionUtil.postParams(Constants.get_gather_temperature_records_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.GET_GATHER_TEMPERATURE_RECORDS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.show();
@@ -306,7 +305,7 @@ public class NetRecordsActivity extends BaseActivity {
             map.put("cntuuid", cntuuid);
         }
         map.put("linkuuid", tempLink.getLinkuuid());
-        ConnectionUtil.postParams(Constants.get_gather_temperature_data_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.GET_GATHER_TEMPERATURE_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.show();
@@ -335,7 +334,7 @@ public class NetRecordsActivity extends BaseActivity {
                 box.setBoxtype(tempLink.getBoxtype());
                 tagInfo.setBox(gson.toJson(box));
 
-                JSONModel.Goods goods = new JSONModel.Goods();
+                GoodsType goods = new GoodsType();
                 goods.setGoodtype(tempLink.getGoodchildtype());
                 goods.setParentgoodtype(tempLink.getGoodtype());
                 goods.setOnetime(tempLink.getOnetime());
@@ -374,7 +373,7 @@ public class NetRecordsActivity extends BaseActivity {
 
                 Intent intent = new Intent(mContext, ChartActivity.class);
                 intent.putExtra("tagInfo", tagInfo);
-                intent.putExtra(Constants.is_on_line, true);
+                intent.putExtra(Constants.IS_ON_LINE, true);
                 intent.putExtra("timeArray", timeArray);
                 startActivity(intent);
             }

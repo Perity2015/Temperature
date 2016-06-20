@@ -2,9 +2,7 @@ package com.huiwu.temperaturecontrol.fragment;
 
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -26,12 +24,10 @@ import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.ChartActivity;
-import com.huiwu.temperaturecontrol.MainActivity;
 import com.huiwu.temperaturecontrol.NetRecordsActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.sqlite.SQLiteManage;
 import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
 import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.lzy.okhttputils.request.BaseRequest;
@@ -207,7 +203,7 @@ public class RecordFragment extends BaseFragment {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getContext(), ChartActivity.class);
-                    intent.putExtra(Constants.tag_info, tagInfo);
+                    intent.putExtra(Constants.TAG_INFO, tagInfo);
                     startActivity(intent);
                 }
             });
@@ -271,7 +267,7 @@ public class RecordFragment extends BaseFragment {
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
         map.put("index", String.valueOf(tagInfo.getNumber()));
 
-        ConnectionUtil.postParams(Constants.upload_data_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.UPLOAD_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("上传记录信息中……");
@@ -329,7 +325,7 @@ public class RecordFragment extends BaseFragment {
         map.put("createtime", Utils.formatDateTimeOffLine(tagInfo.getReadTime()));
 
 
-        ConnectionUtil.postParams(Constants.upload_data_offline_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.UPLOAD_DATA_OFFLINE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("上传记录信息中……");

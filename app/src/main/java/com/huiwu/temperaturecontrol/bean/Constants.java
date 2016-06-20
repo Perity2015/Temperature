@@ -14,76 +14,72 @@ public class Constants {
         return path + "/Pictures/ll";
     }
 
-    public static String shared = "shared";
+    public static final String SHARED = "SHARED";
 
-    public static String user_info = "user_info";
+    public static final String USER_INFO = "USER_INFO";
 
-    public static String login_time = "login_time";
+    public static final String LOGIN_TIME = "LOGIN_TIME";
 
-    public static String user_image = "user_image";
+    public static final String USER_IMAGE = "USER_IMAGE";
 
-    public static String login_again = "login_again";
+    public static final String LOGIN_AGAIN = "LOGIN_AGAIN";
 
-    public static String app_name = "llRFID";
+    public static final String APP_NAME = "llRFID";
 
-    public static String version = "version3.00";
+    public static final String VERSION = "version3.00";
 
-    public static String position = "position";
+    public static final String IS_ON_LINE = "IS_ON_LINE";
 
-    public static String is_off_line = "is_off_line";
+    public static final String TAG_INFO = "TAG_INFO";
 
-    public static String is_on_line = "is_on_line";
+    public static final String SELECT_OBJECT = "SELECT_OBJECT";
 
-    public static String tag_info = "tagInfo";
+    public static final String READ_UID = "READ_UID";
 
-    public static String select_object = "select_object";
+    public static final String LOCK = "LOCK";
 
-    public static String read_uid = "read_uid";
+    public static final String PICTURE_FILE = "PICTURE_FILE";
 
-    public static String lock = "lock";
+    public static final String HOST = "http://hello.yunrfid.com";
 
-    public static String picture_file = "picture_file";
+    public static final String LOGIN_URL = HOST + "/CoreSYS.SYS/LGKeyLogin.ajax";
 
-    public static String host = "http://hello.yunrfid.com";
+    public static final String REVISE_URL = HOST + "/CoreSYS.SYS/ChangePwd.ajax";
 
-    public static String login_url = host + "/CoreSYS.SYS/LGKeyLogin.ajax";
+    public static final String MANAGE_URL = HOST + "/TemperatureTag.BaseTemperatureTag";
 
-    public static String revise_url = host + "/CoreSYS.SYS/ChangePwd.ajax";
+    public static final String GET_DATA_URL = MANAGE_URL + "/GetDataOffLine.ajax";
 
-    public static String manage_url = host + "/TemperatureTag.BaseTemperatureTag";
+    public static final String BIND_TAG_OFF_LINE_URL = MANAGE_URL + "/BoxBindOffLine.ajax";
 
-    public static String get_data_url = manage_url + "/GetDataOffLine.ajax";
+    public static final String UNBIND_TAG_URL = MANAGE_URL + "/RemoveBoxBind.ajax";
 
-    public static String bind_tag_offLine_url = manage_url + "/BoxBindOffLine.ajax";
+    public static final String UPLOAD_DATA_URL = MANAGE_URL + "/GatherTemperatures.ajax";
 
-    public static String unbind_tag_url = manage_url + "/RemoveBoxBind.ajax";
+    public static final String UPLOAD_DATA_OFFLINE_URL = MANAGE_URL + "/GatherTemperaturesOffLine.ajax";
 
-    public static String upload_data_url = manage_url + "/GatherTemperatures.ajax";
+    public static final String GET_TEMPERATURE_LINKS_URL = MANAGE_URL + "/GetTemperatureLinks_RawJson.ajax";
 
-    public static String upload_data_offline_url = manage_url + "/GatherTemperaturesOffLine.ajax";
+    public static final String GET_GATHER_TEMPERATURE_RECORDS_URL = MANAGE_URL + "/GetBoxLinkTmpCntRecord.ajax";
 
-    public static String get_temperature_links_url = manage_url + "/GetTemperatureLinks_RawJson.ajax";
+    public static final String GET_GATHER_TEMPERATURE_DATA_URL = MANAGE_URL + "/GetGatherTemperatures.ajax";
 
-    public static String get_gather_temperature_records_url = manage_url + "/GetBoxLinkTmpCntRecord.ajax";
+    public static final String CHECK_BOX_STATUS = MANAGE_URL + "/checkBox.ajax";
 
-    public static String get_gather_temperature_data_url = manage_url + "/GetGatherTemperatures.ajax";
+    public static final String ADD_BOX = MANAGE_URL + "/AddBox.ajax";
 
-    public static String check_box_status = manage_url + "/checkBox.ajax";
+    public static final String GET_PARENT_GOODS_URL = MANAGE_URL + "/GetGoodType.ajax";
 
-    public static String add_box = manage_url + "/AddBox.ajax";
+    public static final String GET_CHILD_GOODS_URL = MANAGE_URL + "/ListCGoodType_RawJson.ajax";
 
-    public static String get_parent_goods_url = manage_url + "/GetGoodType.ajax";
+    public static final String GET_ALL_OBJECTS_URL = MANAGE_URL + "/ListRfidGoods_RawJson.ajax";
 
-    public static String get_child_goods_url = manage_url + "/ListCGoodType_RawJson.ajax";
+    public static final String SEAL_TAG = MANAGE_URL + "/tmpSeal.ajax";
 
-    public static String get_all_objects_url = manage_url + "/ListRfidGoods_RawJson.ajax";
+    public static final String OPEN_TAG = MANAGE_URL + "/tmpOpen.ajax";
 
-    public static String seal_tag = manage_url + "/tmpSeal.ajax";
+    public static final String UPLOAD_PICTURE = MANAGE_URL + "/uploadFileI.ajax";
 
-    public static String open_tag = manage_url + "/tmpOpen.ajax";
-
-    public static String upload_picture = manage_url + "/uploadFileI.ajax";
-
-    public static String check_new_lock = manage_url + "/checkNewLock.ajax";
+    public static final String CHECK_NEW_LOCK = MANAGE_URL + "/checkNewLock.ajax";
 
 }

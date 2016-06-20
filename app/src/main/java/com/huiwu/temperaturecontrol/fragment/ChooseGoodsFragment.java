@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
-import com.huiwu.temperaturecontrol.ChooseActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
@@ -112,7 +111,7 @@ public class ChooseGoodsFragment extends BaseFragment {
                 }
                 GoodsType goods = allGoods.get(gId)[cId];
                 Intent intent = new Intent();
-                intent.putExtra(Constants.select_object, goods);
+                intent.putExtra(Constants.SELECT_OBJECT, goods);
                 baseActivity.setResult(Activity.RESULT_OK, intent);
                 baseActivity.finish();
                 return true;
@@ -122,7 +121,7 @@ public class ChooseGoodsFragment extends BaseFragment {
 
     private void getParentsGoods() {
         HashMap<String, String> map = baseActivity.getDefaultMap();
-        ConnectionUtil.postParams(Constants.get_parent_goods_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.GET_PARENT_GOODS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("加载信息");
@@ -163,7 +162,7 @@ public class ChooseGoodsFragment extends BaseFragment {
     private void getChildGoods(long id, final int groupPosition) {
         HashMap<String, String> map = baseActivity.getDefaultMap();
         map.put("pid", String.valueOf(id));
-        ConnectionUtil.postParams(Constants.get_child_goods_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.GET_CHILD_GOODS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
 

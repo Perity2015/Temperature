@@ -31,7 +31,6 @@ import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -48,7 +47,7 @@ public class NewBoxFragment extends ManageFragment {
     @Bind(R.id.spinner_seal_status)
     Spinner spinnerSealStatus;
 
-    private String[] sealStatus = {"", "normal", "seal", "lock"};
+    private String[] sealStatus = {"", "normal", "seal", "LOCK"};
 
     public NewBoxFragment() {
         // Required empty public constructor
@@ -108,7 +107,7 @@ public class NewBoxFragment extends ManageFragment {
         map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
         map.put("orgna_id", String.valueOf(userInfo.getUserPower().getOrgna_id()));
         map.put("boxtype", sealStatus[spinnerSealStatus.getSelectedItemPosition()]);
-        ConnectionUtil.postParams(Constants.add_box, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.ADD_BOX, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("提交信息");

@@ -87,7 +87,7 @@ public class NfcActivity extends BaseActivity {
                     new WriteConfigDataTask().execute(tagFromIntent);
                     break;
                 case NFC_READ_UID:
-                    setResult(RESULT_OK, getIntent().putExtra(Constants.read_uid, bytesToHexString(tagFromIntent.getId())));
+                    setResult(RESULT_OK, getIntent().putExtra(Constants.READ_UID, bytesToHexString(tagFromIntent.getId())));
                     finish();
                     break;
                 case NFC_UNBIND:
@@ -95,7 +95,7 @@ public class NfcActivity extends BaseActivity {
                     break;
                 case NFC_OPEN:
                 case NFC_PASSWORD:
-                    JSONModel.Lock lock = getIntent().getParcelableExtra(Constants.lock);
+                    JSONModel.Lock lock = getIntent().getParcelableExtra(Constants.LOCK);
 
                     TLog.d("TAG", lock.toString());
 
@@ -361,7 +361,7 @@ public class NfcActivity extends BaseActivity {
             if (tagInfo.getRoundCircle() > 0) {
                 if (tagInfo.isJustTemp()) {
                     for (int i = index; i < 4000; i++) {
-                        double temp = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 2 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 2 + 1 + 48 * 4]}) / 100.00D;
+                        double temp = Helper.Convert2bytesHexaFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 2 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 2 + 1 + 48 * 4]}) / 100.00D;
                         double hum = temp;
                         if (i == index) {
                             tagInfo.setTempMin(temp);
@@ -373,8 +373,8 @@ public class NfcActivity extends BaseActivity {
                     }
                 } else {
                     for (int i = index; i < 2000; i++) {
-                        double temp = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 1 + 48 * 4]}) / 100.00D;
-                        double hum = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 4 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 3 + 48 * 4]}) / 100.00D;
+                        double temp = Helper.Convert2bytesHexaFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 1 + 48 * 4]}) / 100.00D;
+                        double hum = Helper.Convert2bytesHexaFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 4 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 3 + 48 * 4]}) / 100.00D;
                         if (i == index) {
                             tagInfo.setTempMin(temp);
                             tagInfo.setTempMax(temp);
@@ -387,7 +387,7 @@ public class NfcActivity extends BaseActivity {
             }
             if (tagInfo.isJustTemp()) {
                 for (int i = 0; i < index; i++) {
-                    double temp = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 2 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 2 + 1 + 48 * 4]}) / 100.00D;
+                    double temp = Helper.Convert2bytesHexaFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 2 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 2 + 1 + 48 * 4]}) / 100.00D;
                     double hum = temp;
                     if (i == 0 && tagInfo.getRoundCircle() == 0) {
                         tagInfo.setTempMin(temp);
@@ -399,8 +399,8 @@ public class NfcActivity extends BaseActivity {
                 }
             } else {
                 for (int i = 0; i < index; i++) {
-                    double temp = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 1 + 48 * 4]}) / 100.00D;
-                    double hum = Convert2bytesHexFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 4 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 3 + 48 * 4]}) / 100.00D;
+                    double temp = Helper.Convert2bytesHexaFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 2 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 1 + 48 * 4]}) / 100.00D;
+                    double hum = Helper.Convert2bytesHexaFormatToInt(new byte[]{ReadMultipleBlockAnswer[i * 4 + 4 + 48 * 4], ReadMultipleBlockAnswer[i * 4 + 3 + 48 * 4]}) / 100.00D;
                     if (i == 0 && tagInfo.getRoundCircle() == 0) {
                         tagInfo.setTempMin(temp);
                         tagInfo.setTempMax(temp);
@@ -439,7 +439,7 @@ public class NfcActivity extends BaseActivity {
                 return;
             }
             Intent intent = new Intent(mContext, ChartActivity.class);
-            intent.putExtra(Constants.tag_info, tagInfo);
+            intent.putExtra(Constants.TAG_INFO, tagInfo);
             startActivity(intent);
         }
     }
@@ -453,7 +453,7 @@ public class NfcActivity extends BaseActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            tagInfo = getIntent().getParcelableExtra(Constants.tag_info);
+            tagInfo = getIntent().getParcelableExtra(Constants.TAG_INFO);
             linkuuid = UUID.randomUUID().toString().replace("-", "");
 
             tagInfo.setUid(mainApp.getUid().toUpperCase());
@@ -586,7 +586,7 @@ public class NfcActivity extends BaseActivity {
         map.put("boxid", String.valueOf(box.getBoxid()));
         map.put("rfid", mainApp.getUid().toUpperCase());
         map.put("createtime", Utils.formatDateTimeOffLine(System.currentTimeMillis()));
-        ConnectionUtil.postParams(Constants.bind_tag_offLine_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.BIND_TAG_OFF_LINE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.config_data_post_load));
@@ -612,7 +612,7 @@ public class NfcActivity extends BaseActivity {
 
 //                sqLiteManage.insertFirstTagInfo(tagInfo);
                 Intent intent = new Intent();
-                intent.putExtra(Constants.tag_info, tagInfo);
+                intent.putExtra(Constants.TAG_INFO, tagInfo);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -660,7 +660,7 @@ public class NfcActivity extends BaseActivity {
         } else {
             map.put("endaddr", "未获取定位信息");
         }
-        ConnectionUtil.postParams(Constants.unbind_tag_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.UNBIND_TAG_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.unbind_post_load));
@@ -763,16 +763,6 @@ public class NfcActivity extends BaseActivity {
         writeBytes[3] = keyBytes[8];
         b = mTagUtil.writeTag(intent, (byte) 248, writeBytes, false);
         return b;
-    }
-
-    public static String bytes2HexString(byte[] bytes, int start, int end) {
-        StringBuffer sb = new StringBuffer();
-
-        for (int i = start; i < start + end; ++i) {
-            sb.append(String.format("%02X", new Object[]{Byte.valueOf(bytes[i])}));
-        }
-
-        return sb.toString();
     }
 
     public static byte[] string2Bytes(String s, int length) {

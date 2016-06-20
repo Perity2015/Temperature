@@ -62,7 +62,7 @@ public class CaptureActivity extends BaseCaptureActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_NFC && resultCode == RESULT_OK) {
-            String rfid = data.getStringExtra(Constants.read_uid);
+            String rfid = data.getStringExtra(Constants.READ_UID);
             setResult(RESULT_OK, getIntent().putExtra(RESULT, rfid).putExtra(NFC_MODE, true));
             finish();
         }

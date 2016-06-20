@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.temperaturecontrol.bean.Constants;
@@ -98,7 +97,7 @@ public class SyncService extends IntentService {
                 map.put(s, (String) bundle.get(s));
             }
         }
-        String result = ConnectionUtil.getResponse(Constants.upload_picture, map, fileHashMap);
+        String result = ConnectionUtil.getResponse(Constants.UPLOAD_PICTURE, map, fileHashMap);
         TLog.d("DEBUG", result);
     }
 

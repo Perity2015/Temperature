@@ -108,7 +108,10 @@ public class SQLiteManage {
             tagInfo.setHavepost(false);
             return tagInfo;
         } else {
-            return new TagInfo();
+            TagInfo tagInfo = new TagInfo();
+            tagInfo.setLinkuuid(linkuuid);
+            tagInfo.setUid(uid);
+            return tagInfo;
         }
     }
 

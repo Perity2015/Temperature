@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,13 +21,11 @@ import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.qrcode.BaseCaptureActivity;
 import com.huiwu.temperaturecontrol.CaptureActivity;
-import com.huiwu.temperaturecontrol.MainActivity;
 import com.huiwu.temperaturecontrol.ManageActivity;
 import com.huiwu.temperaturecontrol.NfcActivity;
 import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.bean.TLog;
 import com.huiwu.temperaturecontrol.bluetooth.DeviceListActivity;
 import com.lzy.okhttputils.request.BaseRequest;
 
@@ -93,7 +90,7 @@ public class HomeFragment extends BaseFragment {
         } else {
             map.put("boxno", qrcode);
         }
-        ConnectionUtil.postParams(Constants.check_box_status, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.CHECK_BOX_STATUS, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.check_box_status_load));

@@ -16,7 +16,6 @@ import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
-import com.huiwu.temperaturecontrol.bean.TLog;
 import com.lzy.okhttputils.request.BaseRequest;
 
 import java.util.HashMap;
@@ -43,7 +42,7 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
-        loginAgain = getIntent().getBooleanExtra(Constants.login_again, false);
+        loginAgain = getIntent().getBooleanExtra(Constants.LOGIN_AGAIN, false);
 
         editUsername.addTextChangedListener(new Watcher(R.id.edit_username));
         editPassword.addTextChangedListener(new Watcher(R.id.edit_password));
@@ -81,7 +80,7 @@ public class LoginActivity extends BaseActivity {
         HashMap<String, String> map = new HashMap<>();
         map.put("username", username);
         map.put("password", password);
-        ConnectionUtil.postParams(Constants.login_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.LOGIN_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.login_load));
@@ -108,7 +107,7 @@ public class LoginActivity extends BaseActivity {
                 JSONModel.UserInfo.UserPower userPower = gson.fromJson(UserPowerJsonObject, JSONModel.UserInfo.UserPower.class);
                 userInfo.setUserPower(userPower);
 
-                mShared.edit().putString(Constants.user_info, gson.toJson(userInfo)).commit();
+                mShared.edit().putString(Constants.USER_INFO, gson.toJson(userInfo)).commit();
 
                 if (loginAgain) {
                     finish();

@@ -42,6 +42,7 @@ import com.huiwu.temperaturecontrol.R;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TLog;
+import com.huiwu.temperaturecontrol.nfc.Helper;
 import com.huiwu.temperaturecontrol.sqlite.bean.GoodsType;
 import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.lzy.okhttputils.request.BaseRequest;
@@ -193,7 +194,7 @@ public class DeviceListActivity extends BaseActivity {
                     tagInfo.setHumidityArray(gson.toJson(humList));
                     sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
                     Intent intent = new Intent(mContext, ChartActivity.class);
-                    intent.putExtra(Constants.tag_info, tagInfo);
+                    intent.putExtra(Constants.TAG_INFO, tagInfo);
                     startActivity(intent);
                     break;
                 case send_config_info:
@@ -261,7 +262,7 @@ public class DeviceListActivity extends BaseActivity {
         }
 
         bleManageState = getIntent().getIntExtra(BLE_MANAGE, BLE_GATHER);
-        tagInfo = getIntent().getParcelableExtra(Constants.tag_info);
+        tagInfo = getIntent().getParcelableExtra(Constants.TAG_INFO);
 
         initData();
 
@@ -361,7 +362,7 @@ public class DeviceListActivity extends BaseActivity {
                         final byte[] receiverBytes = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
                         TLog.d(TAG, Arrays.toString(receiverBytes));
                         if (receiverBytes[0] == (byte) 0xAB && receiverBytes.length == 8) {
-                            temp_sequence_id = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{receiverBytes[6], receiverBytes[7]});
+                            temp_sequence_id = Helper.Convert2bytesHexaFormatToInt(new byte[]{receiverBytes[6], receiverBytes[7]});
 //                            if (temp_sequence_id != sequence_id && L2_data_state == L2_data_temp_info) {
 //                                sequence_id = temp_sequence_id;
 ////                                mService.disconnect();
@@ -380,7 +381,7 @@ public class DeviceListActivity extends BaseActivity {
                             }
 
 
-                            L2_data_length = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{receiverBytes[2], receiverBytes[3]});
+                            L2_data_length = Helper.Convert2bytesHexaFormatToInt(new byte[]{receiverBytes[2], receiverBytes[3]});
                             L2_data_length_received = 0;
                             L2_data = new byte[L2_data_length];
 
@@ -503,6 +504,7 @@ public class DeviceListActivity extends BaseActivity {
         String back = new String(back_bytes, Charset.forName("GB2312"));
 
         tagInfo = sqLiteManage.getConfigTagInfo(mainApp.getDaoSession(), tagInfo.getLinkuuid(), tagInfo.getUid());
+
         tempList.clear();
         humList.clear();
 
@@ -513,7 +515,7 @@ public class DeviceListActivity extends BaseActivity {
             tagInfo.setJustTemp(true);
         }
 
-        tagInfo.setNumber(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{configBytes[4], configBytes[5]}));
+        tagInfo.setNumber(Helper.Convert2bytesHexaFormatToInt(new byte[]{configBytes[4], configBytes[5]}));
         if (tagInfo.getNumber() == 0) {
             Message message = new Message();
             message.what = gather_error;
@@ -540,7 +542,7 @@ public class DeviceListActivity extends BaseActivity {
         goodsType.setLowtmpnumber(configBytes[14]);
         goodsType.setHighhumiditynumber(configBytes[15]);
         goodsType.setLowhumiditynumber(configBytes[16]);
-        goodsType.setOnetime(BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{configBytes[17], configBytes[18]}));
+        goodsType.setOnetime(Helper.Convert2bytesHexaFormatToInt(new byte[]{configBytes[17], configBytes[18]}));
         tagInfo.setGoods(gson.toJson(goodsType));
 
         long startTime = tagInfo.getEndTime() - (tagInfo.getNumber() - 1) * goodsType.getOnetime() * 60 * 1000L;
@@ -559,13 +561,13 @@ public class DeviceListActivity extends BaseActivity {
         }
         if (!tagInfo.isJustTemp()) {
             for (int i = 0; i < bytes.length / 4; i++) {
-                double temp = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[i * 4], bytes[i * 4 + 1]}) / 100.00D;
-                double hum = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[i * 4 + 2], bytes[i * 4 + 3]});
+                double temp = Helper.Convert2bytesHexaFormatToInt(new byte[]{bytes[i * 4], bytes[i * 4 + 1]}) / 100.00D;
+                double hum = Helper.Convert2bytesHexaFormatToInt(new byte[]{bytes[i * 4 + 2], bytes[i * 4 + 3]});
                 checkIsOutLimit(temp, hum);
             }
         } else {
             for (int i = 0; i < bytes.length / 2; i++) {
-                double temp = BluetoothUtil.Convert2bytesHexFormatToInt(new byte[]{bytes[i * 2], bytes[i * 2 + 1]}) / 100.00D;
+                double temp = Helper.Convert2bytesHexaFormatToInt(new byte[]{bytes[i * 2], bytes[i * 2 + 1]}) / 100.00D;
                 double hum = temp;
                 checkIsOutLimit(temp, hum);
             }
@@ -1057,7 +1059,7 @@ public class DeviceListActivity extends BaseActivity {
         map.put("boxid", String.valueOf(box.getBoxid()));
         map.put("rfid", tagInfo.getUid());
         map.put("createtime", Utils.formatDateTimeOffLine(System.currentTimeMillis()));
-        ConnectionUtil.postParams(Constants.bind_tag_offLine_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.BIND_TAG_OFF_LINE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.config_data_post_load));
@@ -1081,7 +1083,7 @@ public class DeviceListActivity extends BaseActivity {
                 }
                 sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
                 Intent intent = new Intent();
-                intent.putExtra(Constants.tag_info, tagInfo);
+                intent.putExtra(Constants.TAG_INFO, tagInfo);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -1130,7 +1132,7 @@ public class DeviceListActivity extends BaseActivity {
         } else {
             map.put("endaddr", "未获取定位信息");
         }
-        ConnectionUtil.postParams(Constants.unbind_tag_url, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.UNBIND_TAG_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.unbind_post_load));

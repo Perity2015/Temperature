@@ -1,7 +1,6 @@
 package com.huiwu.temperaturecontrol;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -48,11 +47,11 @@ public class StartActivity extends AppCompatActivity {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (getSharedPreferences(Constants.shared, MODE_PRIVATE).contains(Constants.version)) {
+                if (getSharedPreferences(Constants.SHARED, MODE_PRIVATE).contains(Constants.VERSION)) {
                     startActivity(new Intent(StartActivity.this, LoginActivity.class));
                     finish();
                 } else {
-                    getSharedPreferences(Constants.shared, MODE_PRIVATE).edit().putBoolean(Constants.version, true).commit();
+                    getSharedPreferences(Constants.SHARED, MODE_PRIVATE).edit().putBoolean(Constants.VERSION, true).commit();
                     viewPager.setVisibility(View.VISIBLE);
                 }
             }
