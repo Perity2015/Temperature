@@ -6,9 +6,13 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Base64;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.gson.JsonObject;
 import com.huiwu.model.http.ConnectionUtil;
@@ -42,19 +46,6 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
-        loginAgain = getIntent().getBooleanExtra(Constants.LOGIN_AGAIN, false);
-
-        editUsername.addTextChangedListener(new Watcher(R.id.edit_username));
-        editPassword.addTextChangedListener(new Watcher(R.id.edit_password));
-
-        if (userInfo != null) {
-            String password = userInfo.getPassword();
-            String username = userInfo.getUsername();
-            editUsername.setText(username);
-            if (!TextUtils.isEmpty(password)) {
-                editPassword.setText(password);
-            }
-        }
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,13 +58,44 @@ public class LoginActivity extends BaseActivity {
             }
         });
 
-        if (!loginAgain && userInfo != null && !TextUtils.isEmpty(userInfo.getPassword())) {
-            startActivity(new Intent(mContext, MainActivity.class));
-            finish();
-        } else {
-            if (loginAgain)
-                Utils.showLongToast(R.string.please_login_again, mContext);
+        loginAgain = getIntent().getBooleanExtra(Constants.LOGIN_AGAIN, false);
+        if (loginAgain)
+            Utils.showLongToast(R.string.please_login_again, mContext);
+
+        if (userInfo != null && userInfo.getM_UserInfo() != null) {
+            String password = userInfo.getM_UserInfo().getPassword();
+            String username = userInfo.getM_UserInfo().getUsername();
+            editUsername.setText(username);
+            if (!TextUtils.isEmpty(password)) {
+                editPassword.setText(password);
+                if (!loginAgain) {
+                    startActivity(new Intent(mContext, MainActivity.class));
+                    finish();
+                    return;
+                }
+            }
         }
+
+        editUsername.addTextChangedListener(new Watcher(R.id.edit_username));
+        editPassword.addTextChangedListener(new Watcher(R.id.edit_password));
+
+        editPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    hideSoftInput();
+                    String username = editUsername.getText().toString().trim();
+                    String password = editPassword.getText().toString().trim();
+                    if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
+                        return true;
+                    }
+                    login(username, password);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     private void login(final String username, final String password) {
@@ -99,15 +121,10 @@ public class LoginActivity extends BaseActivity {
                     Utils.showLongToast(returnObject.getsMsg(), mContext);
                     return;
                 }
-                JsonObject UserInfoJsonObject = returnObject.getM_ReturnOBJJsonObject().getAsJsonObject("m_UserInfo");
-                JsonObject UserPowerJsonObject = returnObject.getM_ReturnOBJJsonObject().getAsJsonObject("message");
-                userInfo = gson.fromJson(UserInfoJsonObject, JSONModel.UserInfo.class);
-                userInfo.setPassword(password);
-                userInfo.setHaveAddBox(returnObject.getM_ReturnOBJJsonObject().get("HaveAddBox").getAsBoolean());
-                JSONModel.UserInfo.UserPower userPower = gson.fromJson(UserPowerJsonObject, JSONModel.UserInfo.UserPower.class);
-                userInfo.setUserPower(userPower);
-
-                mShared.edit().putString(Constants.USER_INFO, gson.toJson(userInfo)).commit();
+                userInfo = gson.fromJson(returnObject.getM_ReturnOBJJsonObject(), JSONModel.UserInfo.class);
+                userInfo.getM_UserInfo().setPassword(password);
+                String enToStr = Base64.encodeToString(gson.toJson(userInfo).getBytes(), Base64.DEFAULT);
+                mShared.edit().putString(Constants.USER_INFO, enToStr).commit();
 
                 if (loginAgain) {
                     finish();

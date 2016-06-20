@@ -89,6 +89,7 @@ public class NewBoxFragment extends ManageFragment {
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                baseActivity.hideSoftInput();
                 String text_describe = textBoxDescribe.getText().toString().trim();
                 if (TextUtils.isEmpty(text_describe) || spinnerSealStatus.getSelectedItemPosition() == 0) {
                     Utils.showLongToast(R.string.incomplete_information, getContext());
@@ -104,8 +105,8 @@ public class NewBoxFragment extends ManageFragment {
         HashMap<String, String> map = baseActivity.getDefaultMap();
         map.put("boxno", manageActivity.box.getBoxno());
         map.put("boxmemo", describe);
-        map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
-        map.put("orgna_id", String.valueOf(userInfo.getUserPower().getOrgna_id()));
+        map.put("companyid", String.valueOf(userInfo.getMessage().getCompanyid()));
+        map.put("orgna_id", String.valueOf(userInfo.getMessage().getOrgna_id()));
         map.put("boxtype", sealStatus[spinnerSealStatus.getSelectedItemPosition()]);
         ConnectionUtil.postParams(Constants.ADD_BOX, map, new StringConnectionCallBack() {
             @Override

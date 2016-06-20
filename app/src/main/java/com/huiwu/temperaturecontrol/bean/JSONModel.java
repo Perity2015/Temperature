@@ -9,10 +9,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.huiwu.temperaturecontrol.bluetooth.BluetoothUtil;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 /**
  * Created by HuiWu on 2016/4/11.
  */
@@ -102,7 +98,40 @@ public class JSONModel {
     public static class UserInfo {
 
         /**
-         * LGKey : 7ed3d0f4bddf4744ba6ce42ec452b3b3
+         * CanPostYC : true
+         * HaveEnterApprove : true
+         * HaveSaveApply : true
+         * HaveEnterApply : true
+         * HaveDestoryApprove : true
+         * message : {"userid":"651","orgna_id":"240","jsid":"008101010","companyid":"95"}
+         * m_UserInfo : {"LGKey":"4ef289920d784fef9a944d078ab73109","realname":"张冷冻","canuse":"Y","powername":"冷链企业管理员","username":"llcs","company":"上海冷链总公司","overtime":"2099/1/1 0:00:00","addusername":"llhyadmin","orgna_name":"行政总部"}
+         * ShowDeskAddr : true
+         * UseDeskAddr : true
+         * HaveBrrowApprove : true
+         * bOK : true
+         * HaveAddBox : true
+         * CanRejectW : true
+         * runpaper : true
+         * HaveSaveApprove : true
+         * HaveDestoryApply : true
+         * HaveBrrowApply : true
+         */
+
+        private boolean CanPostYC;
+        private boolean HaveEnterApprove;
+        private boolean HaveSaveApply;
+        private boolean HaveEnterApply;
+        private boolean HaveDestoryApprove;
+        /**
+         * userid : 651
+         * orgna_id : 240
+         * jsid : 008101010
+         * companyid : 95
+         */
+
+        private MessageBean message;
+        /**
+         * LGKey : 4ef289920d784fef9a944d078ab73109
          * realname : 张冷冻
          * canuse : Y
          * powername : 冷链企业管理员
@@ -113,142 +142,173 @@ public class JSONModel {
          * orgna_name : 行政总部
          */
 
-        private String LGKey;
-        private String realname;
-        private String canuse;
-        private String powername;
-        private String username;
-        private String password;
-        private String company;
-        private String overtime;
-        private String addusername;
-        private String orgna_name;
+        private MUserInfoBean m_UserInfo;
+        private boolean ShowDeskAddr;
+        private boolean UseDeskAddr;
+        private boolean HaveBrrowApprove;
+        private boolean bOK;
         private boolean HaveAddBox;
-        private UserPower userPower;
+        private boolean CanRejectW;
+        private boolean runpaper;
+        private boolean HaveSaveApprove;
+        private boolean HaveDestoryApply;
+        private boolean HaveBrrowApply;
+
+        public boolean isCanPostYC() {
+            return CanPostYC;
+        }
+
+        public void setCanPostYC(boolean CanPostYC) {
+            this.CanPostYC = CanPostYC;
+        }
+
+        public boolean isHaveEnterApprove() {
+            return HaveEnterApprove;
+        }
+
+        public void setHaveEnterApprove(boolean HaveEnterApprove) {
+            this.HaveEnterApprove = HaveEnterApprove;
+        }
+
+        public boolean isHaveSaveApply() {
+            return HaveSaveApply;
+        }
+
+        public void setHaveSaveApply(boolean HaveSaveApply) {
+            this.HaveSaveApply = HaveSaveApply;
+        }
+
+        public boolean isHaveEnterApply() {
+            return HaveEnterApply;
+        }
+
+        public void setHaveEnterApply(boolean HaveEnterApply) {
+            this.HaveEnterApply = HaveEnterApply;
+        }
+
+        public boolean isHaveDestoryApprove() {
+            return HaveDestoryApprove;
+        }
+
+        public void setHaveDestoryApprove(boolean HaveDestoryApprove) {
+            this.HaveDestoryApprove = HaveDestoryApprove;
+        }
+
+        public MessageBean getMessage() {
+            return message;
+        }
+
+        public void setMessage(MessageBean message) {
+            this.message = message;
+        }
+
+        public MUserInfoBean getM_UserInfo() {
+            return m_UserInfo;
+        }
+
+        public void setM_UserInfo(MUserInfoBean m_UserInfo) {
+            this.m_UserInfo = m_UserInfo;
+        }
+
+        public boolean isShowDeskAddr() {
+            return ShowDeskAddr;
+        }
+
+        public void setShowDeskAddr(boolean ShowDeskAddr) {
+            this.ShowDeskAddr = ShowDeskAddr;
+        }
+
+        public boolean isUseDeskAddr() {
+            return UseDeskAddr;
+        }
+
+        public void setUseDeskAddr(boolean UseDeskAddr) {
+            this.UseDeskAddr = UseDeskAddr;
+        }
+
+        public boolean isHaveBrrowApprove() {
+            return HaveBrrowApprove;
+        }
+
+        public void setHaveBrrowApprove(boolean HaveBrrowApprove) {
+            this.HaveBrrowApprove = HaveBrrowApprove;
+        }
+
+        public boolean isBOK() {
+            return bOK;
+        }
+
+        public void setBOK(boolean bOK) {
+            this.bOK = bOK;
+        }
 
         public boolean isHaveAddBox() {
             return HaveAddBox;
         }
 
-        public void setHaveAddBox(boolean haveAddBox) {
-            HaveAddBox = haveAddBox;
+        public void setHaveAddBox(boolean HaveAddBox) {
+            this.HaveAddBox = HaveAddBox;
         }
 
-        public String getLGKey() {
-            return LGKey;
+        public boolean isCanRejectW() {
+            return CanRejectW;
         }
 
-        public void setLGKey(String LGKey) {
-            this.LGKey = LGKey;
+        public void setCanRejectW(boolean CanRejectW) {
+            this.CanRejectW = CanRejectW;
         }
 
-        public String getRealname() {
-            return realname;
+        public boolean isRunpaper() {
+            return runpaper;
         }
 
-        public void setRealname(String realname) {
-            this.realname = realname;
+        public void setRunpaper(boolean runpaper) {
+            this.runpaper = runpaper;
         }
 
-        public String getCanuse() {
-            return canuse;
+        public boolean isHaveSaveApprove() {
+            return HaveSaveApprove;
         }
 
-        public void setCanuse(String canuse) {
-            this.canuse = canuse;
+        public void setHaveSaveApprove(boolean HaveSaveApprove) {
+            this.HaveSaveApprove = HaveSaveApprove;
         }
 
-        public String getPowername() {
-            return powername;
+        public boolean isHaveDestoryApply() {
+            return HaveDestoryApply;
         }
 
-        public void setPowername(String powername) {
-            this.powername = powername;
+        public void setHaveDestoryApply(boolean HaveDestoryApply) {
+            this.HaveDestoryApply = HaveDestoryApply;
         }
 
-        public String getUsername() {
-            return username;
+        public boolean isHaveBrrowApply() {
+            return HaveBrrowApply;
         }
 
-        public void setUsername(String username) {
-            this.username = username;
+        public void setHaveBrrowApply(boolean HaveBrrowApply) {
+            this.HaveBrrowApply = HaveBrrowApply;
         }
 
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
-        public String getCompany() {
-            return company;
-        }
-
-        public void setCompany(String company) {
-            this.company = company;
-        }
-
-        public String getOvertime() {
-            return overtime;
-        }
-
-        public void setOvertime(String overtime) {
-            this.overtime = overtime;
-        }
-
-        public String getAddusername() {
-            return addusername;
-        }
-
-        public void setAddusername(String addusername) {
-            this.addusername = addusername;
-        }
-
-        public String getOrgna_name() {
-            return orgna_name;
-        }
-
-        public void setOrgna_name(String orgna_name) {
-            this.orgna_name = orgna_name;
-        }
-
-        public UserPower getUserPower() {
-            return userPower;
-        }
-
-        public void setUserPower(UserPower userPower) {
-            this.userPower = userPower;
-        }
-
-        public static class UserPower {
-
-            /**
-             * userid : 651
-             * orgna_id : 240
-             * jsid : 008101010
-             * companyid : 95
-             */
-
-            private int userid;
-            private int orgna_id;
+        public static class MessageBean {
+            private String userid;
+            private String orgna_id;
             private String jsid;
-            private int companyid;
+            private String companyid;
 
-            public int getUserid() {
+            public String getUserid() {
                 return userid;
             }
 
-            public void setUserid(int userid) {
+            public void setUserid(String userid) {
                 this.userid = userid;
             }
 
-            public int getOrgna_id() {
+            public String getOrgna_id() {
                 return orgna_id;
             }
 
-            public void setOrgna_id(int orgna_id) {
+            public void setOrgna_id(String orgna_id) {
                 this.orgna_id = orgna_id;
             }
 
@@ -260,12 +320,105 @@ public class JSONModel {
                 this.jsid = jsid;
             }
 
-            public int getCompanyid() {
+            public String getCompanyid() {
                 return companyid;
             }
 
-            public void setCompanyid(int companyid) {
+            public void setCompanyid(String companyid) {
                 this.companyid = companyid;
+            }
+        }
+
+        public static class MUserInfoBean {
+            private String LGKey;
+            private String realname;
+            private String canuse;
+            private String powername;
+            private String username;
+            private String password;
+            private String company;
+            private String overtime;
+            private String addusername;
+            private String orgna_name;
+
+            public String getLGKey() {
+                return LGKey;
+            }
+
+            public void setLGKey(String LGKey) {
+                this.LGKey = LGKey;
+            }
+
+            public String getRealname() {
+                return realname;
+            }
+
+            public void setRealname(String realname) {
+                this.realname = realname;
+            }
+
+            public String getCanuse() {
+                return canuse;
+            }
+
+            public void setCanuse(String canuse) {
+                this.canuse = canuse;
+            }
+
+            public String getPowername() {
+                return powername;
+            }
+
+            public void setPowername(String powername) {
+                this.powername = powername;
+            }
+
+            public String getUsername() {
+                return username;
+            }
+
+            public void setUsername(String username) {
+                this.username = username;
+            }
+
+            public String getPassword() {
+                return password;
+            }
+
+            public void setPassword(String password) {
+                this.password = password;
+            }
+
+            public String getCompany() {
+                return company;
+            }
+
+            public void setCompany(String company) {
+                this.company = company;
+            }
+
+            public String getOvertime() {
+                return overtime;
+            }
+
+            public void setOvertime(String overtime) {
+                this.overtime = overtime;
+            }
+
+            public String getAddusername() {
+                return addusername;
+            }
+
+            public void setAddusername(String addusername) {
+                this.addusername = addusername;
+            }
+
+            public String getOrgna_name() {
+                return orgna_name;
+            }
+
+            public void setOrgna_name(String orgna_name) {
+                this.orgna_name = orgna_name;
             }
         }
     }
@@ -464,7 +617,6 @@ public class JSONModel {
          * lockpwd : 28881574a1e5423d
          * firstpwd : FEIJU LOCK
          */
-
 
 
         private boolean newPwd;

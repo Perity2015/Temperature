@@ -105,6 +105,7 @@ public class ChooseGoodsFragment extends BaseFragment {
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                baseActivity.hideSoftInput();
                 if (gId == -1 && cId == -1) {
                     Utils.showLongToast("请选择一个商品类型", getContext());
                     return true;
@@ -165,12 +166,12 @@ public class ChooseGoodsFragment extends BaseFragment {
         ConnectionUtil.postParams(Constants.GET_CHILD_GOODS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-
+                progressDialog.show();
             }
 
             @Override
             public void sendFinish(boolean b, @Nullable String s, Call call, @Nullable Response response, @Nullable Exception e) {
-
+                progressDialog.dismiss();
             }
 
             @Override

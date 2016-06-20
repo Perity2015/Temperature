@@ -48,7 +48,7 @@ public class FilterActivity extends BaseActivity {
 
     private void initData() {
         HashMap<String, String> map = getDefaultMap();
-        map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
+        map.put("companyid", userInfo.getMessage().getCompanyid());
         ConnectionUtil.postParams(Constants.GET_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {

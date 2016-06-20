@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -86,8 +87,9 @@ public class BaseActivity extends AppCompatActivity {
             }
         });
 
+        String user = mShared.getString(Constants.USER_INFO, "{}");
         try {
-            userInfo = gson.fromJson(mShared.getString(Constants.USER_INFO, "{}"), JSONModel.UserInfo.class);
+            userInfo = gson.fromJson(new String(Base64.decode(user.getBytes(), Base64.DEFAULT)), JSONModel.UserInfo.class);
         } catch (Exception e) {
             userInfo = null;
         }
@@ -97,11 +99,6 @@ public class BaseActivity extends AppCompatActivity {
         IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         mFilters = new IntentFilter[]{ndef};
         mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}, new String[]{android.nfc.tech.NfcA.class.getName()}};
-
-//        if (mNfcAdapter == null) {
-////            Utils.showLongToast(getString(R.string.unSupport_nfc), mContext);
-////            finish();
-//        }
     }
 
     @Override
@@ -121,8 +118,9 @@ public class BaseActivity extends AppCompatActivity {
                 openNfc();
             }
         }
+        String user = mShared.getString(Constants.USER_INFO, "{}");
         try {
-            userInfo = gson.fromJson(mShared.getString(Constants.USER_INFO, "{}"), JSONModel.UserInfo.class);
+            userInfo = gson.fromJson(new String(Base64.decode(user.getBytes(), Base64.DEFAULT)), JSONModel.UserInfo.class);
         } catch (Exception e) {
             userInfo = null;
         }
@@ -148,7 +146,7 @@ public class BaseActivity extends AppCompatActivity {
 
     public HashMap<String, String> getDefaultMap() {
         HashMap<String, String> map = new HashMap<>();
-        map.put("LGKey", userInfo.getLGKey());
+        map.put("LGKey", userInfo.getM_UserInfo().getLGKey());
         return map;
     }
 

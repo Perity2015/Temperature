@@ -205,7 +205,7 @@ public class NetRecordsActivity extends BaseActivity {
     private void searchLinks() {
 
         final HashMap<String, String> map = getDefaultMap();
-        map.put("companyid", String.valueOf(userInfo.getUserPower().getCompanyid()));
+        map.put("companyid", String.valueOf(userInfo.getMessage().getCompanyid()));
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, seekBarMonth.getProgress());

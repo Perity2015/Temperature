@@ -63,8 +63,8 @@ public class UserFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        textUserInfoName.setText(userInfo.getRealname());
-        textUserInfoCompany.setText(userInfo.getCompany() + "    " + userInfo.getOrgna_name() + "\n" + userInfo.getPowername());
+        textUserInfoName.setText(userInfo.getM_UserInfo().getRealname());
+        textUserInfoCompany.setText(userInfo.getM_UserInfo().getCompany() + "    " + userInfo.getM_UserInfo().getOrgna_name() + "\n" + userInfo.getM_UserInfo().getPowername());
     }
 
     @Override
@@ -107,7 +107,7 @@ public class UserFragment extends BaseFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        mShared.edit().putString(Constants.USER_INFO, "").commit();
+                        mShared.edit().putString(Constants.USER_INFO, "{}").commit();
                         Utils.saveUserImage(getContext(), null, Constants.USER_IMAGE);
                         startActivity(new Intent(getContext(), LoginActivity.class));
                         getActivity().finish();

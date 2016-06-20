@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.os.Vibrator;
+import android.text.TextUtils;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -436,6 +437,9 @@ public class MainApp extends Application {
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
             if (aMapLocation != null) {
+                if (TextUtils.isEmpty(aMapLocation.getAddress())) {
+                    aMapLocation.setAddress("为获取定位信息");
+                }
                 if (locationText != null) {
                     locationText.setText(aMapLocation.getAddress());
                 }

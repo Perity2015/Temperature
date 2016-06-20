@@ -1057,8 +1057,8 @@ public class DeviceListActivity extends BaseActivity {
         map.put("highhumiditynumber", String.valueOf(goods.getHighhumiditynumber()));
         map.put("lowhumiditynumber", String.valueOf(goods.getLowhumiditynumber()));
         map.put("onetime", String.valueOf(goods.getOnetime()));
-        map.put("actrealname", userInfo.getRealname());
-        map.put("actuser", userInfo.getUsername());
+        map.put("actrealname", userInfo.getM_UserInfo().getRealname());
+        map.put("actuser", userInfo.getM_UserInfo().getUsername());
         map.put("boxid", String.valueOf(box.getBoxid()));
         map.put("rfid", tagInfo.getUid());
         map.put("createtime", Utils.formatDateTimeOffLine(System.currentTimeMillis()));

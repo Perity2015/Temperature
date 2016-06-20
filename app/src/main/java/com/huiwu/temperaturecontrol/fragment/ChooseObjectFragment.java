@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -51,11 +53,8 @@ public class ChooseObjectFragment extends BaseFragment {
     @Bind(R.id.listView_objects)
     ListView listViewObjects;
 
-    private int selectId = -1;
-
     private RfidGood[] allObjects;
     private List<RfidGood> searchObjects = new ArrayList<>();
-    private ObjectAdapter adapter;
 
     public ChooseObjectFragment() {
         // Required empty public constructor
@@ -90,6 +89,9 @@ public class ChooseObjectFragment extends BaseFragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String object = s.toString().trim();
                 searchObjects.clear();
+                if (allObjects == null) {
+                    return;
+                }
                 for (RfidGood rfidGood : allObjects) {
                     if (rfidGood.getRfidgoodname().toUpperCase().contains(object.toUpperCase())) {
                         searchObjects.add(rfidGood);
@@ -106,6 +108,17 @@ public class ChooseObjectFragment extends BaseFragment {
             }
         });
 
+        listViewObjects.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                RfidGood rfidGood = allObjects[position];
+                Intent intent = new Intent();
+                intent.putExtra(Constants.SELECT_OBJECT, rfidGood.getRfidgoodname());
+                baseActivity.setResult(Activity.RESULT_OK, intent);
+                baseActivity.finish();
+            }
+        });
+
         getAllObjects();
     }
 
@@ -117,10 +130,11 @@ public class ChooseObjectFragment extends BaseFragment {
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (selectId == -1) {
+                baseActivity.hideSoftInput();
+                String rfidGood = textObject.getText().toString().trim();
+                if (TextUtils.isEmpty(rfidGood)) {
                     return true;
                 }
-                RfidGood rfidGood = searchObjects.get(selectId);
                 Intent intent = new Intent();
                 intent.putExtra(Constants.SELECT_OBJECT, rfidGood);
                 baseActivity.setResult(Activity.RESULT_OK, intent);
@@ -148,20 +162,8 @@ public class ChooseObjectFragment extends BaseFragment {
                 JSONModel.ReturnData returnData = gson.fromJson(s, JSONModel.ReturnData.class);
                 allObjects = gson.fromJson(returnData.getRows(), RfidGood[].class);
                 sqLiteManage.insertRfidGoods(mainApp.daoMaster.newSession(), allObjects);
-
                 Arrays.sort(allObjects);
-                searchObjects.clear();
-                for (RfidGood rfidGood : allObjects) {
-                    searchObjects.add(rfidGood);
-                }
-
-                selectId = -1;
-                if (adapter == null) {
-                    adapter = new ObjectAdapter(getContext(), R.layout.layout_parent_goods_item, searchObjects);
-                    listViewObjects.setAdapter(adapter);
-                } else {
-                    adapter.notifyDataSetChanged();
-                }
+                listViewObjects.setAdapter(new ArrayAdapter<>(mContext, R.layout.layout_parent_goods_item, allObjects));
             }
 
             @Override
@@ -184,32 +186,4 @@ public class ChooseObjectFragment extends BaseFragment {
         ButterKnife.unbind(this);
     }
 
-    private class ObjectAdapter extends ArrayAdapter {
-
-        public ObjectAdapter(Context context, int resource, List objects) {
-            super(context, resource, objects);
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.layout_parent_goods_item, parent, false);
-            }
-            TextView textView = (TextView) convertView;
-            textView.setText(searchObjects.get(position).getRfidgoodname());
-            if (selectId == position) {
-                textView.setTextColor(Color.RED);
-            } else {
-                textView.setTextColor(Color.parseColor("#333333"));
-            }
-            textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    selectId = position;
-                    adapter.notifyDataSetChanged();
-                }
-            });
-            return convertView;
-        }
-    }
 }

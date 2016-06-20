@@ -16,7 +16,7 @@ import java.util.HashMap;
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
- * <p>
+ * <p/>
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
@@ -69,9 +69,10 @@ public class SyncService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_NOW.equals(action)) {
-                final Bundle bundle = intent.getBundleExtra(EXTRA_MAP);
+                final HashMap<String, String> map = (HashMap<String, String>) intent.getSerializableExtra(EXTRA_MAP);
+                final HashMap<String, File> fileHashMap = (HashMap<String, File>) intent.getSerializableExtra(EXTRA_FILE);
                 try {
-                    handleActionNow(bundle);
+                    handleActionNow(map, fileHashMap);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -87,17 +88,7 @@ public class SyncService extends IntentService {
      * Handle action Foo in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionNow(Bundle bundle) throws Exception {
-        HashMap<String, String> map = new HashMap<>();
-        HashMap<String, File> fileHashMap = new HashMap<>();
-        for (String s : bundle.keySet()) {
-            if (TextUtils.equals("file", s)) {
-                File file = new File((String) bundle.get(s));
-                fileHashMap.put("file", file);
-            } else {
-                map.put(s, (String) bundle.get(s));
-            }
-        }
+    private void handleActionNow(HashMap<String, String> map, HashMap<String, File> fileHashMap) throws Exception {
         String result = ConnectionUtil.getResponse(Constants.UPLOAD_PICTURE, map, fileHashMap);
         TestLog.d("DEBUG", result);
     }

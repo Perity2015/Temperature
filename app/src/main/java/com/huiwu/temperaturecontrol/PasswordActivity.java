@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -52,6 +53,7 @@ public class PasswordActivity extends BaseActivity {
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                hideSoftInput();
                 checkComplete();
                 return true;
             }
@@ -100,8 +102,9 @@ public class PasswordActivity extends BaseActivity {
                 if (!returnObject.isbOK()) {
                     return;
                 }
-                userInfo.setPassword("");
-                mShared.edit().putString(Constants.USER_INFO, gson.toJson(userInfo)).commit();
+                userInfo.getM_UserInfo().setPassword("");
+                String enToStr = Base64.encodeToString(gson.toJson(userInfo).getBytes(), Base64.DEFAULT);
+                mShared.edit().putString(Constants.USER_INFO, enToStr).commit();
                 setResult(RESULT_OK);
                 finish();
             }

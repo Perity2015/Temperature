@@ -259,13 +259,15 @@ public class SealFragment extends ManageFragment {
                 picture.setSealOropen("seal");
                 sqLiteManage.insertPicture(mainApp.getDaoSession(), picture);
 
-                Bundle bundle = new Bundle();
-                bundle.putString("LGKey", userInfo.getLGKey());
-                bundle.putString("boxno", manageActivity.box.getBoxno());
-                bundle.putString("linkuuid", manageActivity.box.getLinkuuid());
-                bundle.putString("file", file.getAbsolutePath());
-                bundle.putString("sealOropen", "seal");
-                SyncService.startActionNow(getContext(), bundle);
+                HashMap<String, String> hashMap = baseActivity.getDefaultMap();
+                hashMap.put("boxno", manageActivity.box.getBoxno());
+                hashMap.put("linkuuid", manageActivity.box.getLinkuuid());
+                hashMap.put("sealOropen", "seal");
+
+                HashMap<String, File> fileHashMap = new HashMap<>();
+                fileHashMap.put("file", file);
+
+                SyncService.startActionNow(getContext(), hashMap, fileHashMap);
 
                 manageActivity.finish();
             }

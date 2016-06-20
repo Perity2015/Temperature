@@ -289,7 +289,7 @@ public class NfcActivity extends BaseActivity {
             companyIdStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[59]);
             companyIdStr += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[60]);
             long companyId = Long.parseLong(companyIdStr, 16);
-            if (companyId != userInfo.getUserPower().getCompanyid()) {
+            if (companyId != Long.parseLong(userInfo.getMessage().getCompanyid())) {
                 message = getString(R.string.tag_not_belong_company);
                 return false;
             }
@@ -485,7 +485,7 @@ public class NfcActivity extends BaseActivity {
             writeInfoStr += String.format("%08x", calendar.getTimeInMillis() / 1000L + tagInfo.getDelayTime() * 60);
             writeInfoStr += String.format("%08x", box.getBoxid());
             writeInfoStr += String.format("%08x", goods.getId());
-            writeInfoStr += String.format("%08x", userInfo.getUserPower().getCompanyid());
+            writeInfoStr += String.format("%08x", Long.parseLong(userInfo.getMessage().getCompanyid()));
             writeInfoStr += "00000000";
 
             writeInfoBytes = new byte[writeInfoStr.length() / 2];
@@ -501,9 +501,6 @@ public class NfcActivity extends BaseActivity {
             if (mainApp.DecodeGetSystemInfoResponse(GetSystemInfoAnswer)) {
                 byte[] ReadSingleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(mainApp.getCurrentTag(), new byte[]{0x00, 0x02}, new byte[]{0x00, 0x01}, mainApp);
                 if (ReadSingleBlockAnswer != null && ReadSingleBlockAnswer[0] == 0) {
-//					if (ReadSingleBlockAnswer[4] == 0x31 || ReadSingleBlockAnswer[4] == 0x51){
-//						message = getString(R.string.tag_type_single_temp);
-//					}
                     if (ReadSingleBlockAnswer[4] != 0x33
                             && ReadSingleBlockAnswer[4] != 0x53
                             && ReadSingleBlockAnswer[4] != 0x31
@@ -581,8 +578,8 @@ public class NfcActivity extends BaseActivity {
         map.put("highhumiditynumber", String.valueOf(goods.getHighhumiditynumber()));
         map.put("lowhumiditynumber", String.valueOf(goods.getLowhumiditynumber()));
         map.put("onetime", String.valueOf(goods.getOnetime()));
-        map.put("actrealname", userInfo.getRealname());
-        map.put("actuser", userInfo.getUsername());
+        map.put("actrealname", userInfo.getM_UserInfo().getRealname());
+        map.put("actuser", userInfo.getM_UserInfo().getUsername());
         map.put("boxid", String.valueOf(box.getBoxid()));
         map.put("rfid", mainApp.getUid().toUpperCase());
         map.put("createtime", Utils.formatDateTimeOffLine(System.currentTimeMillis()));
@@ -601,16 +598,16 @@ public class NfcActivity extends BaseActivity {
             @Override
             public void onParse(String s, Response response) {
                 JSONModel.ReturnObject returnObject = gson.fromJson(s, JSONModel.ReturnObject.class);
+                Utils.showLongToast(returnObject.getsMsg(), mContext);
+
                 if (!returnObject.isbOK()) {
                     if (returnObject.getM_ReturnOBJJsonObject().has("isUse") && returnObject.getM_ReturnOBJJsonObject().get("isUse").getAsBoolean()) {
                         showUnbindDialog(returnObject.getsMsg());
                     }
-                    Utils.showLongToast(returnObject.getsMsg(), mContext);
                     return;
                 }
                 sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
 
-//                sqLiteManage.insertFirstTagInfo(tagInfo);
                 Intent intent = new Intent();
                 intent.putExtra(Constants.TAG_INFO, tagInfo);
                 setResult(RESULT_OK, intent);

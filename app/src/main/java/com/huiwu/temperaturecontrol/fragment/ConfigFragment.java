@@ -58,7 +58,7 @@ public class ConfigFragment extends ManageFragment {
     private final int REQUEST_CONFIG = 203;
 
     private GoodsType selectGoods;
-    private RfidGood selectRfidGoods;
+    private String selectRfidGoods;
 
     private TagInfo tagInfo;
 
@@ -144,10 +144,10 @@ public class ConfigFragment extends ManageFragment {
             return;
         }
         if (requestCode == REQUEST_OBJECT) {
-            selectRfidGoods = data.getParcelableExtra(Constants.SELECT_OBJECT);
-            textObject.setText(selectRfidGoods.getRfidgoodname());
-            tagInfo.setObject(selectRfidGoods.getRfidgoodname());
-            manageActivity.tempLink.setCarno(selectRfidGoods.getRfidgoodname());
+            selectRfidGoods = data.getStringExtra(Constants.SELECT_OBJECT);
+            textObject.setText(selectRfidGoods);
+            tagInfo.setObject(selectRfidGoods);
+            manageActivity.tempLink.setCarno(selectRfidGoods);
         } else if (requestCode == REQUEST_GOODS) {
             selectGoods = data.getParcelableExtra(Constants.SELECT_OBJECT);
             textGoods.setText(selectGoods.getParentgoodtype() + "    " + selectGoods.getGoodtype());
