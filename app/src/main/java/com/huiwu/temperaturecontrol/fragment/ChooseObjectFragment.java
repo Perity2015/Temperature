@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -46,7 +47,7 @@ public class ChooseObjectFragment extends BaseFragment {
 
 
     @Bind(R.id.text_object)
-    EditText textObject;
+    AutoCompleteTextView textObject;
     @Bind(R.id.listView_objects)
     ListView listViewObjects;
 
@@ -88,7 +89,15 @@ public class ChooseObjectFragment extends BaseFragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String object = s.toString().trim();
-                adapter.getFilter().filter(object);
+                searchObjects.clear();
+                for (RfidGood rfidGood : allObjects) {
+                    if (rfidGood.getRfidgoodname().toUpperCase().contains(object.toUpperCase())) {
+                        searchObjects.add(rfidGood);
+                    }
+                }
+
+                ArrayAdapter arrayAdapter = new ArrayAdapter(mContext, R.layout.layout_parent_goods_item, searchObjects);
+                textObject.setAdapter(arrayAdapter);
             }
 
             @Override

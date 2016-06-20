@@ -208,6 +208,8 @@ public class OpenFragment extends ManageFragment {
                 bundle.putString("file", file.getAbsolutePath());
                 bundle.putString("sealOropen", "open");
                 SyncService.startActionNow(getContext(), bundle);
+
+
                 if (manageActivity.box.getBoxtype().equals("LOCK")) {
                     JSONModel.Lock lock = gson.fromJson(returnObject.getM_ReturnOBJJsonObject(), JSONModel.Lock.class);
                     Intent intent = new Intent(getContext(), NfcActivity.class);

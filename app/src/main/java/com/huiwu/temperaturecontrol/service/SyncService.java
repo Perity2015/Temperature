@@ -16,7 +16,7 @@ import java.util.HashMap;
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
- * <p/>
+ * <p>
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
@@ -27,8 +27,8 @@ public class SyncService extends IntentService {
     private static final String ACTION_SYNC = "com.huiwu.temperaturecontrol.service.action.SYNC";
 
     // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "com.huiwu.temperaturecontrol.service.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "com.huiwu.temperaturecontrol.service.extra.PARAM2";
+    private static final String EXTRA_MAP = "com.huiwu.temperaturecontrol.service.extra.EXTRA_MAP";
+    private static final String EXTRA_FILE = "com.huiwu.temperaturecontrol.service.extra.EXTRA_FILE";
 
     public SyncService() {
         super("SyncService");
@@ -41,10 +41,11 @@ public class SyncService extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startActionNow(Context context, Bundle bundle) {
+    public static void startActionNow(Context context, HashMap<String, String> map, HashMap<String, File> fileHashMap) {
         Intent intent = new Intent(context, SyncService.class);
         intent.setAction(ACTION_NOW);
-        intent.putExtra(EXTRA_PARAM1, bundle);
+        intent.putExtra(EXTRA_MAP, map);
+        intent.putExtra(EXTRA_FILE, fileHashMap);
         context.startService(intent);
     }
 
@@ -58,8 +59,8 @@ public class SyncService extends IntentService {
     public static void startActionSync(Context context, String param1, String param2) {
         Intent intent = new Intent(context, SyncService.class);
         intent.setAction(ACTION_SYNC);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
+        intent.putExtra(EXTRA_MAP, param1);
+        intent.putExtra(EXTRA_FILE, param2);
         context.startService(intent);
     }
 
@@ -68,15 +69,15 @@ public class SyncService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_NOW.equals(action)) {
-                final Bundle bundle = intent.getBundleExtra(EXTRA_PARAM1);
+                final Bundle bundle = intent.getBundleExtra(EXTRA_MAP);
                 try {
                     handleActionNow(bundle);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else if (ACTION_SYNC.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
+                final String param1 = intent.getStringExtra(EXTRA_MAP);
+                final String param2 = intent.getStringExtra(EXTRA_FILE);
                 handleActionBaz(param1, param2);
             }
         }

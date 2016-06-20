@@ -8,7 +8,7 @@
     android:padding="@dimen/activity_horizontal_margin"
     tools:context="com.huiwu.temperaturecontrol.fragment.ChooseObjectFragment">
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/text_object"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

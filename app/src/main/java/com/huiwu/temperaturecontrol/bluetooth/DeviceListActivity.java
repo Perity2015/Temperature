@@ -166,29 +166,29 @@ public class DeviceListActivity extends BaseActivity {
     private ArrayList<Double> tempList = new ArrayList<>();
     private ArrayList<Double> humList = new ArrayList<>();
 
-    private final int gather_config_info = 1;
-    private final int gather_error = 2;
-    private final int gather_temp_info = 3;
-    private final int gather_success = 4;
-    private final int send_config_info = 5;
-    private final int send_config_info_error = 6;
-    private final int send_config_info_success = 7;
+    private static final int GATHER_CONFIG_INFO = 1;
+    private static final int GATHER_ERROR = 2;
+    private static final int GATHER_TEMP_INFO = 3;
+    private static final int GATHER_SUCCESS = 4;
+    private static final int SEND_CONFIG_INFO = 5;
+    private static final int SEND_CONFIG_INFO_ERROR = 6;
+    private static final int SEND_CONFIG_INFO_SUCCESS = 7;
 
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case gather_error:
+                case GATHER_ERROR:
                     progressDialog.dismiss();
                     Utils.showLongToast((String) msg.obj, mContext);
                     break;
-                case gather_config_info:
+                case GATHER_CONFIG_INFO:
                     break;
-                case gather_temp_info:
+                case GATHER_TEMP_INFO:
                     progressDialog.setMessage((String) msg.obj);
                     break;
-                case gather_success:
+                case GATHER_SUCCESS:
                     progressDialog.dismiss();
                     tagInfo.setDataarray(gson.toJson(tempList));
                     tagInfo.setHumidityArray(gson.toJson(humList));
@@ -197,17 +197,17 @@ public class DeviceListActivity extends BaseActivity {
                     intent.putExtra(Constants.TAG_INFO, tagInfo);
                     startActivity(intent);
                     break;
-                case send_config_info:
+                case SEND_CONFIG_INFO:
                     progressDialog.setMessage((String) msg.obj);
                     progressDialog.show();
                     break;
-                case send_config_info_success:
+                case SEND_CONFIG_INFO_SUCCESS:
                     sqLiteManage.insertConfigTagInfo(mainApp.getDaoSession(), tagInfo);
                     progressDialog.dismiss();
                     Utils.showLongToast((String) msg.obj, mContext);
                     bindTag();
                     break;
-                case send_config_info_error:
+                case SEND_CONFIG_INFO_ERROR:
                     progressDialog.dismiss();
                     Utils.showLongToast((String) msg.obj, mContext);
                     break;
@@ -387,7 +387,7 @@ public class DeviceListActivity extends BaseActivity {
 
 //                            if (L2_data_state != L2_data_send_config_info && L2_data_length == 0) {
 //                                Message message = new Message();
-//                                message.what = gather_error;
+//                                message.what = GATHER_ERROR;
 //                                message.obj = "获取信息失败";
 //                                mHandler.sendMessage(message);
 //                            }
@@ -431,7 +431,7 @@ public class DeviceListActivity extends BaseActivity {
                 break;
             case L2_data_temp_info:
                 Message message = new Message();
-                message.what = gather_temp_info;
+                message.what = GATHER_TEMP_INFO;
                 message.obj = "获取温湿度信息" + tempList.size() * 100 / tagInfo.getNumber() + "%";
                 mHandler.sendMessage(message);
                 parseTempInfoBytes(bytes);
@@ -453,7 +453,7 @@ public class DeviceListActivity extends BaseActivity {
                         mService.writeRXCharacteristic(getMoreDataInfoSendBytes());
                     } else {
                         Message message = new Message();
-                        message.what = gather_success;
+                        message.what = GATHER_SUCCESS;
                         mHandler.sendMessage(message);
                     }
                     break;
@@ -468,7 +468,7 @@ public class DeviceListActivity extends BaseActivity {
     private void parseConfigInfoBytes(byte[] bytes) {
         if (bytes[0] != 0x01 || bytes[2] != 0x04) {
             Message message = new Message();
-            message.what = gather_error;
+            message.what = GATHER_ERROR;
             message.obj = "解析配置信息错误";
             mHandler.sendMessage(message);
             return;
@@ -517,7 +517,7 @@ public class DeviceListActivity extends BaseActivity {
         tagInfo.setNumber(Helper.Convert2bytesHexaFormatToInt(new byte[]{configBytes[4], configBytes[5]}));
         if (tagInfo.getNumber() == 0) {
             Message message = new Message();
-            message.what = gather_error;
+            message.what = GATHER_ERROR;
             message.obj = "没有记录信息";
             mHandler.sendMessage(message);
             return;
@@ -955,7 +955,7 @@ public class DeviceListActivity extends BaseActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                         Message message = new Message();
-                        message.what = send_config_info_error;
+                        message.what = SEND_CONFIG_INFO_ERROR;
                         message.obj = "发送配置信息失败";
                         mHandler.sendMessage(message);
                     }
@@ -995,7 +995,7 @@ public class DeviceListActivity extends BaseActivity {
         L1_data_length = L1_data.length;
         write_config_info_success = true;
         Message message = new Message();
-        message.what = send_config_info;
+        message.what = SEND_CONFIG_INFO;
         message.obj = "发送配置信息中";
         mHandler.sendMessage(message);
 
@@ -1024,7 +1024,7 @@ public class DeviceListActivity extends BaseActivity {
                 }
 
                 Message message = new Message();
-                message.what = send_config_info_success;
+                message.what = SEND_CONFIG_INFO_SUCCESS;
                 message.obj = "配置成功";
                 mHandler.sendMessage(message);
             }
