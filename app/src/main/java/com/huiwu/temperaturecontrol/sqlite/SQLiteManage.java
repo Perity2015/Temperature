@@ -8,6 +8,7 @@ import com.huiwu.temperaturecontrol.sqlite.bean.RfidGood;
 import com.huiwu.temperaturecontrol.sqlite.bean.TagInfo;
 import com.huiwu.temperaturecontrol.sqlite.dao.DaoSession;
 import com.huiwu.temperaturecontrol.sqlite.dao.GoodsTypeDao;
+import com.huiwu.temperaturecontrol.sqlite.dao.PictureDao;
 import com.huiwu.temperaturecontrol.sqlite.dao.RfidGoodDao;
 import com.huiwu.temperaturecontrol.sqlite.dao.TagInfoDao;
 
@@ -155,5 +156,16 @@ public class SQLiteManage {
         daoSession.getPictureDao().insert(picture);
     }
 
+
+    /**
+     * @param daoSession
+     * @return
+     */
+    public ArrayList<Picture> getNotPostPictures(DaoSession daoSession) {
+        Query query = daoSession.getPictureDao().queryBuilder()
+                .where(PictureDao.Properties.Havepost.eq(false))
+                .build();
+        return (ArrayList<Picture>) query.list();
+    }
 
 }

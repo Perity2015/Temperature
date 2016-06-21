@@ -107,7 +107,7 @@ public class ChooseGoodsFragment extends BaseFragment {
             public boolean onMenuItemClick(MenuItem item) {
                 baseActivity.hideSoftInput();
                 if (gId == -1 && cId == -1) {
-                    Utils.showLongToast("请选择一个商品类型", getContext());
+                    Utils.showLongToast(getString(R.string.please_choose_goods), getContext());
                     return true;
                 }
                 GoodsType goods = allGoods.get(gId)[cId];
@@ -125,7 +125,7 @@ public class ChooseGoodsFragment extends BaseFragment {
         ConnectionUtil.postParams(Constants.GET_PARENT_GOODS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                progressDialog.setMessage("加载信息");
+                progressDialog.setMessage(getString(R.string.load_info_load));
                 progressDialog.show();
             }
 

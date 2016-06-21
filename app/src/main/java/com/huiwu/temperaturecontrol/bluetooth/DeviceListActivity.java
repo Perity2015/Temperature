@@ -330,7 +330,7 @@ public class DeviceListActivity extends BaseActivity {
                                 break;
                             }
                         }
-                        Utils.showLongToast("连接成功", mContext);
+                        Utils.showLongToast(getString(R.string.connected_success), mContext);
                         mState = UART_PROFILE_CONNECTED;
                         break;
                     case BluetoothService.ACTION_GATT_DISCONNECTED:
@@ -341,7 +341,7 @@ public class DeviceListActivity extends BaseActivity {
                         mDevice = null;
                         select_position = -1;
                         deviceAdapter.notifyDataSetChanged();
-                        Utils.showLongToast("断开连接", mContext);
+                        Utils.showLongToast(getString(R.string.disconnect_fail), mContext);
                         mState = UART_PROFILE_DISCONNECTED;
                         mService.close();
                         break;
@@ -363,11 +363,6 @@ public class DeviceListActivity extends BaseActivity {
                         TestLog.d(TAG, Arrays.toString(receiverBytes));
                         if (receiverBytes[0] == (byte) 0xAB && receiverBytes.length == 8) {
                             temp_sequence_id = Helper.Convert2bytesHexaFormatToInt(new byte[]{receiverBytes[6], receiverBytes[7]});
-//                            if (temp_sequence_id != sequence_id && L2_data_state == L2_data_temp_info) {
-//                                sequence_id = temp_sequence_id;
-////                                mService.disconnect();
-////                                return;
-//                            }
                             /**
                              * 用于判断发送指令 返回状态
                              */
@@ -379,18 +374,9 @@ public class DeviceListActivity extends BaseActivity {
                             if (manageStatusBytes[4] != 0x00) {
                                 return;
                             }
-
-
                             L2_data_length = Helper.Convert2bytesHexaFormatToInt(new byte[]{receiverBytes[2], receiverBytes[3]});
                             L2_data_length_received = 0;
                             L2_data = new byte[L2_data_length];
-
-//                            if (L2_data_state != L2_data_send_config_info && L2_data_length == 0) {
-//                                Message message = new Message();
-//                                message.what = GATHER_ERROR;
-//                                message.obj = "获取信息失败";
-//                                mHandler.sendMessage(message);
-//                            }
                         } else {
                             try {
                                 parseAvailableData(receiverBytes);
@@ -432,7 +418,7 @@ public class DeviceListActivity extends BaseActivity {
             case L2_data_temp_info:
                 Message message = new Message();
                 message.what = GATHER_TEMP_INFO;
-                message.obj = "获取温湿度信息" + tempList.size() * 100 / tagInfo.getNumber() + "%";
+                message.obj = String.format(getString(R.string.format_get_data_info), tempList.size() * 100 / tagInfo.getNumber());
                 mHandler.sendMessage(message);
                 parseTempInfoBytes(bytes);
                 break;
@@ -469,7 +455,7 @@ public class DeviceListActivity extends BaseActivity {
         if (bytes[0] != 0x01 || bytes[2] != 0x04) {
             Message message = new Message();
             message.what = GATHER_ERROR;
-            message.obj = "解析配置信息错误";
+            message.obj = getString(R.string.parse_config_info_fail);
             mHandler.sendMessage(message);
             return;
         }
@@ -518,7 +504,7 @@ public class DeviceListActivity extends BaseActivity {
         if (tagInfo.getNumber() == 0) {
             Message message = new Message();
             message.what = GATHER_ERROR;
-            message.obj = "没有记录信息";
+            message.obj = getString(R.string.no_data_info);
             mHandler.sendMessage(message);
             return;
         }
@@ -923,7 +909,7 @@ public class DeviceListActivity extends BaseActivity {
                         return;
                     }
                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(bleTag.getAddress());
-                    progressDialog.setMessage("连接蓝牙设备中……");
+                    progressDialog.setMessage(getString(R.string.connect_ble_load));
                     progressDialog.show();
                     mService.connect(mDevice.getAddress());
                 }
@@ -933,10 +919,10 @@ public class DeviceListActivity extends BaseActivity {
                 @Override
                 public void onClick(View v) {
                     if (!bleTag.isConfig_status()) {
-                        Utils.showLongToast("没有配置信息,无法采集记录", mContext);
+                        Utils.showLongToast(getString(R.string.no_config_info_no_data), mContext);
                         return;
                     }
-                    progressDialog.setMessage("获取配置信息中……");
+                    progressDialog.setMessage(getString(R.string.get_config_info_load));
                     progressDialog.show();
                     mService.writeRXCharacteristic(getConfigInfoSendBytes());
                 }
@@ -946,7 +932,7 @@ public class DeviceListActivity extends BaseActivity {
                 @Override
                 public void onClick(View v) {
                     if (bleTag.isConfig_status() && bleTag.isRecord_status()) {
-                        Utils.showLongToast("已配置,请停止记录后再进行配置", mContext);
+                        Utils.showLongToast(getString(R.string.stop_to_gather), mContext);
                         return;
                     }
 
@@ -956,7 +942,7 @@ public class DeviceListActivity extends BaseActivity {
                         e.printStackTrace();
                         Message message = new Message();
                         message.what = SEND_CONFIG_INFO_ERROR;
-                        message.obj = "发送配置信息失败";
+                        message.obj = getString(R.string.send_config_info_error);
                         mHandler.sendMessage(message);
                     }
                 }
@@ -996,7 +982,7 @@ public class DeviceListActivity extends BaseActivity {
         write_config_info_success = true;
         Message message = new Message();
         message.what = SEND_CONFIG_INFO;
-        message.obj = "发送配置信息中";
+        message.obj = getString(R.string.send_config_info_load);
         mHandler.sendMessage(message);
 
         new Thread() {
@@ -1025,7 +1011,7 @@ public class DeviceListActivity extends BaseActivity {
 
                 Message message = new Message();
                 message.what = SEND_CONFIG_INFO_SUCCESS;
-                message.obj = "配置成功";
+                message.obj = getString(R.string.config_success);
                 mHandler.sendMessage(message);
             }
         }.start();
@@ -1045,7 +1031,7 @@ public class DeviceListActivity extends BaseActivity {
             map.put("lng", String.valueOf(mainApp.bdLocation.getLongitude()));
             map.put("beginaddr", mainApp.bdLocation.getAddress());
         } else {
-            map.put("beginaddr", "未获取定位信息");
+            map.put("beginaddr", getString(R.string.no_location_address));
         }
 
         map.put("goodtype", goods.getParentgoodtype());
@@ -1133,7 +1119,7 @@ public class DeviceListActivity extends BaseActivity {
             map.put("lng", String.valueOf(mainApp.bdLocation.getLongitude()));
             map.put("endaddr", mainApp.bdLocation.getAddress());
         } else {
-            map.put("endaddr", "未获取定位信息");
+            map.put("endaddr", getString(R.string.no_location_address));
         }
         ConnectionUtil.postParams(Constants.UNBIND_TAG_URL, map, new StringConnectionCallBack() {
             @Override

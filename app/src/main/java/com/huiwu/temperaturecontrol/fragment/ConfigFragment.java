@@ -157,11 +157,8 @@ public class ConfigFragment extends ManageFragment {
 
             tagInfo.setGoods(gson.toJson(selectGoods));
 
-            String sampleInfo = "采样间隔：" + selectGoods.getOnetime() + "分钟\r\n";
-            sampleInfo += "温度上限：" + selectGoods.getHightmpnumber() + "℃\r\n";
-            sampleInfo += "温度下限：" + selectGoods.getLowtmpnumber() + "℃\r\n";
-            sampleInfo += "湿度上限：" + selectGoods.getHighhumiditynumber() + "%\r\n";
-            sampleInfo += "湿度下限：" + selectGoods.getLowhumiditynumber() + "%";
+            String sampleInfo = getString(R.string.format_goods_info, selectGoods.getOnetime(), selectGoods.getHightmpnumber(), selectGoods.getLowtmpnumber(), selectGoods.getHighhumiditynumber(), selectGoods.getLowhumiditynumber());
+
             textSampleInfo.setLines(7);
             textSampleInfo.setText(sampleInfo);
 
@@ -180,8 +177,8 @@ public class ConfigFragment extends ManageFragment {
         MyAlertDialog.Builder builder = new MyAlertDialog.Builder(getContext());
         builder.setTitle(getString(R.string.notice));
         builder.setCancelable(false);
-        builder.setMessage("配置成功，是否继续执行下一步？");
-        builder.setPositiveButton("下一步", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.do_success_to_connitue));
+        builder.setPositiveButton(getString(R.string.next_step), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -189,7 +186,7 @@ public class ConfigFragment extends ManageFragment {
                 manageActivity.setSelectFragment(manageActivity.option);
             }
         });
-        builder.setNegativeButton("结束", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.over_step), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

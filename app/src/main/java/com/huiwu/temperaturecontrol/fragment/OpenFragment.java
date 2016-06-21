@@ -104,7 +104,7 @@ public class OpenFragment extends ManageFragment {
         textObject.setText(manageActivity.tempLink.getCarno());
         textSeal.setText(manageActivity.tempLink.getSealrfid());
         if (manageActivity.box.getBoxtype().equals("LOCK")) {
-            textSealTitle.setText("电子锁：");
+            textSealTitle.setText(R.string.e_lock);
         }
 
         mainApp.locationText = textAddress;
@@ -169,7 +169,7 @@ public class OpenFragment extends ManageFragment {
             map.put("lat", String.valueOf(mainApp.bdLocation.getLatitude()));
             map.put("lng", String.valueOf(mainApp.bdLocation.getLongitude()));
         } else {
-            map.put("addr", "未获取定位信息");
+            map.put("addr", getString(R.string.no_location_address));
         }
         map.put("iserror", String.valueOf(checkException.isChecked()));
         map.put("errormsg", textException.getText().toString().trim());

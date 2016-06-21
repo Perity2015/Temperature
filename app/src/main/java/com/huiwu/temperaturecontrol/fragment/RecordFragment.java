@@ -270,7 +270,7 @@ public class RecordFragment extends BaseFragment {
         ConnectionUtil.postParams(Constants.UPLOAD_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                progressDialog.setMessage("上传记录信息中……");
+                progressDialog.setMessage(getString(R.string.upload_info_load));
                 progressDialog.show();
             }
 
@@ -310,7 +310,7 @@ public class RecordFragment extends BaseFragment {
         if (mainApp.bdLocation != null) {
             map.put("address", mainApp.bdLocation.getAddress());
         } else {
-            map.put("address", "为获取定位信息");
+            map.put("address", getString(R.string.no_location_address));
         }
         map.put("dataarray", tagInfo.getDataarray());
         if (!tagInfo.isJustTemp()) {
@@ -328,7 +328,7 @@ public class RecordFragment extends BaseFragment {
         ConnectionUtil.postParams(Constants.UPLOAD_DATA_OFFLINE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                progressDialog.setMessage("上传记录信息中……");
+                progressDialog.setMessage(getString(R.string.upload_info_load));
                 progressDialog.show();
             }
 

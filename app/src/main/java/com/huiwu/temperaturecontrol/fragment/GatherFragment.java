@@ -69,7 +69,7 @@ public class GatherFragment extends BaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        MenuItem menuItem = menu.add("解绑");
+        MenuItem menuItem = menu.add(R.string.unbind);
         menuItem.setIcon(R.drawable.ic_unbind);
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {

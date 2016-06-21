@@ -3,20 +3,26 @@ package com.huiwu.temperaturecontrol.service;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
-import android.os.Bundle;
-import android.text.TextUtils;
+import android.content.SharedPreferences;
+import android.util.Base64;
 
+import com.google.gson.Gson;
 import com.huiwu.model.http.ConnectionUtil;
+import com.huiwu.temperaturecontrol.application.MainApp;
 import com.huiwu.temperaturecontrol.bean.Constants;
+import com.huiwu.temperaturecontrol.bean.JSONModel;
 import com.huiwu.temperaturecontrol.bean.TestLog;
+import com.huiwu.temperaturecontrol.sqlite.SQLiteManage;
+import com.huiwu.temperaturecontrol.sqlite.bean.Picture;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
- * <p/>
+ * <p>
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
@@ -32,6 +38,28 @@ public class SyncService extends IntentService {
 
     public SyncService() {
         super("SyncService");
+    }
+
+    private MainApp mainApp;
+    private Gson gson = new Gson();
+    private SharedPreferences mShared;
+    private JSONModel.UserInfo userInfo;
+    private SQLiteManage sqLiteManage;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        Context context = getApplicationContext();
+        mainApp = (MainApp) getApplication();
+        sqLiteManage = new SQLiteManage(getApplicationContext());
+        mShared = context.getSharedPreferences(Constants.SHARED, MODE_PRIVATE);
+        String user = mShared.getString(Constants.USER_INFO, "{}");
+        try {
+            userInfo = gson.fromJson(new String(Base64.decode(user.getBytes(), Base64.DEFAULT)), JSONModel.UserInfo.class);
+        } catch (Exception e) {
+            userInfo = null;
+        }
     }
 
     /**
@@ -56,11 +84,9 @@ public class SyncService extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startActionSync(Context context, String param1, String param2) {
+    public static void startActionSync(Context context) {
         Intent intent = new Intent(context, SyncService.class);
         intent.setAction(ACTION_SYNC);
-        intent.putExtra(EXTRA_MAP, param1);
-        intent.putExtra(EXTRA_FILE, param2);
         context.startService(intent);
     }
 
@@ -77,9 +103,11 @@ public class SyncService extends IntentService {
                     e.printStackTrace();
                 }
             } else if (ACTION_SYNC.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_MAP);
-                final String param2 = intent.getStringExtra(EXTRA_FILE);
-                handleActionBaz(param1, param2);
+                try {
+                    handleActionSync();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -97,7 +125,35 @@ public class SyncService extends IntentService {
      * Handle action Baz in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionBaz(String param1, String param2) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void handleActionSync() throws Exception {
+        if (userInfo == null) {
+            return;
+        }
+        ArrayList<Picture> pictures = sqLiteManage.getNotPostPictures(mainApp.getDaoSession());
+        if (pictures.size() == 0) {
+            return;
+        }
+        HashMap<String, String> hashMap = new HashMap<>();
+        HashMap<String, File> fileHashMap = new HashMap<>();
+        JSONModel.ReturnObject returnObject;
+
+        for (Picture picture : pictures) {
+            hashMap.clear();
+            fileHashMap.clear();
+
+            hashMap.put("boxno", picture.getBoxno());
+            hashMap.put("linkuuid", picture.getLinkuuid());
+            hashMap.put("sealOropen", picture.getSealOropen());
+
+            File file = new File(picture.getFile());
+            fileHashMap.put("file", file);
+
+            String result = ConnectionUtil.getResponse(Constants.UPLOAD_PICTURE, hashMap, fileHashMap);
+            returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
+            if (returnObject != null) {
+                picture.setHavepost(true);
+                mainApp.getDaoSession().getPictureDao().update(picture);
+            }
+        }
     }
 }

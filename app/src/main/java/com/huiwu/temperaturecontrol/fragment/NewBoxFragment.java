@@ -111,7 +111,7 @@ public class NewBoxFragment extends ManageFragment {
         ConnectionUtil.postParams(Constants.ADD_BOX, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
-                progressDialog.setMessage("提交信息");
+                progressDialog.setMessage(getString(R.string.submit_load));
                 progressDialog.show();
             }
 
@@ -148,8 +148,8 @@ public class NewBoxFragment extends ManageFragment {
         MyAlertDialog.Builder builder = new MyAlertDialog.Builder(getContext());
         builder.setTitle(getString(R.string.notice));
         builder.setCancelable(false);
-        builder.setMessage("操作成功，是否继续执行下一步？");
-        builder.setPositiveButton("下一步", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.do_success_to_connitue));
+        builder.setPositiveButton(getString(R.string.next_step), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -157,7 +157,7 @@ public class NewBoxFragment extends ManageFragment {
                 manageActivity.setSelectFragment(manageActivity.option);
             }
         });
-        builder.setNegativeButton("结束", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.over_step), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

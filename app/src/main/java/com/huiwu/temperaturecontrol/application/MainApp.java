@@ -2,7 +2,10 @@ package com.huiwu.temperaturecontrol.application;
 
 import android.app.Application;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.os.Vibrator;
@@ -18,6 +21,7 @@ import com.amap.api.maps.model.LatLng;
 import com.huiwu.model.utils.CrashHandler;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.nfc.Helper;
+import com.huiwu.temperaturecontrol.service.SyncService;
 import com.huiwu.temperaturecontrol.sqlite.dao.DaoMaster;
 import com.huiwu.temperaturecontrol.sqlite.dao.DaoSession;
 import com.lzy.okhttputils.OkHttpUtils;
@@ -34,6 +38,7 @@ import com.nostra13.universalimageloader.utils.StorageUtils;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.Calendar;
 
 /**
  * Created by HuiWu on 2016/4/11.
@@ -340,6 +345,11 @@ public class MainApp extends Application {
         initImageLoader();
 
         initLocation();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_TIME_TICK);
+        SyncBroadcastReceiver receiver = new SyncBroadcastReceiver();
+        registerReceiver(receiver, filter);
     }
 
     private void setupDatabase() {
@@ -474,4 +484,17 @@ public class MainApp extends Application {
         return converter.convert();
     }
 
+    private class SyncBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_TIME_TICK)) {
+                Calendar calendar = Calendar.getInstance();
+                int minute = calendar.get(Calendar.MINUTE);
+                if (minute % 5 == 0) {
+                    SyncService.startActionSync(context);
+                }
+            }
+        }
+    }
 }

@@ -1,8 +1,10 @@
 package com.huiwu.temperaturecontrol;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -12,9 +14,9 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.JsonObject;
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
@@ -37,6 +39,8 @@ public class LoginActivity extends BaseActivity {
     EditText editPassword;
     @Bind(R.id.btn_login)
     Button btnLogin;
+    @Bind(R.id.image_login)
+    ImageView imageLogin;
 
     private boolean loginAgain;
 
@@ -55,6 +59,13 @@ public class LoginActivity extends BaseActivity {
                     return;
                 }
                 login(username, password);
+            }
+        });
+
+        imageLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showEditDialog();
             }
         });
 
@@ -96,6 +107,22 @@ public class LoginActivity extends BaseActivity {
                 return false;
             }
         });
+    }
+
+    private void showEditDialog() {
+        final EditText editText = new EditText(mContext);
+        editText.setSingleLine();
+        editText.setText("http://10.0.0.200:3664");
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setView(editText);
+        builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String site = editText.getText().toString().trim();
+                Constants.HOST = site;
+            }
+        });
+        builder.show();
     }
 
     private void login(final String username, final String password) {

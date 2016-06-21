@@ -126,7 +126,7 @@ public class HomeFragment extends BaseFragment {
                 }
                 if (TextUtils.equals(ManageActivity.OPTION_NEW_BOX, option)) {
                     if (!baseActivity.userInfo.isHaveAddBox()) {
-                        Utils.showLongToast("无权限添加新箱体", getContext());
+                        Utils.showLongToast(getString(R.string.no_power_to_add_box), getContext());
                         return;
                     }
                 }
