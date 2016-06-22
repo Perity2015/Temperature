@@ -44,13 +44,13 @@ public class Constants {
 
     public static final String PICTURE_FILE = "PICTURE_FILE";
 
-    public static String HOST = "http://hello.yunrfid.com";
+    public static String HOST = "http://www.yunrfid.com";
 
-    public static final String LOGIN_URL = HOST + "/CoreSYS.SYS/LGKeyLogin.ajax";
+    public static final String LOGIN_URL = "/CoreSYS.SYS/LGKeyLogin.ajax";
 
-    public static final String REVISE_URL = HOST + "/CoreSYS.SYS/ChangePwd.ajax";
+    public static final String REVISE_URL = "/CoreSYS.SYS/ChangePwd.ajax";
 
-    public static final String MANAGE_URL = HOST + "/TemperatureTag.BaseTemperatureTag";
+    public static final String MANAGE_URL = "/TemperatureTag.BaseTemperatureTag";
 
     public static final String GET_DATA_URL = MANAGE_URL + "/GetDataOffLine.ajax";
 

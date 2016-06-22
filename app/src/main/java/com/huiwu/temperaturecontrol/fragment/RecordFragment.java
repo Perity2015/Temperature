@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.http.StringConnectionCallBack;
 import com.huiwu.model.utils.Utils;
+import com.huiwu.phoenix.PullToRefreshView;
 import com.huiwu.temperaturecontrol.ChartActivity;
 import com.huiwu.temperaturecontrol.NetRecordsActivity;
 import com.huiwu.temperaturecontrol.R;
@@ -47,8 +48,8 @@ public class RecordFragment extends BaseFragment {
 
     @Bind(R.id.recyclerView_Records)
     RecyclerView recyclerViewRecords;
-    @Bind(R.id.swipeLayout)
-    SwipeRefreshLayout swipeLayout;
+    @Bind(R.id.pullToRefreshView)
+    PullToRefreshView pullToRefreshView;
 
     private LinearLayoutManager mLayoutManager;
 
@@ -97,7 +98,6 @@ public class RecordFragment extends BaseFragment {
                     return;
                 }
                 int position = mLayoutManager.findLastCompletelyVisibleItemPosition();
-                swipeLayout.setEnabled(mLayoutManager.findFirstVisibleItemPosition() == 0);
                 if (position == records.size() - 1) {
                     ArrayList<TagInfo> tagInfos = sqLiteManage.getConfigTagInfos(mainApp.getDaoSession(), index);
                     if (tagInfos.size() < 10) {
@@ -115,11 +115,15 @@ public class RecordFragment extends BaseFragment {
                 }
             }
         });
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        pullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                swipeLayout.setRefreshing(false);
-                initData();
+                pullToRefreshView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        pullToRefreshView.setRefreshing(false);
+                    }
+                }, 2000);
             }
         });
 
@@ -163,8 +167,6 @@ public class RecordFragment extends BaseFragment {
         super.onDestroyView();
         ButterKnife.unbind(this);
     }
-
-
 
     private class TagInfoAdapter extends RecyclerView.Adapter {
 
@@ -267,7 +269,7 @@ public class RecordFragment extends BaseFragment {
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
         map.put("index", String.valueOf(tagInfo.getNumber()));
 
-        ConnectionUtil.postParams(Constants.UPLOAD_DATA_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.UPLOAD_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.upload_info_load));
@@ -325,7 +327,7 @@ public class RecordFragment extends BaseFragment {
         map.put("createtime", Utils.formatDateTimeOffLine(tagInfo.getReadTime()));
 
 
-        ConnectionUtil.postParams(Constants.UPLOAD_DATA_OFFLINE_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.UPLOAD_DATA_OFFLINE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.upload_info_load));

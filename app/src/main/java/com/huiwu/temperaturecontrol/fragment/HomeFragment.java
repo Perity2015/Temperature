@@ -87,7 +87,7 @@ public class HomeFragment extends BaseFragment {
         } else {
             map.put("boxno", qrcode);
         }
-        ConnectionUtil.postParams(Constants.CHECK_BOX_STATUS, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.CHECK_BOX_STATUS, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.check_box_status_load));

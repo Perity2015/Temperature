@@ -174,7 +174,7 @@ public class ChartActivity extends BaseActivity {
     private void getTempLinkInfo(String linkuuid) {
         HashMap<String, String> map = getDefaultMap();
         map.put("linkuuid", linkuuid);
-        ConnectionUtil.postParams(Constants.GET_TEMPERATURE_LINKS_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.GET_TEMPERATURE_LINKS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
 
@@ -518,7 +518,7 @@ public class ChartActivity extends BaseActivity {
         map.put("roundCircle", String.valueOf(tagInfo.getRoundCircle()));
         map.put("index", String.valueOf(tagInfo.getNumber()));
 
-        ConnectionUtil.postParams(Constants.UPLOAD_DATA_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.UPLOAD_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("上传记录信息中……");
@@ -578,7 +578,7 @@ public class ChartActivity extends BaseActivity {
         map.put("createtime", Utils.formatDateTimeOffLine(tagInfo.getReadTime()));
 
 
-        ConnectionUtil.postParams(Constants.UPLOAD_DATA_OFFLINE_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.UPLOAD_DATA_OFFLINE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("上传记录信息中……");

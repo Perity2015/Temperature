@@ -122,7 +122,7 @@ public class ChooseGoodsFragment extends BaseFragment {
 
     private void getParentsGoods() {
         HashMap<String, String> map = baseActivity.getDefaultMap();
-        ConnectionUtil.postParams(Constants.GET_PARENT_GOODS_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.GET_PARENT_GOODS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.load_info_load));
@@ -163,7 +163,7 @@ public class ChooseGoodsFragment extends BaseFragment {
     private void getChildGoods(long id, final int groupPosition) {
         HashMap<String, String> map = baseActivity.getDefaultMap();
         map.put("pid", String.valueOf(id));
-        ConnectionUtil.postParams(Constants.GET_CHILD_GOODS_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.GET_CHILD_GOODS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.show();

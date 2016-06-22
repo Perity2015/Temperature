@@ -147,7 +147,7 @@ public class SealFragment extends ManageFragment {
     private void checkLock(final String rfid) {
         HashMap<String, String> map = manageActivity.getDefaultMap();
         map.put("sealrfid", rfid);
-        ConnectionUtil.postParams(Constants.CHECK_NEW_LOCK, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.CHECK_NEW_LOCK, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("检查电子锁信息");
@@ -232,7 +232,7 @@ public class SealFragment extends ManageFragment {
 //        HashMap<String, File> fileHashMap = new HashMap<>();
 //        File file = new File(Constants.getStoragePath(), picName);
 //        fileHashMap.put("pic", file);
-        ConnectionUtil.postParams(Constants.SEAL_TAG, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.SEAL_TAG, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.submit_load));

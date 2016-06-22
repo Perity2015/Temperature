@@ -18,6 +18,7 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.CoordinateConverter;
 import com.amap.api.maps.model.LatLng;
+import com.huiwu.model.http.ConnectionUtil;
 import com.huiwu.model.utils.CrashHandler;
 import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.nfc.Helper;
@@ -333,8 +334,8 @@ public class MainApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-//        CrashHandler crashHandler = CrashHandler.getInstance(getApplicationContext());
-//        crashHandler.init(getApplicationContext());
+        CrashHandler crashHandler = CrashHandler.getInstance(getApplicationContext());
+        crashHandler.init(getApplicationContext());
 
         mVibrator = (Vibrator) getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
 
@@ -371,6 +372,7 @@ public class MainApp extends Application {
     }
 
     private void initOkHttp() {
+        ConnectionUtil.getInstance().debug(false);
         //必须调用初始化
         OkHttpUtils.init(this);
 //        HttpHeaders headers = new HttpHeaders();

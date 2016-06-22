@@ -583,7 +583,7 @@ public class NfcActivity extends BaseActivity {
         map.put("boxid", String.valueOf(box.getBoxid()));
         map.put("rfid", mainApp.getUid().toUpperCase());
         map.put("createtime", Utils.formatDateTimeOffLine(System.currentTimeMillis()));
-        ConnectionUtil.postParams(Constants.BIND_TAG_OFF_LINE_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.BIND_TAG_OFF_LINE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.config_data_post_load));
@@ -657,7 +657,7 @@ public class NfcActivity extends BaseActivity {
         } else {
             map.put("endaddr", "未获取定位信息");
         }
-        ConnectionUtil.postParams(Constants.UNBIND_TAG_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.UNBIND_TAG_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.unbind_post_load));

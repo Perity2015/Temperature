@@ -70,8 +70,6 @@ public class LoginActivity extends BaseActivity {
         });
 
         loginAgain = getIntent().getBooleanExtra(Constants.LOGIN_AGAIN, false);
-        if (loginAgain)
-            Utils.showLongToast(R.string.please_login_again, mContext);
 
         if (userInfo != null && userInfo.getM_UserInfo() != null) {
             String password = userInfo.getM_UserInfo().getPassword();
@@ -109,10 +107,23 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    private int clickTimes = 0;
+    private long clickTime = 0;
+
     private void showEditDialog() {
+        if (System.currentTimeMillis() - clickTime > 1000) {
+            clickTimes = 1;
+        } else {
+            clickTimes += 1;
+        }
+        clickTime = System.currentTimeMillis();
+        if (clickTimes < 10) {
+            return;
+        }
+        clickTimes = 0;
         final EditText editText = new EditText(mContext);
         editText.setSingleLine();
-        editText.setText("http://10.0.0.200:3664");
+        editText.setText(Constants.HOST);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setView(editText);
         builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
@@ -129,7 +140,7 @@ public class LoginActivity extends BaseActivity {
         HashMap<String, String> map = new HashMap<>();
         map.put("username", username);
         map.put("password", password);
-        ConnectionUtil.postParams(Constants.LOGIN_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.LOGIN_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.login_load));

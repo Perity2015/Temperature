@@ -1,1 +1,1 @@
-include ':app', ':chartlib', ':qrcode', ':model', ':sqlite'
+include ':app', ':chartlib', ':qrcode', ':model', ':sqlite', ':phoenix'

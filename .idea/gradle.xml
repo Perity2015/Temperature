@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/chartlib" />
             <option value="$PROJECT_DIR$/model" />
+            <option value="$PROJECT_DIR$/phoenix" />
             <option value="$PROJECT_DIR$/qrcode" />
             <option value="$PROJECT_DIR$/sqlite" />
           </set>
@@ -22,6 +23,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/chartlib" />
             <option value="$PROJECT_DIR$/model" />
+            <option value="$PROJECT_DIR$/phoenix" />
             <option value="$PROJECT_DIR$/qrcode" />
             <option value="$PROJECT_DIR$/sqlite" />
           </set>

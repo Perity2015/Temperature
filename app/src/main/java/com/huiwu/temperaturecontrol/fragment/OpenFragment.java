@@ -174,7 +174,7 @@ public class OpenFragment extends ManageFragment {
         map.put("iserror", String.valueOf(checkException.isChecked()));
         map.put("errormsg", textException.getText().toString().trim());
         map.put("sealrfid", textSeal.getText().toString());
-        ConnectionUtil.postParams(Constants.OPEN_TAG, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.OPEN_TAG, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.submit_load));

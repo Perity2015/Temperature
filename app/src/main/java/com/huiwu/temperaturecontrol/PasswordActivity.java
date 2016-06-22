@@ -82,7 +82,7 @@ public class PasswordActivity extends BaseActivity {
         final HashMap<String, String> map = getDefaultMap();
         map.put("pwd", oldPassword);
         map.put("newpwd", newPassword);
-        ConnectionUtil.postParams(Constants.REVISE_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.REVISE_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("提交信息中");

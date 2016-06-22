@@ -117,7 +117,7 @@ public class SyncService extends IntentService {
      * parameters.
      */
     private void handleActionNow(HashMap<String, String> map, HashMap<String, File> fileHashMap) throws Exception {
-        String result = ConnectionUtil.getResponse(Constants.UPLOAD_PICTURE, map, fileHashMap);
+        String result = ConnectionUtil.getResponse(Constants.HOST + Constants.UPLOAD_PICTURE, map, fileHashMap);
         TestLog.d("DEBUG", result);
     }
 
@@ -148,7 +148,7 @@ public class SyncService extends IntentService {
             File file = new File(picture.getFile());
             fileHashMap.put("file", file);
 
-            String result = ConnectionUtil.getResponse(Constants.UPLOAD_PICTURE, hashMap, fileHashMap);
+            String result = ConnectionUtil.getResponse(Constants.HOST + Constants.UPLOAD_PICTURE, hashMap, fileHashMap);
             returnObject = gson.fromJson(result, JSONModel.ReturnObject.class);
             if (returnObject != null) {
                 picture.setHavepost(true);

@@ -153,6 +153,7 @@ public class BaseActivity extends AppCompatActivity {
     public void loginAgain() {
         Intent intent = new Intent(mContext, LoginActivity.class);
         intent.putExtra(Constants.LOGIN_AGAIN, true);
+        Utils.showLongToast(R.string.please_login_again, mContext);
         startActivityForResult(intent, REQUEST_LOGIN_AGAIN);
     }
 

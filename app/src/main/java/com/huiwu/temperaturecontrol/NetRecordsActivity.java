@@ -219,7 +219,7 @@ public class NetRecordsActivity extends BaseActivity {
         calendar.set(Calendar.MONTH, seekBarMonth.getProgress() + 1);
         map.put("endtime", DateFormat.format("yyyy-MM-dd kk:mm:ss", calendar).toString());
 
-        ConnectionUtil.postParams(Constants.GET_TEMPERATURE_LINKS_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.GET_TEMPERATURE_LINKS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("加载信息");
@@ -264,7 +264,7 @@ public class NetRecordsActivity extends BaseActivity {
     private void getGatherRecords(final JSONModel.TempLink tempLink) {
         HashMap<String, String> map = getDefaultMap();
         map.put("linkuuid", tempLink.getLinkuuid());
-        ConnectionUtil.postParams(Constants.GET_GATHER_TEMPERATURE_RECORDS_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.GET_GATHER_TEMPERATURE_RECORDS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.show();
@@ -305,7 +305,7 @@ public class NetRecordsActivity extends BaseActivity {
             map.put("cntuuid", cntuuid);
         }
         map.put("linkuuid", tempLink.getLinkuuid());
-        ConnectionUtil.postParams(Constants.GET_GATHER_TEMPERATURE_DATA_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.GET_GATHER_TEMPERATURE_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.show();

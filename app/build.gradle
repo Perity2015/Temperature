@@ -40,10 +40,6 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile project(':chartlib')
-    compile project(':qrcode')
-    compile project(':model')
-
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.google.code.gson:gson:2.2.4'
@@ -54,4 +50,8 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.lzy.net:okhttputils:1.5.2'
     compile 'com.lzy.net:okhttpserver:0.1.7'
+    compile project(':chartlib')
+    compile project(':phoenix')
+    compile project(':model')
+    compile project(':qrcode')
 }

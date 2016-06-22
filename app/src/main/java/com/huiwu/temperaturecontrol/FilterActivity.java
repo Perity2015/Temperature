@@ -49,7 +49,7 @@ public class FilterActivity extends BaseActivity {
     private void initData() {
         HashMap<String, String> map = getDefaultMap();
         map.put("companyid", userInfo.getMessage().getCompanyid());
-        ConnectionUtil.postParams(Constants.GET_DATA_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.GET_DATA_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage("加载数据");

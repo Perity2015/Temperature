@@ -146,7 +146,7 @@ public class ChooseObjectFragment extends BaseFragment {
 
     private void getAllObjects() {
         HashMap<String, String> map = baseActivity.getDefaultMap();
-        ConnectionUtil.postParams(Constants.GET_ALL_OBJECTS_URL, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.GET_ALL_OBJECTS_URL, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
 

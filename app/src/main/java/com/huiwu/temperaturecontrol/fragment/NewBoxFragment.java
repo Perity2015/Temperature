@@ -108,7 +108,7 @@ public class NewBoxFragment extends ManageFragment {
         map.put("companyid", String.valueOf(userInfo.getMessage().getCompanyid()));
         map.put("orgna_id", String.valueOf(userInfo.getMessage().getOrgna_id()));
         map.put("boxtype", sealStatus[spinnerSealStatus.getSelectedItemPosition()]);
-        ConnectionUtil.postParams(Constants.ADD_BOX, map, new StringConnectionCallBack() {
+        ConnectionUtil.postParams(Constants.HOST + Constants.ADD_BOX, map, new StringConnectionCallBack() {
             @Override
             public void sendStart(BaseRequest baseRequest) {
                 progressDialog.setMessage(getString(R.string.submit_load));
