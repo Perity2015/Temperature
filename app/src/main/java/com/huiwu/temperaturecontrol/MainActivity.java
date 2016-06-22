@@ -11,6 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.huiwu.model.utils.UpdateManage;
+import com.huiwu.temperaturecontrol.bean.Constants;
 import com.huiwu.temperaturecontrol.fragment.GatherFragment;
 import com.huiwu.temperaturecontrol.fragment.HomeFragment;
 import com.huiwu.temperaturecontrol.fragment.RecordFragment;
@@ -126,6 +128,9 @@ public class MainActivity extends BaseActivity {
         });
 
         radioGroup.check(R.id.radio_home);
+
+        UpdateManage updateManage = new UpdateManage(mContext, progressDialog, false);
+        updateManage.checkVersion(Constants.APP_NAME);
 
     }
 
