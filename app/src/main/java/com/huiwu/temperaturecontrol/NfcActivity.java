@@ -727,6 +727,7 @@ public class NfcActivity extends BaseActivity {
      * @return
      */
     private boolean writeNewKey(TagUtil mTagUtil, Intent intent, String newKey) {
+        Utils.saveRecordToFile(NfcActivity.class.getSimpleName(), mainApp.getUid() + "\n" + "Write" + newKey + "\n\n");
         boolean b;
         byte[] keyBytes = string2Bytes(newKey, 16);
         byte[] writeBytes = new byte[4];
@@ -759,6 +760,7 @@ public class NfcActivity extends BaseActivity {
         writeBytes[2] = keyBytes[9];
         writeBytes[3] = keyBytes[8];
         b = mTagUtil.writeTag(intent, (byte) 248, writeBytes, false);
+        Utils.saveRecordToFile(NfcActivity.class.getSimpleName(), mainApp.getUid() + "\n" + "Write" + b + "\n\n");
         return b;
     }
 

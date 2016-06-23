@@ -103,7 +103,7 @@ public class OpenFragment extends ManageFragment {
         textGoods.setText(manageActivity.tempLink.getGoodtype() + "  " + manageActivity.tempLink.getGoodchildtype());
         textObject.setText(manageActivity.tempLink.getCarno());
         textSeal.setText(manageActivity.tempLink.getSealrfid());
-        if (manageActivity.box.getBoxtype().equals("LOCK")) {
+        if (manageActivity.box.getBoxtype().toUpperCase().equals("LOCK")) {
             textSealTitle.setText(R.string.e_lock);
         }
 
@@ -212,7 +212,7 @@ public class OpenFragment extends ManageFragment {
                 SyncService.startActionNow(getContext(), hashMap, fileHashMap);
 
 
-                if (manageActivity.box.getBoxtype().equals("LOCK")) {
+                if (manageActivity.box.getBoxtype().toUpperCase().equals("LOCK")) {
                     JSONModel.Lock lock = gson.fromJson(returnObject.getM_ReturnOBJJsonObject(), JSONModel.Lock.class);
                     Intent intent = new Intent(getContext(), NfcActivity.class);
                     intent.putExtra(NfcActivity.COMMAND_PARAM, NfcActivity.NFC_OPEN);

@@ -100,7 +100,7 @@ public class SealFragment extends ManageFragment {
         textGoods.setText(manageActivity.tempLink.getGoodtype() + "  " + manageActivity.tempLink.getGoodchildtype());
         textObject.setText(manageActivity.tempLink.getCarno());
         textBoxNo.setText(manageActivity.box.getBoxno());
-        if (manageActivity.box.getBoxtype().equals("LOCK")) {
+        if (manageActivity.box.getBoxtype().toUpperCase().equals("LOCK")) {
             textSealTitle.setText("电子锁：");
         }
         mainApp.locationText = textAddress;
@@ -111,7 +111,7 @@ public class SealFragment extends ManageFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_READ_UID && resultCode == Activity.RESULT_OK) {
             rfid = data.getStringExtra(Constants.READ_UID);
-            if (!manageActivity.box.getBoxtype().equals("LOCK")) {
+            if (!manageActivity.box.getBoxtype().toUpperCase().equals("LOCK")) {
                 textSeal.setText(rfid);
                 return;
             }

@@ -330,7 +330,7 @@ public class ChartActivity extends BaseActivity {
         data = getData();
 
         YAxis leftAxis = lineChart.getAxisLeft();
-        leftAxis.setTextColor(Color.parseColor("#EBD7A3"));
+        leftAxis.setTextColor(Color.parseColor("#B98504"));
         leftAxis.setTextSize(12);
         leftAxis.setDrawGridLines(true);
         leftAxis.setDrawTopYLabelEntry(true);
