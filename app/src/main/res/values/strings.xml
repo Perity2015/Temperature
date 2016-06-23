@@ -49,7 +49,7 @@
     <string name="continue_load_data">加载记录</string>
     <string name="text_goods">商品类型：</string>
     <string name="change_password">&#160;&#160;修改密码</string>
-    <string name="check_update">&#160;&#160;检查更新(3.00)</string>
+    <string name="check_update">&#160;&#160;检查更新(3.01)</string>
     <string name="sign_out">退出登录</string>
     <string name="title_activity_password">密码修改</string>
     <string name="old_password">旧&#160;&#160;密&#160;&#160;码：</string>
